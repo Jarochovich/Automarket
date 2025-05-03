@@ -1,0 +1,370 @@
+﻿<Window x:Class="AutoMarket.View.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoMarket"
+        xmlns:vm="clr-namespace:AutoMarket.ViewModel"
+        xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
+        mc:Ignorable="d"
+        WindowState="Maximized"
+        Title="MainView" Height="500" Width="1200">
+
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <!--CustomFont-->
+        <Style x:Key="CustomFont">
+            <Setter Property="TextElement.FontFamily" Value="/Fonts/#Roboto" />
+        </Style>
+
+        <!--SidebarButtonStyle-->
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="#EEEEEE"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                         BorderBrush="{TemplateBinding BorderBrush}" 
+                         BorderThickness="{TemplateBinding BorderThickness}"
+                         CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#D0D7FF"/>
+                    <Setter Property="BorderBrush" Value="#5946D7"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!--cart-Products-->
+        <DataTemplate x:Key="ProductTemplate">
+            <Border BorderThickness="1" BorderBrush="Gray" Margin="5">
+                <StackPanel>
+                    <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                    <TextBlock Text="{Binding Price, StringFormat=C}" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="5.5*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.3*"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="0.3*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <!--Header-->
+        <Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Fill="DarkBlue"></Rectangle>
+        <!--logo-->
+        <WrapPanel Grid.Row="0" Grid.Column="0"  VerticalAlignment="Center" HorizontalAlignment="Left">
+            <svg:SvgViewbox Width="100" Height="60" Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\Logo.svg"/>
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" FontWeight="Bold" Foreground="#5946D7"  Content="Awdos.by" />
+        </WrapPanel>
+        <!--search-->
+        <WrapPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBox Width="500px" Height="50px" Padding="15 10 15 10" Margin="10 0" FontSize="16" x:Name="name" >
+                
+              
+            </TextBox>
+            
+
+              
+            
+
+
+            <svg:SvgViewbox Width="30" Height="30" Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\Search.svg"/>
+        </WrapPanel>
+        <!--actions-->
+        <WrapPanel Grid.Row="0" Grid.Column="2" Margin="0 10" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <svg:SvgViewbox Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\Location.svg" Height="30" Width="60" />
+            <svg:SvgViewbox Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\Phone.svg" Height="30" Width="60" />
+            <Button Style="{StaticResource SidebarButtonStyle}" Click="Button_Click">
+                <svg:SvgViewbox Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\login.svg" Height="30" Width="60" Cursor="Hand"/>
+            </Button>
+            
+
+
+        </WrapPanel>
+
+
+        <!-- Sidebar -->
+        <ScrollViewer Grid.Row="1" Grid.Column="0">
+            <StackPanel Orientation="Vertical" Background="#2C29331A">
+
+                <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowLightsCommand}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Light.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0"/>
+
+                        <TextBlock Text="Автосвет"
+ 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+                <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowBatteriesCommand}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Accumulator.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0"/>
+
+                        <TextBlock Text="Аккумуляторы" 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+                <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowBodyPartsCommand}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Dveri.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0"/>
+
+                        <TextBlock Text="Кузовные детали" 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+                <Button Style="{StaticResource SidebarButtonStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Glass.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0"/>
+
+                        <TextBlock Text="Автостекла" 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+                <Button Style="{StaticResource SidebarButtonStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Disk.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0"/>
+
+                        <TextBlock Text="Диски" 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+                <Button Style="{StaticResource SidebarButtonStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Oil.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0"/>
+
+                        <TextBlock Text="Автохимия" 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+                <Button Style="{StaticResource SidebarButtonStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Remen.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0"/>
+
+                        <TextBlock Text="Для ТО" 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+                <Button Style="{StaticResource SidebarButtonStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Engine.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0"/>
+
+                        <TextBlock Text="БУ запчасти" 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+                <Button Style="{StaticResource SidebarButtonStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Wheel.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0" Cursor=""/>
+
+                        <TextBlock Text="Шины" 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+                <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ShowAllProductCommand}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <svg:SvgViewbox 
+                        Source="C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\AutoMarket\AM_APP\AM_APP\Pages\detail\Wheel.svg"
+                        Height="30" Width="30" 
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Grid.Column="0" Cursor=""/>
+
+                        <TextBlock Text="Все товары" 
+                        VerticalAlignment="Center" 
+                        FontSize="16" 
+                        Style="{StaticResource CustomFont}" 
+                        Margin="10,0,0,0"
+                        Grid.Column="1"/>
+                    </Grid>
+                </Button>
+
+            </StackPanel>
+        </ScrollViewer>
+
+
+        <!--MainContent-->
+        <ScrollViewer Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">
+            <ItemsControl ItemsSource="{Binding Products}" ItemTemplate="{StaticResource ProductTemplate}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <!-- Чтобы элементы не растягивались, задаём стиль для ItemContainer -->
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Margin" Value="10"/>
+                        <Setter Property="Width" Value="220"/>
+                        <!-- ширина карточки -->
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+        </ScrollViewer>
+
+
+
+    </Grid>
+</Window>

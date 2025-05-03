@@ -1,0 +1,30 @@
+﻿<Window x:Class="AutoMarket.View.EditUserView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoMarket.View"
+        mc:Ignorable="d"
+        Title="EditUserView" Height="450" Width="800"
+        Name="EditUserWindow">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" HorizontalAlignment="Center"
+                 VerticalAlignment="Center" Orientation="Vertical"
+                 Width="200">
+            <TextBlock Text="New Login"></TextBlock>
+            <TextBox Text="{Binding UserName}"></TextBox>
+            <TextBlock Text="New Password"></TextBlock>
+            <TextBox Text="{Binding UserPassword}"></TextBox>
+            <TextBlock Text="Money"></TextBlock>
+            <TextBox Text="{Binding UserMoney}"></TextBox>
+
+        </StackPanel>
+        <Button Grid.Row="1"
+                Command="{Binding EditUser}"
+                CommandParameter="{Binding ElementName=EditUserWindow}">Edit User</Button>
+    </Grid>
+</Window>

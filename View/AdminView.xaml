@@ -1,0 +1,102 @@
+﻿<Window x:Class="AutoMarket.View.AdminView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoMarket.View"
+        mc:Ignorable="d"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="AdminView" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <TabControl Grid.Row="0" 
+                    SelectedItem="{Binding SelectedTabItem}">
+            <TabItem Name="UsersTab">
+                <TabItem.Header>
+                    <TextBlock Text="Users"/>
+                </TabItem.Header>
+                <TabItem.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
+                        <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                    </ContextMenu>
+                </TabItem.ContextMenu>
+                <ListView Name="ViewAllUsers" 
+                          ItemsSource="{Binding AllUsers}"
+                          SelectedItem="{Binding SelectedUser}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Login" DisplayMemberBinding="{Binding Path=Login}" />
+                            <GridViewColumn Header="Password" DisplayMemberBinding="{Binding Path=Password}"/>
+                            <GridViewColumn Header="Money" DisplayMemberBinding="{Binding Path=Money}"/>
+                            <GridViewColumn Header="IsAdmin" DisplayMemberBinding="{Binding Path=IsAdmin}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+
+            <TabItem Name="ProductsTab">
+                <TabItem.Header>
+                    <TextBlock Text="Product"/>
+                </TabItem.Header>
+                <TabItem.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
+                        <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                    </ContextMenu>
+                </TabItem.ContextMenu>
+                <ListView Name="ViewAllProducts" 
+                          ItemsSource="{Binding AllProducts}"
+                          SelectedItem="{Binding SelectedProduct}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Path=CategoryId}"/>
+                            <GridViewColumn Header="Product" DisplayMemberBinding="{Binding Path=Name}"/>
+                            <GridViewColumn Header="Price" DisplayMemberBinding="{Binding Path=Price}"/>
+                            <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Path=Description}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+
+            <TabItem Name="CategoriesTab">
+                <TabItem.Header>
+                    <TextBlock Text="Categorys"/>
+                </TabItem.Header>
+                <TabItem.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
+                        <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                    </ContextMenu>
+                </TabItem.ContextMenu>
+                <ListView Name="ViewAllCategories" 
+                          ItemsSource="{Binding AllCategories}"
+                          SelectedItem="{Binding SelectedCategory}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="CategoryId" DisplayMemberBinding="{Binding Path=Id}"/>
+                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Path=Name}"/>
+                            <GridViewColumn Header="MinPrice"  DisplayMemberBinding="{Binding Path=MinPrice}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+
+        </TabControl>
+
+        <StackPanel Grid.Row="1" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right">
+            <Button Content="Добавить новую категорию" Command="{Binding OpenAddNewCategory}" />
+            <Button Content="Добавить новый продукт" Command="{Binding OpenAddNewProduct}"/>
+            <Button Content="Добавить нового пользователя" Command="{Binding OpenAddNewUser}"/>
+        </StackPanel>
+ 
+
+        
+    </Grid>
+</Window>
