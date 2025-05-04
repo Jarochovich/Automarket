@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoMarket.View"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="AdminView" Height="450" Width="800">
     <Grid>
@@ -30,10 +31,10 @@
                           SelectedItem="{Binding SelectedUser}">
                     <ListView.View>
                         <GridView>
+                            <GridViewColumn Header="Id" DisplayMemberBinding="{Binding Path=Id}" />
                             <GridViewColumn Header="Login" DisplayMemberBinding="{Binding Path=Login}" />
-                            <GridViewColumn Header="Password" DisplayMemberBinding="{Binding Path=Password}"/>
-                            <GridViewColumn Header="Money" DisplayMemberBinding="{Binding Path=Money}"/>
-                            <GridViewColumn Header="IsAdmin" DisplayMemberBinding="{Binding Path=IsAdmin}"/>
+                            <GridViewColumn Header="Password" DisplayMemberBinding="{Binding Path=PasswordHash}"/>
+                            <GridViewColumn Header="PhoneNumber" DisplayMemberBinding="{Binding Path=PhoneNumber}"/>
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -80,7 +81,7 @@
                         <GridView>
                             <GridViewColumn Header="CategoryId" DisplayMemberBinding="{Binding Path=Id}"/>
                             <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Path=Name}"/>
-                            <GridViewColumn Header="MinPrice"  DisplayMemberBinding="{Binding Path=MinPrice}"/>
+                 
                         </GridView>
                     </ListView.View>
                 </ListView>

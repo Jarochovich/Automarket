@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMarket.Model.Data;
 using System.Linq;
+using AutoMarket.Helpers;
 
 namespace AutoMarket.Model
 {
@@ -38,6 +39,38 @@ namespace AutoMarket.Model
                 var results = db.Users.ToList();
                 return results;
             }
+        }
+
+        // проверка на администратора
+        public static bool IsAdmin(string login, string password)
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                var user = db.Users.FirstOrDefault(u => u.Login == login);
+                if (user != null)
+                {
+                    // Сравниваем хеш пароля
+                    string hashedPassword = Hashing.HashPassword(password, user.PasswordSalt); // Сначала добавляем соль к паролю
+                    if (user.PasswordHash == hashedPassword)
+                    {
+                        // Если логин совпадает с администраторским
+                        return login == "admin"; // Можно добавить более гибкую логику, если нужно
+                    }
+                }
+            }
+            return false;
+        }
+
+        // получить конкретного пользователя
+        public static bool GetUser(string login, string password)
+        {
+            using var db = new ApplicationContext();
+
+            var user = db.Users.FirstOrDefault(u => u.Login == login);
+            if (user == null) return false;
+
+            string hash = Hashing.HashPassword(password, user.PasswordSalt);
+            return hash == user.PasswordHash;
         }
 
         // создать категорию
@@ -79,22 +112,26 @@ namespace AutoMarket.Model
         }
 
         // добавить пользователя
-        public static string CreateUser(string login, string password, decimal money)
+        public static bool CreateUser(string login, string password, string phone)
         {
-            string result = "Такой пользователь уже существует";
-            using (ApplicationContext db = new ApplicationContext())
+            using var db = new ApplicationContext();
+
+            if (db.Users.Any(u => u.Login == login)) return false;
+
+            string salt = Hashing.GenerateSalt();
+            string hash = Hashing.HashPassword(password, salt);
+
+            var user = new User
             {
-                // проверка на существование
-                bool checkIsExist = db.Users.Any(el => el.Login == login && el.Password == password);
-                if (!checkIsExist)
-                {
-                    User newUser = new User { Login = login, Password = password, Money = money };
-                    db.Users.Add(newUser);
-                    db.SaveChanges();
-                    result = "Пользователь добавлен!";
-                }
-                return result;
-            }
+                Login = login,
+                PasswordSalt = salt,
+                PasswordHash = hash,
+                PhoneNumber = phone
+            };
+
+            db.Users.Add(user);
+            db.SaveChanges();
+            return true;
         }
 
         // удалить категорию
@@ -179,7 +216,7 @@ namespace AutoMarket.Model
         }
 
         // изменить пользователя
-        public static string EditUser(User oldUser, string newLogin, string newPassword, decimal newMoney)
+        public static string EditUser(User oldUser, string newLogin, string newPassword, string newPhone)
         {
             string result = "Такого пользователя нет!";
 
@@ -188,9 +225,21 @@ namespace AutoMarket.Model
                 User user = db.Users.FirstOrDefault(us => us.Id == oldUser.Id);
                 if (user != null)
                 {
+                    // Обновляем логин и телефон
                     user.Login = newLogin;
-                    user.Password = newPassword;
-                    user.Money = newMoney;
+                    user.PhoneNumber = newPhone;
+
+                    // Если пароль изменился, хешируем его и сохраняем в базу
+                    if (!string.IsNullOrWhiteSpace(newPassword))
+                    {
+                        // Генерация новой соли и хеша пароля
+                        var salt = Hashing.GenerateSalt();
+                        var passwordHash = Hashing.HashPassword(newPassword, salt);
+
+                        user.PasswordHash = passwordHash;
+                        user.PasswordSalt = salt;
+                    }
+
                     db.SaveChanges();
                     result = $"Пользователь {oldUser.Login} успешно изменен!";
                 }

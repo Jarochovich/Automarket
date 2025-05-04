@@ -10,7 +10,7 @@ namespace AutoMarket.ViewModel
         // Обработчики событий
         private void OpenProfile(object sender, MouseButtonEventArgs e)
         {
-            AuthorizationView profileWindow = new AuthorizationView(); // Создание нового окна
+            RegistrationView profileWindow = new RegistrationView(); // Создание нового окна
             profileWindow.Show(); // Открытие нового окна
         }
     }

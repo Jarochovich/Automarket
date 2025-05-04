@@ -62,7 +62,7 @@ namespace AutoMarket.ViewModel
         // пользователи
         public static string UserLogin { get; set; }
         public static string UserPassword { get; set; }
-        public static decimal UserPhoneNumber { get; set; }
+        public static int UserPhoneNumber { get; set; }
 
         // свойства для выделенных элементов
         public TabItem SelectedTabItem { get; set; }
@@ -71,31 +71,6 @@ namespace AutoMarket.ViewModel
         public static Product SelectedProduct { get; set; }
 
         #region COMMANDS_TO_EDIT
-        private RelayCommand editUser { get; set; }
-        public RelayCommand EditUser
-        {
-            get
-            {
-                return editUser ?? new RelayCommand(obj =>
-                {
-                    Window window = obj as Window;
-                    string resultStr = "Не выбран пользователь";
-                    if (SelectedUser != null)
-                    {
-                        resultStr = DataWorker.EditUser(SelectedUser, UserLogin, UserPassword, UserPhoneNumber);
-                        UpdateAllDataView();
-                        SetNullValuesToProperties();
-                        ShowMessageToUser(resultStr);
-                        window.Close();
-                    }
-                    else
-                    {
-                        ShowMessageToUser(resultStr);
-                    }
-                });
-            }
-        }
-
         private RelayCommand editProduct { get; set; }
         public RelayCommand EditProduct
         {
@@ -122,59 +97,11 @@ namespace AutoMarket.ViewModel
             }
         }
 
-        private RelayCommand editCategory { get; set; }
-        public RelayCommand EditCategory
-        {
-            get
-            {
-                return editCategory ?? new RelayCommand(obj =>
-                {
-                    Window window = obj as Window;
-                    string resultStr = "Не выбрана категория";
-                    if (SelectedProduct != null)
-                    {
-                        resultStr = DataWorker.EditCategory(SelectedCategory, CategoryName);
-                        UpdateAllDataView();
-                        SetNullValuesToProperties();
-                        ShowMessageToUser(resultStr);
-                        window.Close();
-                    }
-                    else
-                    {
-                        ShowMessageToUser(resultStr);
-                    }
-                }
-                );
-            }
-        }
+      
         #endregion
 
         #region COMMANDS_TO_ADD
 
-        private RelayCommand addNewCategory { get; set; }
-        public RelayCommand AddNewCategory
-        {
-            get
-            {
-                return addNewCategory ?? new RelayCommand((obj) =>
-                {
-                    Window window = obj as Window;
-                    string resultStr = "";
-                    if (CategoryName == null || CategoryName.Replace(" ", "").Length == 0)
-                    {
-                        SetRedBlockControll(window, "CategoryTextBox");
-                    }
-                    else
-                    {
-                        resultStr = DataWorker.CreateCategory(CategoryName);
-                        UpdateAllDataView();
-                        ShowMessageToUser(resultStr);
-                        SetNullValuesToProperties();
-                        window.Close();
-                    }
-                });
-            }  
-        }
 
         private RelayCommand addNewProduct { get; set; }
         public RelayCommand AddNewProduct
@@ -213,47 +140,6 @@ namespace AutoMarket.ViewModel
             }
         }
 
-        private RelayCommand addNewUser { get; set; }
-        public RelayCommand AddNewUser
-        {
-            get
-            {
-                return addNewUser ?? new RelayCommand((obj) =>
-                {
-                    Regex regex = new Regex("^(?=.+[A-Za-z])(?=.+\\d)(?=.+[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,}$");
-                    Window window = obj as Window;
-                    string resultStr = "";
-                    if (UserIsAdmin == null)
-                    {
-                        MessageBox.Show("Укажите тип пользователя");
-                    }
-                    if (UserLogin == null || UserLogin.Replace(" ", "").Length == 0)
-                    {
-                        SetRedBlockControll(window, "NameUser");
-                    }
-                    if (UserPassword == null || UserPassword.Replace(" ", "").Length == 0)
-                    {
-                        SetRedBlockControll(window, "NameUser");
-                    }
-                    if (regex.IsMatch(UserPassword))
-                    {
-                        MessageBox.Show("Все окей броооо");
-                    }
-                    if (UserPhoneNumber == 0)
-                    {
-                        SetRedBlockControll(window, "MoneyUser");
-                    }
-                    else
-                    {
-                        resultStr = DataWorker.CreateUser(UserLogin, UserPassword, UserPhoneNumber);
-                        UpdateAllDataView();
-                        ShowMessageToUser(resultStr);
-                        SetNullValuesToProperties();
-                        window.Close();
-                    }
-                });
-            }
-        }
         #endregion
 
         #region COMMANDS_TO_DELETE
@@ -294,17 +180,6 @@ namespace AutoMarket.ViewModel
 
 
         #region COMMANDS_OPEN_WINDOWS
-        // команда для открытия окна категории
-        private RelayCommand openAddNewCategory;
-        public RelayCommand OpenAddNewCategory
-        {
-            get {
-                return openAddNewCategory ?? new RelayCommand(obj =>
-                {
-                    OpenAddCategoryWindow();
-                });
-            }
-        }
 
         // команда для открытия окна продукта
         private RelayCommand openAddNewProduct;
@@ -319,18 +194,6 @@ namespace AutoMarket.ViewModel
             }
         }
 
-        // команда для открытия окна пользователей
-        private RelayCommand openAddNewUser;
-        public RelayCommand OpenAddNewUser
-        {
-            get
-            {
-                return openAddNewUser ?? new RelayCommand(obj =>
-                {
-                    OpenAddUserWindow();
-                });
-            }
-        }
 
         // команда для редактирования элемента
         private RelayCommand openEditItem;
@@ -340,21 +203,11 @@ namespace AutoMarket.ViewModel
             {
                 return openEditItem ?? new RelayCommand(obj =>
                 {
-                    // удаление пользователь
-                    if (SelectedTabItem.Name == "UsersTab" && SelectedUser != null)
-                    {
-                        OpenEditUserWindow(SelectedUser);
-                        
-                    }
+                   
                     // удаление продукт
                     if (SelectedTabItem.Name == "ProductsTab" && SelectedProduct != null)
                     {
                         OpenEditProductWindow(SelectedProduct);
-                    }
-                    // удаление категория
-                    if (SelectedTabItem.Name == "CategoriesTab" && SelectedCategory != null)
-                    {
-                        OpenEditCategoryWindow(SelectedCategory);
                     }
 
                     SetNullValuesToProperties();
@@ -367,11 +220,6 @@ namespace AutoMarket.ViewModel
         #region METHODS_OPEN_WINDOW
         // методы открытия окон
         // добавление
-        private void OpenAddCategoryWindow()
-        {
-            AddNewCategoryView addCategoryWindow = new AddNewCategoryView();
-            SetCenterPositionAndOpen(addCategoryWindow);
-        }
 
         private void OpenAddProductWindow()
         {
@@ -379,29 +227,10 @@ namespace AutoMarket.ViewModel
             SetCenterPositionAndOpen(addProductWindow);
         }
 
-        private void OpenAddUserWindow()
-        {
-            AddNewUserView addUserWindow = new AddNewUserView();
-            SetCenterPositionAndOpen(addUserWindow);
-        }
-
-        // редактирование 
-        private void OpenEditCategoryWindow(Category category)
-        {
-            EditCategoryView editCategoryWindow = new EditCategoryView(category);
-            SetCenterPositionAndOpen(editCategoryWindow);
-        }
-
         private void OpenEditProductWindow(Product product)
         {
             EditProductView editProductWindow = new EditProductView(product);
             SetCenterPositionAndOpen(editProductWindow);
-        }
-
-        private void OpenEditUserWindow(User user)
-        {
-            EditUserView editUserWindow = new EditUserView(user);
-            SetCenterPositionAndOpen(editUserWindow);
         }
 
 

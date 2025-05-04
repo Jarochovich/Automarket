@@ -1,4 +1,5 @@
 ﻿using AutoMarket.View;
+using AutoMarket.ViewModel;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Text;
@@ -29,7 +30,7 @@ namespace AutoMarket.View
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            AuthorizationView authorizationView = new AuthorizationView();
+            RegistrationView authorizationView = new RegistrationView();
             authorizationView.Show();
         }
     }

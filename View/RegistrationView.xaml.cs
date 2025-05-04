@@ -16,28 +16,37 @@ using System.Windows.Shapes;
 namespace AutoMarket.View
 {
     /// <summary>
-    /// Логика взаимодействия для AuthorizationView.xaml
+    /// Логика взаимодействия для RegistrationView.xaml
     /// </summary>
-    public partial class AuthorizationView : Window
+    public partial class RegistrationView : Window
     {
-        public AuthorizationView()
+        public RegistrationView()
         {
             InitializeComponent();
-            DataContext = new AuthorizationViewModel();
+            var vm = new RegistrationViewModel();
+            vm.CloseAction = new Action(() => this.Close());
+            this.DataContext = vm;
+
+            if (DataContext is RegistrationViewModel viewModel)
+            {
+                viewModel.FirstPassBox = FirstPassBox;
+                viewModel.SecondPassBox = SecondPassBox;
+            }
         }
 
-        private AuthorizationViewModel ViewModel => (AuthorizationViewModel)DataContext;
+        private RegistrationViewModel ViewModel => (RegistrationViewModel)DataContext;
 
         private void FirstPassBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             if (DataContext != null)
                 ViewModel.Password = ((PasswordBox)sender).Password;
         }
-
+        
         private void SecondPassBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             if (DataContext != null)
                 ViewModel.ConfirmPassword = ((PasswordBox)sender).Password;
         }
     }
-}
+ }
+        

@@ -7,16 +7,20 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace AutoMarket.ViewModel
 {
-    public class AuthorizationViewModel : INotifyPropertyChanged, IDataErrorInfo
+    public class RegistrationViewModel : INotifyPropertyChanged, IDataErrorInfo
     {
         private string _login;
         private string _password;
         private string _confirmPassword;
         private string _phoneNumber;
+
+        public PasswordBox FirstPassBox { get; set; }
+        public PasswordBox SecondPassBox { get; set; }
 
         private bool _isFormTouched;  // Флаг для отслеживания взаимодействия с полями
 
@@ -65,20 +69,36 @@ namespace AutoMarket.ViewModel
         }
 
         public ICommand RegisterCommand { get; }
+        public ICommand ShowAuthCommand { get; }
+        public Action CloseAction { get; set; } // делегат для закрытия окна
 
-        public AuthorizationViewModel()
+        public RegistrationViewModel()
         {
             RegisterCommand = new RelayCommand(param => OnRegister(), (parameter) => CanRegister());
+            ShowAuthCommand = new RelayCommand(param => ShowLoginWindow());
+        }
+
+
+        private void ShowLoginWindow()
+        {
+            var registerWindow = new AutorizationView();
+            registerWindow.Show();
+
+            CloseAction?.Invoke(); // Закрытие текущего окна
         }
 
         // Проверка, может ли быть выполнена регистрация
         private bool CanRegister()
         {
-            return _isFormTouched && !HasValidationErrors();
+            return !string.IsNullOrWhiteSpace(Login) &&
+           !string.IsNullOrWhiteSpace(Password) &&
+           Password == ConfirmPassword && 
+           !string.IsNullOrEmpty(PhoneNumber) &&// Проверяем, что пароли совпадают
+           !HasValidationErrors();  // Убедимся, что нет ошибок валидации
         }
 
         // Регистрация
-        private void OnRegister()
+       private void OnRegister()
         {
             if (HasValidationErrors())
             {
@@ -86,18 +106,44 @@ namespace AutoMarket.ViewModel
                 return;
             }
 
-            // Логика регистрации
-            MessageView messageView = new MessageView
+            // Логика для регистрации пользователя
+            // Пример регистрации
+
+            if (DataWorker.CreateUser(Login, Password, PhoneNumber))
             {
-                DataContext = new MessageViewModel("Регистрация выполнена успешно!")
-            };
-            SetCenterPositionAndOpen(messageView);
+                MessageBox.Show("Вы успешно зарегистрированы!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Очищаем поля после успешной регистрации
+                ClearFields();
+            }
+            else
+            {
+                MessageBox.Show("Пользователь уже существует", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private void ClearFields()
+        {
+            Login = string.Empty;
+            Password = string.Empty;
+            ConfirmPassword = string.Empty;
+            PhoneNumber = string.Empty;
+            // Очищаем поля PasswordBox в View
+            if (FirstPassBox != null)
+            {
+                FirstPassBox.Clear(); // Очистка первого пароля
+            }
+            if (SecondPassBox != null)
+            {
+                SecondPassBox.Clear(); // Очистка второго пароля
+            }
         }
 
         // Проверка ошибок в данных
         private bool HasValidationErrors()
         {
-            var propertiesToCheck = new[] { nameof(Login), nameof(Password), nameof(ConfirmPassword), nameof(PhoneNumber) };
+            var propertiesToCheck = new[] { nameof(ShowLoginWindow), nameof(Password), nameof(ConfirmPassword), nameof(PhoneNumber) };
             foreach (var property in propertiesToCheck)
             {
                 if (!string.IsNullOrEmpty(this[property])) // Если есть ошибка, вернуть true
@@ -118,7 +164,7 @@ namespace AutoMarket.ViewModel
 
                 return columnName switch
                 {
-                    nameof(Login) => string.IsNullOrWhiteSpace(Login)
+                    nameof(ShowLoginWindow) => string.IsNullOrWhiteSpace(Login)
                         ? "Логин обязателен" : null,
 
                     nameof(Password) => string.IsNullOrWhiteSpace(Password)
@@ -129,8 +175,8 @@ namespace AutoMarket.ViewModel
 
                     nameof(PhoneNumber) => string.IsNullOrWhiteSpace(PhoneNumber)
                         ? "Телефон обязателен"
-                        : !Regex.IsMatch(PhoneNumber, @"^\d{10}$")
-                            ? "Номер телефона должен содержать 10 цифр"
+                        : !Regex.IsMatch(PhoneNumber, @"^\d{7}$")
+                            ? "Номер телефона должен содержать 7 цифр"
                             : null,
 
                     _ => null
@@ -139,13 +185,6 @@ namespace AutoMarket.ViewModel
         }
 
         public string Error => null;
-
-        private void SetCenterPositionAndOpen(Window window)
-        {
-            window.Owner = Application.Current.MainWindow;
-            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            window.ShowDialog();
-        }
 
         // INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
