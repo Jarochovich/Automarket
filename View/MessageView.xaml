@@ -5,17 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoMarket.View"
         mc:Ignorable="d"
-        Title="MessageView" Height="150" Width="250"
+        WindowStartupLocation="CenterScreen"
+        Title="Сообщение" Height="150" Width="250"
         Name="MessageWindow">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
-        <TextBlock Name="MessageText" Text="{Binding Message}" Grid.Row="0" HorizontalAlignment="Center"
-                   VerticalAlignment="Center" TextWrapping="Wrap">
-            
-        </TextBlock>
-        <Button Grid.Row="1" Content="OK" Command="{Binding CloseWindowCommand}" CommandParameter="{Binding ElementName=MessageWindow}"></Button>
+        <TextBlock Name="MessageText" 
+                   Text="{Binding Message}" 
+                   Grid.Row="0" 
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center" 
+                   TextWrapping="Wrap"/>
+
+        <Button Grid.Row="1" 
+                Margin="0, -7, 0, -7" 
+                Content="OK" 
+                Command="{Binding CloseWindowCommand}" 
+                CommandParameter="{Binding ElementName=MessageWindow}"/>
     </Grid>
 </Window>

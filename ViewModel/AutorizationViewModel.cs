@@ -155,14 +155,7 @@ namespace AutoMarket.ViewModel
             {
                 DataContext = new MessageViewModel(message)
             };
-            SetCenterPositionAndOpen(messageView);
-        }
-
-        private void SetCenterPositionAndOpen(Window window)
-        {
-            window.Owner = Application.Current.MainWindow;
-            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            window.ShowDialog();
+            messageView.ShowDialog();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

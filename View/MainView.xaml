@@ -7,58 +7,14 @@
         xmlns:vm="clr-namespace:AutoMarket.ViewModel"
         xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
         mc:Ignorable="d"
-         xmlns:converters="clr-namespace:AutoMarket.Helpers"
+        xmlns:converters="clr-namespace:AutoMarket.Helpers"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowState="Maximized"
         Title="MainView" Height="500" Width="1200">
 
-    <Window.DataContext>
-        <vm:MainViewModel/>
-    </Window.DataContext>
-
     <Window.Resources>
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
 
-        <CollectionViewSource x:Key="GroupedProducts"
-                      Source="{Binding Products}">
-            <CollectionViewSource.GroupDescriptions>
-                <PropertyGroupDescription PropertyName="Category.Name"/>
-            </CollectionViewSource.GroupDescriptions>
-        </CollectionViewSource>
-
-        <!--CustomFont-->
-        <Style x:Key="CustomFont">
-            <Setter Property="TextElement.FontFamily" Value="/Fonts/#Roboto" />
-        </Style>
-
-        <!--SidebarButtonStyle-->
-        <Style x:Key="SidebarButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Background" Value="#EEEEEE"/>
-            <Setter Property="BorderBrush" Value="#CCCCCC"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                         BorderBrush="{TemplateBinding BorderBrush}" 
-                         BorderThickness="{TemplateBinding BorderThickness}"
-                         CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#D0D7FF"/>
-                    <Setter Property="BorderBrush" Value="#5946D7"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
 
         <!--cart-Products-->
         <DataTemplate x:Key="ProductTemplate">
@@ -73,6 +29,7 @@
     <Grid>
         <!-- Основная сетка: Header / Content / Footer -->
         <Grid.RowDefinitions>
+            <!-- Filter -->
             <RowDefinition Height="60" />
             <!-- Header -->
             <RowDefinition Height="*" />
@@ -81,30 +38,95 @@
             <!-- Footer -->
         </Grid.RowDefinitions>
 
+
         <!-- Внутренняя сетка контента: Sidebar и Main -->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" 
+              Grid.Column="0">
             <Grid.ColumnDefinitions>
+                
                 <ColumnDefinition Width="220" />
                 <!-- Sidebar -->
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="220" />
                 <!-- Main -->
+                <ColumnDefinition Width="*" />
+                
             </Grid.ColumnDefinitions>
 
-            <!-- Sidebar -->
-            <StackPanel Grid.Column="0" Background="#F2F2F2">
-                <TextBlock Text="Категории" FontWeight="Bold" FontSize="16" Margin="10"/>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            
+            
+
+            <StackPanel Grid.Column="0" 
+                        Grid.Row="1"
+                        Background="#F2F2F2">
+                <TextBlock Text="Категории" 
+                           FontWeight="Bold" 
+                           FontSize="16" 
+                           Margin="10"/>
                 <ListBox ItemsSource="{Binding Categories}"
                          SelectedItem="{Binding SelectedCategory}"
                          DisplayMemberPath="Name"
                          Margin="10"/>
             </StackPanel>
 
+            <!-- Filter -->
+            <StackPanel Grid.Column="0" 
+                        Grid.Row="0"
+                        Grid.ColumnSpan="3"
+                        Background="#F2F2F2"
+                        Orientation="Horizontal">
+                <TextBlock Text="Фильтрация" 
+                           FontWeight="Bold" 
+                           FontSize="16" 
+                           Margin="10"
+                           VerticalAlignment="Center"/>
+                <StackPanel Margin="10, 0, 10, 0" 
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center">
+                    <!-- Фильтр по производителю -->
+                    <ComboBox Width="150"
+                              Margin="10"
+                              ItemsSource="{Binding Manufacturers}" 
+                              SelectedItem="{Binding SelectedManufacturer}" 
+                              materialDesign:HintAssist.Hint="Производитель"/>
+
+                    <!-- Фильтр по цене (от) -->
+                    <TextBox Width="100"
+                             Margin="10"
+                             Text="{Binding MinPrice, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="Цена от"/>
+
+                    <!-- Фильтр по цене (до) -->
+                    <TextBox Width="100"
+                             Margin="10,10,10,10"
+                             Text="{Binding MaxPrice, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="Цена до"/>
+
+                    <!-- Кнопка применить -->
+                    <Button Content="Применить фильтр"
+                            Command="{Binding ApplyFilterCommand}"
+                            Margin="0,10,0,10"
+                            Foreground="White"/>
+                </StackPanel>
+
+            </StackPanel>
+
+
             <!-- Main content -->
-            <ScrollViewer Grid.Row="1" Grid.Column="1" Background="White">
-                <ListView ItemsSource="{Binding Source={StaticResource GroupedProducts}}"
-              Background="White"
-              BorderThickness="0"
-              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer Grid.Row="1" 
+                          Grid.Column="1"
+                          Grid.ColumnSpan="2"
+                          
+                          Background="#1E1E1E">
+                <ListView ItemsSource="{Binding Products}"
+                          Background="White"
+                          BorderThickness="0"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                          Cursor="Hand">
 
                     <!-- Отображение товаров -->
                     <ListView.ItemsPanel>
@@ -113,33 +135,44 @@
                         </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
 
-                    <ListView.ItemTemplate  >
+                    <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Border 
-                                 
-                                BorderBrush="#CCC"
-                                BorderThickness="1"
-                                Margin="10"
-                                Padding="10"
-                                Width="220">
+                            <Border BorderBrush="#CCC"
+                                    BorderThickness="1"
+                                    Margin="10"
+                                    Padding="10"
+                                    Width="220">
                                 <StackPanel>
                                     <!-- Картинка -->
                                     <Image Source="{Binding ImageData, Converter={StaticResource ByteArrayToImageConverter}}"
-                               Width="80" Height="60" Margin="0,0,10,0"/>
+                                           Width="80" 
+                                           Height="60" 
+                                           Margin="0,0,10,0"/>
 
                                     <!-- Название -->
-                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" />
+                                    <TextBlock Text="{Binding Name}" 
+                                               FontWeight="Bold" 
+                                               FontSize="14" 
+                                               Foreground="White"/>
 
                                     <!-- Описание -->
-                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,5,0,0" />
+                                    <TextBlock Text="{Binding Description}" 
+                                               TextWrapping="Wrap" 
+                                               Margin="0,5,0,0" 
+                                               Foreground="White"/>
 
                                     <!-- Цена -->
                                     <TextBlock Text="{Binding Price, StringFormat='Цена: {0} BYN'}"
-                                   FontWeight="SemiBold" Margin="0,5,0,0" />
+                                               FontWeight="SemiBold" 
+                                               Margin="0,5,0,0" 
+                                               Foreground="White"/>
 
                                     <!-- Рейтинг -->
-                                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                        <TextBlock Text="Рейтинг: " VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" 
+                                                Margin="0,5,0,0">
+                                        <TextBlock Text="Рейтинг: " 
+                                                   VerticalAlignment="Center"
+                                                   Foreground="White"/>
                                         <StackPanel Orientation="Horizontal">
                                             <Path Data="M10,1L12,6L17,6L13,9L14,15L10,12L6,15L7,9L3,6L8,6Z" 
                                       Fill="Gold" Width="15" Height="15" Margin="1,0"/>
@@ -156,10 +189,11 @@
 
                                     <!-- Кнопка "Подробнее" -->
                                     <Button Content="Подробнее"
-                    Margin="0,10,0,0"
-                    Tag="{Binding}"
-                    Click="ProductClicked"
-Cursor="Hand"/>
+                                            Margin="0,10,0,0"
+                                            Tag="{Binding}"
+                                            Click="ProductClicked"
+                                            Foreground="White"
+                                            Cursor="Hand"/>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
@@ -169,51 +203,84 @@ Cursor="Hand"/>
         </Grid>
 
         <!-- Header -->
-        <DockPanel Grid.Row="0"  VerticalAlignment="Center" Height="60">
-            <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}"
-                Text="АвтоМаркет"
-               Foreground="White"
-               FontSize="20"
-               FontWeight="Bold"
-               Margin="20,0"
-               VerticalAlignment="Center"
-               DockPanel.Dock="Left" />
+        <Grid Grid.Row="0" Background="#fc2626" Height="60">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <!-- Логотип -->
+                <ColumnDefinition Width="*"/>
+                <!-- Поисковая строка -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Кнопки -->
+            </Grid.ColumnDefinitions>
 
-            <!-- Поисковая строка -->
-            <TextBox Width="250"
-             Height="30"
-             Margin="10,0"
-             VerticalAlignment="Center"
-             HorizontalAlignment="Left"
-             DockPanel.Dock="Left"
-             Padding="5"
-             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-             materialDesign:HintAssist.Hint="Поиск товара..." />
+            <!-- Логотип -->
+            <TextBlock Text="АвтоМаркет"
+                       Foreground="White"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Margin="20,0"
+                       VerticalAlignment="Center"
+                       Grid.Column="0" />
 
+            <!-- Поисковая строка: растягивается -->
+            <TextBox Height="30"
+                     VerticalAlignment="Center"
+                     Margin="20,0"
+                     Foreground="White"
+                     materialDesign:ColorZoneAssist.Background="White"
+                     Padding="10,0"
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     materialDesign:HintAssist.Hint="Поиск товара..."
+                     Grid.Column="1" />
+
+            <!-- Кнопки -->
             <StackPanel Orientation="Horizontal"
-            HorizontalAlignment="Right"
-            VerticalAlignment="Center"
-            Margin="0,0,20,0"
-            DockPanel.Dock="Right">
-                <Button Content="Профиль"
-            Width="90"
-            Margin="5,0"
-            Command="{Binding ProfileCommand}" />
-                <Button Content="Корзина"
-            Width="90"
-            Margin="5,0"
-            Command="{Binding CartCommand}" />
-                <Button Content="Выйти"
-            Width="90"
-            Margin="5,0"
-            Command="{Binding LogoutCommand}" />
+                        VerticalAlignment="Center"
+                        Margin="20,0"
+                        Grid.Column="2">
+
+                <!-- Профиль -->
+                <Button Command="{Binding ProfileCommand}"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Margin="3,0">
+                    <svg:SvgViewbox Source="pack://application:,,,/Resources/Pictures/profile.svg" Stretch="Uniform" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Button>
+
+                <!-- Корзина -->
+                <Button Command="{Binding CartCommand}"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Margin="3,0">
+                    <svg:SvgViewbox Source="pack://application:,,,/Resources/Pictures/basket.svg" Stretch="Uniform" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Button>
+
+                <!-- Выйти -->
+                <Button Command="{Binding LogoutCommand}"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Foreground="White"
+                        Cursor="Hand"
+                        Margin="3,0">
+                    <TextBlock Text="Выйти"/>
+                </Button>
+
             </StackPanel>
-        </DockPanel>
+        </Grid>
+
+        
 
         <!-- Footer -->
-        <DockPanel Grid.Row="2" Background="#E0E0E0" VerticalAlignment="Center" Height="40">
+        <DockPanel Grid.Row="2" 
+                   Background="#fc2626"
+                   VerticalAlignment="Center" 
+                   Height="40">
             <TextBlock Text="©2025 АвтоМаркет. Все права защищены." 
-                       FontSize="12" Margin="10,0" VerticalAlignment="Center" />
+                       FontSize="12" 
+                       Margin="10,0" 
+                       Foreground="White"
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Center"/>
         </DockPanel>
     </Grid>
 </Window>

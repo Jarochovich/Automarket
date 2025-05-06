@@ -48,6 +48,7 @@
                                 Width="200"
                                 Height="40"
                                 Cursor="Hand"
+                                Foreground="White"
                                 HorizontalAlignment="Center"
                                 Command="{Binding AddToCartCommand}"/>
                     </StackPanel>

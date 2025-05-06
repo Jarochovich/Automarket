@@ -20,9 +20,9 @@ namespace AutoMarket.View
     /// </summary>
     public partial class AdminView : Window
     {
-        public static ListView AllCategoriesView;
-        public static ListView AllProductsView;
-        public static ListView AllUsersView;
+        public static DataGrid AllCategoriesView;
+        public static DataGrid AllProductsView;
+        public static DataGrid AllUsersView;
         public AdminView()
         {
             InitializeComponent();

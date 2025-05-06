@@ -6,98 +6,277 @@
         xmlns:local="clr-namespace:AutoMarket.View"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="AdminView" Height="450" Width="800">
+
+    <Window.Resources>
+
+        <CollectionViewSource x:Key="GroupedProducts"
+                          Source="{Binding Products}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="Category.Name"/>
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+
+        <!--CustomFont-->
+        <Style x:Key="CustomFont">
+            <Setter Property="TextElement.FontFamily" Value="/Fonts/#Roboto" />
+        </Style>
+
+        <!--SidebarButtonStyle-->
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="#EEEEEE"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                     BorderBrush="{TemplateBinding BorderBrush}" 
+                     BorderThickness="{TemplateBinding BorderThickness}"
+                     CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#D0D7FF"/>
+                    <Setter Property="BorderBrush" Value="#5946D7"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+       
+
+        <!--cart-Products-->
+        <DataTemplate x:Key="ProductTemplate">
+            <Border BorderThickness="1" BorderBrush="Gray" Margin="5">
+                <StackPanel>
+                    <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                    <TextBlock Text="{Binding Price, StringFormat=C}" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
     <Grid>
+        <!-- Основная сетка: Header / Content / Footer -->
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="60" />
+            <!-- Header -->
+            <RowDefinition Height="*" />
+            <!-- Content -->
+            <RowDefinition Height="40" />
+            <!-- Footer -->
         </Grid.RowDefinitions>
 
-        <TabControl Grid.Row="0" 
-                    SelectedItem="{Binding SelectedTabItem}">
-            <TabItem Name="UsersTab">
-                <TabItem.Header>
-                    <TextBlock Text="Users"/>
-                </TabItem.Header>
-                <TabItem.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
-                        <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
-                    </ContextMenu>
-                </TabItem.ContextMenu>
-                <ListView Name="ViewAllUsers" 
-                          ItemsSource="{Binding AllUsers}"
-                          SelectedItem="{Binding SelectedUser}">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Id" DisplayMemberBinding="{Binding Path=Id}" />
-                            <GridViewColumn Header="Login" DisplayMemberBinding="{Binding Path=Login}" />
-                            <GridViewColumn Header="Password" DisplayMemberBinding="{Binding Path=PasswordHash}"/>
-                            <GridViewColumn Header="PhoneNumber" DisplayMemberBinding="{Binding Path=PhoneNumber}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </TabItem>
+        <!-- Внутренняя сетка контента: Sidebar и Main -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
 
-            <TabItem Name="ProductsTab">
-                <TabItem.Header>
-                    <TextBlock Text="Product"/>
-                </TabItem.Header>
-                <TabItem.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
-                        <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
-                    </ContextMenu>
-                </TabItem.ContextMenu>
-                <ListView Name="ViewAllProducts" 
-                          ItemsSource="{Binding AllProducts}"
-                          SelectedItem="{Binding SelectedProduct}">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Path=CategoryId}"/>
-                            <GridViewColumn Header="Product" DisplayMemberBinding="{Binding Path=Name}"/>
-                            <GridViewColumn Header="Price" DisplayMemberBinding="{Binding Path=Price}"/>
-                            <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Path=Description}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </TabItem>
+                <!-- Sidebar -->
+                <ColumnDefinition Width="*" />
+                <!-- Main -->
+            </Grid.ColumnDefinitions>
 
-            <TabItem Name="CategoriesTab">
-                <TabItem.Header>
-                    <TextBlock Text="Categorys"/>
-                </TabItem.Header>
-                <TabItem.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
-                        <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
-                    </ContextMenu>
-                </TabItem.ContextMenu>
-                <ListView Name="ViewAllCategories" 
-                          ItemsSource="{Binding AllCategories}"
-                          SelectedItem="{Binding SelectedCategory}">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="CategoryId" DisplayMemberBinding="{Binding Path=Id}"/>
-                            <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Path=Name}"/>
-                 
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </TabItem>
 
-        </TabControl>
+            <!-- Main content -->
+            <ScrollViewer Grid.Row="1" Foreground="White"
+                      Grid.Column="1" 
+                      Background="#1E1E1E">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="50"/>
+                    </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="1" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Right">
-            <Button Content="Добавить новую категорию" Command="{Binding OpenAddNewCategory}" />
-            <Button Content="Добавить новый продукт" Command="{Binding OpenAddNewProduct}"/>
-            <Button Content="Добавить нового пользователя" Command="{Binding OpenAddNewUser}"/>
-        </StackPanel>
- 
+                    <TabControl Grid.Row="0" SelectedItem="{Binding SelectedTabItem}">
+                        <!-- USERS TAB -->
+                        <TabItem Name="UsersTab">
+                            <TabItem.Header>
+                                <TextBlock Text="Users" Foreground="white"/>
+                            </TabItem.Header>
+                            <TabItem.ContextMenu>
+                                <ContextMenu Foreground="#fc2626">
+                                    <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                                </ContextMenu>
+                            </TabItem.ContextMenu>
 
-        
+                            <DataGrid Name="ViewAllUsers"
+                                      ItemsSource="{Binding AllUsers}"
+                                      SelectedItem="{Binding SelectedUser}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      Foreground="White"
+                                      Background="Transparent"
+                                      RowBackground="Transparent"
+                                      AlternatingRowBackground="#1E1E1E"
+                                      BorderBrush="#3A3A3A"
+                                      GridLinesVisibility="None"
+                                      HeadersVisibility="Column"
+                                      CanUserAddRows="False"
+                                      Style="{StaticResource MaterialDesignDataGrid}"
+                                      materialDesign:DataGridAssist.CellPadding="12,6"
+                                      materialDesign:DataGridAssist.ColumnHeaderPadding="8">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
+                                    <DataGridTextColumn Header="Login" Binding="{Binding Login}" />
+                                    <DataGridTextColumn Header="Password" Binding="{Binding PasswordHash}" />
+                                    <DataGridTextColumn Header="PhoneNumber" Binding="{Binding PhoneNumber}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+
+                        <!-- PRODUCTS TAB -->
+                        <TabItem Name="ProductsTab">
+                            <TabItem.Header>
+                                <TextBlock Text="Product" Foreground="white"/>
+                            </TabItem.Header>
+                            <TabItem.ContextMenu>
+                                <ContextMenu Foreground="#fc2626">
+                                    <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                                </ContextMenu>
+                            </TabItem.ContextMenu>
+
+                            <DataGrid Name="ViewAllProducts"
+                                      ItemsSource="{Binding AllProducts}"
+                                      SelectedItem="{Binding SelectedProduct}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      Foreground="White"
+                                      Background="Transparent"
+                                      RowBackground="Transparent"
+                                      AlternatingRowBackground="#1E1E1E"
+                                      BorderBrush="#3A3A3A"
+                                      GridLinesVisibility="None"
+                                      HeadersVisibility="Column"
+                                      CanUserAddRows="False"
+                                      Style="{StaticResource MaterialDesignDataGrid}"
+                                      materialDesign:DataGridAssist.CellPadding="12,6"
+                                      materialDesign:DataGridAssist.ColumnHeaderPadding="8">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Category" Binding="{Binding CategoryId}" />
+                                    <DataGridTextColumn Header="Product" Binding="{Binding Name}" />
+                                    <DataGridTextColumn Header="Price" Binding="{Binding Price}" />
+                                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+
+                        <!-- CATEGORIES TAB -->
+                        <TabItem Name="CategoriesTab">
+                            <TabItem.Header>
+                                <TextBlock Text="Categorys" Foreground="white"/>
+                            </TabItem.Header>
+                            <TabItem.ContextMenu>
+                                <ContextMenu Foreground="#fc2626">
+                                    <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                                </ContextMenu>
+                            </TabItem.ContextMenu>
+
+                            <DataGrid Name="ViewAllCategories"
+                                      ItemsSource="{Binding AllCategories}"
+                                      SelectedItem="{Binding SelectedCategory}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      Foreground="White"
+                                      Background="Transparent"
+                                      RowBackground="Transparent"
+                                      AlternatingRowBackground="#1E1E1E"
+                                      BorderBrush="#3A3A3A"
+                                      GridLinesVisibility="None"
+                                      HeadersVisibility="Column"
+                                      CanUserAddRows="False"
+                                      Style="{StaticResource MaterialDesignDataGrid}"
+                                      materialDesign:DataGridAssist.CellPadding="12,6"
+                                      materialDesign:DataGridAssist.ColumnHeaderPadding="8">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="CategoryId" Binding="{Binding Id}" />
+                                    <DataGridTextColumn Header="Category" Binding="{Binding Name}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                    </TabControl>
+
+                    <StackPanel Grid.Row="1" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Right">
+                        <Button Content="Добавить новую категорию" Command="{Binding OpenAddNewCategory}" />
+                        <Button Content="Добавить новый продукт" Command="{Binding OpenAddNewProduct}"/>
+                        <Button Content="Добавить нового пользователя" Command="{Binding OpenAddNewUser}"/>
+                    </StackPanel>
+
+
+
+                </Grid>
+
+
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Background="#fc2626" Height="60">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <!-- Логотип -->
+                <ColumnDefinition Width="*"/>
+                <!-- Поисковая строка -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Кнопки -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Логотип -->
+            <TextBlock Text="АвтоМаркет"
+           Foreground="White"
+           FontSize="20"
+           FontWeight="Bold"
+           Margin="20,0"
+           VerticalAlignment="Center"
+           Grid.Column="0" />
+
+            
+
+            <!-- Кнопки -->
+            <StackPanel Orientation="Horizontal"
+        VerticalAlignment="Center"
+        Margin="20,0"
+        Grid.Column="2">
+
+                <!-- Выйти -->
+                <Button Command="{Binding LogoutCommand}"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Foreground="White"
+                    Cursor="Hand"
+                    Margin="3,0">
+                    <TextBlock Text="Выйти"/>
+                </Button>
+
+            </StackPanel>
+        </Grid>
+
+        <!-- Footer -->
+        <DockPanel Grid.Row="2" 
+               Background="#fc2626"
+               VerticalAlignment="Center" 
+               Height="40">
+            <TextBlock Text="©2025 АвтоМаркет. Все права защищены." 
+                   FontSize="12" 
+                   Margin="10,0" 
+                   Foreground="White"
+                   VerticalAlignment="Center" 
+                   HorizontalAlignment="Center"/>
+        </DockPanel>
     </Grid>
+
+    
 </Window>

@@ -15,7 +15,7 @@ namespace AutoMarket.ViewModel
         // корзина
         public CartViewModel CartVM { get; set; } = new CartViewModel();
 
-        public ObservableCollection<Category> Categories { get; }
+        
 
         private BitmapImage _imagePreview;
         public BitmapImage ImagePreview
@@ -55,6 +55,8 @@ namespace AutoMarket.ViewModel
             }
         }
 
+        public ObservableCollection<Category> Categories { get; }
+
         private ObservableCollection<Product> _allProducts;
         public ObservableCollection<Product> AllProducts
         {
@@ -87,11 +89,10 @@ namespace AutoMarket.ViewModel
             Categories = new ObservableCollection<Category>(DataWorker.GetAllCategories());
             ProfileCommand = new RelayCommand(_ => MessageBox.Show("Профиль"));
             CartCommand = new RelayCommand(OpenCart);
-            LogoutCommand = new RelayCommand(_ => Application.Current.Shutdown());
+            LogoutCommand = new RelayCommand(_ => Logout());
             AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
-            Products = new ObservableCollection<Product>(); // Инициализируем сразу все продукты
+            Products = new ObservableCollection<Product>();
             OpenProductDetailsCommand = new RelayCommand(p => OpenProductDetails((Product)p)); // Передаем продукт через команду
-           
         }
 
         private void LoadProducts()
@@ -104,7 +105,6 @@ namespace AutoMarket.ViewModel
                 {
                     Products.Add(product);
                 }
-               
             }
         }
 
@@ -114,7 +114,6 @@ namespace AutoMarket.ViewModel
             var view = new ProductDetailView(viewModel);
             view.ShowDialog();
         }
-
 
 
         private void OpenCart(object parameter)
@@ -131,12 +130,23 @@ namespace AutoMarket.ViewModel
             }
             else
             {
-                var filtered = AllProducts
-                    .Where(p => !string.IsNullOrEmpty(p.Name) && p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                var filtered = AllProducts.Where(p => !string.IsNullOrEmpty(p.Name) && p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
                 Products = new ObservableCollection<Product>(filtered);
             }
         }
+
+        private void Logout()
+        {
+            var authView = new AutorizationView();
+            authView.Show();
+
+            // Закрытие текущего окна, связанного с этим ViewModel
+            Application.Current.Windows
+                .OfType<Window>()
+                .FirstOrDefault(w => w.DataContext == this)?
+                .Close();
+        }
+
 
         public ICollectionView GroupedProductsView { get; private set; }
 

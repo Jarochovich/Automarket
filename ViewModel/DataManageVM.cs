@@ -20,9 +20,24 @@ namespace AutoMarket.ViewModel
     class DataManageVM : INotifyPropertyChanged
     {
         public ICommand LoadImageCommand { get; }
+        public ICommand LogoutCommand { get; }
+       
         public DataManageVM()
         {
             LoadImageCommand = new RelayCommand(param => LoadImage());
+            LogoutCommand = new RelayCommand(_ => Logout());
+        }
+
+        private void Logout()
+        {
+            var authView = new AutorizationView();
+            authView.Show();
+
+            // Закрытие текущего окна, связанного с этим ViewModel
+            Application.Current.Windows
+                .OfType<Window>()
+                .FirstOrDefault(w => w.DataContext == this)?
+                .Close();
         }
 
         private void LoadImage()
@@ -109,10 +124,6 @@ namespace AutoMarket.ViewModel
         public static Product SelectedProduct { get; set; }
 
 
-
-
-
-
         public BitmapImage ImagePreview
         {
             get
@@ -131,10 +142,6 @@ namespace AutoMarket.ViewModel
                 return image;
             }
         }
-
-
-
-
 
 
 
@@ -365,14 +372,6 @@ namespace AutoMarket.ViewModel
             AdminView.AllUsersView.Items.Refresh();
         }
         #endregion
-
-
-        // вспомогательные функции
-        //private void SetRedBlockControll(Window window, string blockName)
-        //{
-        //    Control block = window.FindName(blockName) as Control;
-        //    block.BorderBrush = Brushes.Red;
-        //}
 
         private void ShowMessageToUser(string message)
         {
