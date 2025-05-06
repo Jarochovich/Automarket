@@ -10,11 +10,37 @@ using AutoMarket.View;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Text.RegularExpressions;
+using System.IO;
+using System.Windows.Media.Imaging;
+using System.Windows.Input;
+using Microsoft.Win32;
 
 namespace AutoMarket.ViewModel
 {
     class DataManageVM : INotifyPropertyChanged
     {
+        public ICommand LoadImageCommand { get; }
+        public DataManageVM()
+        {
+            LoadImageCommand = new RelayCommand(param => LoadImage());
+        }
+
+        private void LoadImage()
+        {
+            // Открытие диалогового окна для выбора изображения
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "Image Files (*.jpg;*.png)|*.jpg;*.png"
+            };
+
+            if (ofd.ShowDialog() == true)
+            {
+                // Считывание выбранного файла в байтовый массив
+                ImageData = File.ReadAllBytes(ofd.FileName);
+            }
+        }
+
+
         // все категории
         private List<Category> allCategories = DataWorker.GetAllCategories();
         public List<Category> AllCategories
@@ -64,11 +90,53 @@ namespace AutoMarket.ViewModel
         public static string UserPassword { get; set; }
         public static int UserPhoneNumber { get; set; }
 
+        // Свойство для изображения
+        private byte[] _imageData;
+        public byte[] ImageData
+        {
+            get => _imageData;
+            set
+            {
+                _imageData = value;
+                NotifyPropertyChanged(nameof(ImageData)); // Уведомляем о изменении
+            }
+        }
+
         // свойства для выделенных элементов
         public TabItem SelectedTabItem { get; set; }
         public static User SelectedUser { get; set; }
         public static Category SelectedCategory { get; set; }
         public static Product SelectedProduct { get; set; }
+
+
+
+
+
+
+        public BitmapImage ImagePreview
+        {
+            get
+            {
+                if (ImageData == null) return null;
+                var image = new BitmapImage();
+                using (var ms = new MemoryStream(ImageData))
+                {
+                    ms.Position = 0;
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.StreamSource = ms;
+                    image.EndInit();
+                    image.Freeze();
+                }
+                return image;
+            }
+        }
+
+
+
+
+
+
 
         #region COMMANDS_TO_EDIT
         private RelayCommand editProduct { get; set; }
@@ -111,26 +179,28 @@ namespace AutoMarket.ViewModel
                 return addNewProduct ?? new RelayCommand((obj) =>
                 {
                     Window window = obj as Window;
+                    
                     string resultStr = "";
                     if (CategoryProduct == null)
                     {
-                        MessageBox.Show("Укажите категорию товара");
+                        ShowMessageToUser("Укажите категорию товара");
                     }
                     if (ProductName == null || ProductName.Replace(" ", "").Length == 0)
                     {
-                        SetRedBlockControll(window, "ProductName");
+                        //SetRedBlockControll(window, "ProductName");
                     }
                     if (PriceProduct == 0)
                     {
-                        SetRedBlockControll(window, "Price");
+                        //SetRedBlockControll(window, "Price");
                     }
                     if (descriptionProduct == null || descriptionProduct.Replace(" ", "").Length == 0)
                     {
-                        SetRedBlockControll(window, "Description");
+                        //SetRedBlockControll(window, "Description");
                     }
                     else
                     {
-                        resultStr = DataWorker.CreateProduct(CategoryProduct, ProductName, PriceProduct, descriptionProduct);
+                        
+                        resultStr = DataWorker.CreateProduct(CategoryProduct, ProductName, PriceProduct, descriptionProduct, ImageData);
                         UpdateAllDataView();
                         ShowMessageToUser(resultStr);
                         SetNullValuesToProperties();
@@ -298,11 +368,11 @@ namespace AutoMarket.ViewModel
 
 
         // вспомогательные функции
-        private void SetRedBlockControll(Window window, string blockName)
-        {
-            Control block = window.FindName(blockName) as Control;
-            block.BorderBrush = Brushes.Red;
-        }
+        //private void SetRedBlockControll(Window window, string blockName)
+        //{
+        //    Control block = window.FindName(blockName) as Control;
+        //    block.BorderBrush = Brushes.Red;
+        //}
 
         private void ShowMessageToUser(string message)
         {

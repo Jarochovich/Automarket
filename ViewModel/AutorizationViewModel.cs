@@ -65,7 +65,7 @@ namespace AutoMarket.ViewModel
         {
             if (HasValidationErrors())
             {
-                MessageBox.Show("Пожалуйста, исправьте ошибки перед авторизацией", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowMessageToUser("Пожалуйста, исправьте ошибки перед авторизацией");
                 return;
             }
 
@@ -73,7 +73,7 @@ namespace AutoMarket.ViewModel
             if (isAdmin)
             {
                 // Переход к AdminView
-                MessageBox.Show("Адмнинистратор! Вы успешно авторизовались!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowMessageToUser("Адмнинистратор! Вы успешно авторизовались!");
                 AdminView adminView = new AdminView();
                 adminView.Show();
                 CloseAction?.Invoke();  // Закрыть окно авторизации
@@ -82,7 +82,7 @@ namespace AutoMarket.ViewModel
 
             if (DataWorker.GetUser(Login, Password))
             {
-                MessageBox.Show("Пользователь! Вы успешно авторизовались!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowMessageToUser("Пользователь! Вы успешно авторизовались!");
                 ClearFields();
                 var mainView = new MainView();
                 mainView.Show();
@@ -92,7 +92,7 @@ namespace AutoMarket.ViewModel
             }
             else
             {
-                MessageBox.Show("Неверный логин или пароль", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowMessageToUser("Неверный логин или пароль");
             }
         }
 
@@ -149,8 +149,23 @@ namespace AutoMarket.ViewModel
         public string Error => null;
 
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private void ShowMessageToUser(string message)
+        {
+            MessageView messageView = new MessageView
+            {
+                DataContext = new MessageViewModel(message)
+            };
+            SetCenterPositionAndOpen(messageView);
+        }
 
+        private void SetCenterPositionAndOpen(Window window)
+        {
+            window.Owner = Application.Current.MainWindow;
+            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            window.ShowDialog();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             if (name != null)

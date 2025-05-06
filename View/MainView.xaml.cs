@@ -1,4 +1,5 @@
-﻿using AutoMarket.View;
+﻿using AutoMarket.Model;
+using AutoMarket.View;
 using AutoMarket.ViewModel;
 using System.Collections.ObjectModel;
 using System.Net;
@@ -26,6 +27,7 @@ namespace AutoMarket.View
         public MainView()
         {
             InitializeComponent();
+            DataContext = new MainViewModel();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -33,5 +35,21 @@ namespace AutoMarket.View
             RegistrationView authorizationView = new RegistrationView();
             authorizationView.Show();
         }
+
+        private void ProductClicked(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Product product)
+            {
+                // Получаем текущий DataContext (MainViewModel)
+                if (DataContext is MainViewModel mainVM)
+                {
+                    // Передаем общий CartVM
+                    var detailViewModel = new ProductDetailViewModel(product, mainVM.CartVM);
+                    var detailWindow = new ProductDetailView(detailViewModel);
+                    detailWindow.ShowDialog();
+                }
+            }
+        }
+
     }
 }

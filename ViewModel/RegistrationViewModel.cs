@@ -102,7 +102,7 @@ namespace AutoMarket.ViewModel
         {
             if (HasValidationErrors())
             {
-                MessageBox.Show("Пожалуйста, исправьте ошибки перед регистрацией", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ShowMessageToUser("Пожалуйста, исправьте ошибки перед регистрацией");
                 return;
             }
 
@@ -111,14 +111,14 @@ namespace AutoMarket.ViewModel
 
             if (DataWorker.CreateUser(Login, Password, PhoneNumber))
             {
-                MessageBox.Show("Вы успешно зарегистрированы!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowMessageToUser("Регистрация прошла успешно");
 
                 // Очищаем поля после успешной регистрации
                 ClearFields();
             }
             else
             {
-                MessageBox.Show("Пользователь уже существует", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowMessageToUser("Пользователь уже существует");
             }
         }
 
@@ -186,9 +186,25 @@ namespace AutoMarket.ViewModel
 
         public string Error => null;
 
+
+        private void ShowMessageToUser(string message)
+        {
+            MessageView messageView = new MessageView
+            {
+                DataContext = new MessageViewModel(message)
+            };
+            SetCenterPositionAndOpen(messageView);
+        }
+
+        private void SetCenterPositionAndOpen(Window window)
+        {
+            window.Owner = Application.Current.MainWindow;
+            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            window.ShowDialog();
+        }
+
         // INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             if (name != null)

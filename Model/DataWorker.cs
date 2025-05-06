@@ -31,6 +31,26 @@ namespace AutoMarket.Model
             }
         }
 
+        // получить продукты конкретной категории
+        public static List<Product> GetProductsByCategory(int categoryId)
+        {
+            using(ApplicationContext db = new ApplicationContext())
+            {
+                var results = db.Products.Where(p => p.CategoryId == categoryId).ToList();
+                return results;
+            }
+        }
+
+        // получить отзывы по продукту
+        public static List<Review> GetReviewsByProductId(int productId)
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                var results = db.Reviews.Where(r => r.ProductId == productId).ToList();
+                return results;
+            }
+        }
+
         // получить всех пользователей
         public static List<User> GetAllUsers()
         {
@@ -73,6 +93,8 @@ namespace AutoMarket.Model
             return hash == user.PasswordHash;
         }
 
+
+
         // создать категорию
         public static string CreateCategory(string category)
         {
@@ -93,7 +115,7 @@ namespace AutoMarket.Model
         }
 
         // добавить продукт
-        public static string CreateProduct(Category category, string name, decimal price, string description)
+        public static string CreateProduct(Category category, string name, decimal price, string description, byte[] imageData = null)
         {
             string result = "Продукт уже существует";
             using (ApplicationContext db = new ApplicationContext())
@@ -102,7 +124,7 @@ namespace AutoMarket.Model
                 bool checkIsExist = db.Products.Any(el => el.Name == name && el.Price == price);
                 if (!checkIsExist)
                 {
-                    Product newProduct = new Product { CategoryId = category.Id, Name = name, Price = price, Description = description };
+                    Product newProduct = new Product { CategoryId = category.Id, Name = name, Price = price, Description = description, ImageData = imageData };
                     db.Products.Add(newProduct);
                     db.SaveChanges();
                     result = "Продукт добавлен!";

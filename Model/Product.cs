@@ -12,7 +12,15 @@ namespace AutoMarket.Model
         public int CategoryId { get; set; }
         public string Name { get; set; }
         public decimal Price { get; set; }
+        public Category Category { get; set; } // обязательно!
         public string Description { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public byte[] ImageData { get; set; }
+
+        // Добавляем навигационное свойство для отзывов
+        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
     }
 }
