@@ -67,6 +67,18 @@ namespace AutoMarket.ViewModel
                 }
         }
 
+        // все производители
+        private List<Manufacturer> allManufacturers = DataWorker.GetAllManufacturers();
+        public List<Manufacturer> AllManufacturers
+        {
+            get { return allManufacturers; }
+            set
+            {
+                allManufacturers = value;
+                NotifyPropertyChanged("AllManufacturers");
+            }
+        }
+
         // все продукты
         private List<Product> allProducts = DataWorker.GetAllProducts();
         public List<Product> AllProducts
@@ -96,6 +108,7 @@ namespace AutoMarket.ViewModel
 
         // продукт
         public static Category CategoryProduct { get; set; }
+        public static Manufacturer ManufacturerProduct { get; set; }
         public static string ProductName { get; set; }
         public static decimal PriceProduct { get; set; }
         public static string descriptionProduct { get; set; }
@@ -104,6 +117,9 @@ namespace AutoMarket.ViewModel
         public static string UserLogin { get; set; }
         public static string UserPassword { get; set; }
         public static int UserPhoneNumber { get; set; }
+
+        // производители
+        public static string ManufacturerName { get; set; }
 
         // Свойство для изображения
         private byte[] _imageData;
@@ -121,6 +137,7 @@ namespace AutoMarket.ViewModel
         public TabItem SelectedTabItem { get; set; }
         public static User SelectedUser { get; set; }
         public static Category SelectedCategory { get; set; }
+        public static Manufacturer SelectedManufacturer { get; set; }
         public static Product SelectedProduct { get; set; }
 
 
@@ -157,7 +174,7 @@ namespace AutoMarket.ViewModel
                     string resultStr = "Не выбран продукт";
                     if (SelectedProduct != null)
                     {
-                        resultStr = DataWorker.EditProduct(SelectedProduct, CategoryProduct.Id, ProductName, PriceProduct, descriptionProduct);
+                        resultStr = DataWorker.EditProduct(SelectedProduct, CategoryProduct.Id, ManufacturerProduct.Id, ProductName, PriceProduct, descriptionProduct);
                         UpdateAllDataView();
                         SetNullValuesToProperties();
                         ShowMessageToUser(resultStr);
@@ -204,10 +221,14 @@ namespace AutoMarket.ViewModel
                     {
                         //SetRedBlockControll(window, "Description");
                     }
+                    if (ManufacturerProduct == null)
+                    {
+                        ShowMessageToUser("Укажите категорию товара");
+
+                    }
                     else
                     {
-                        
-                        resultStr = DataWorker.CreateProduct(CategoryProduct, ProductName, PriceProduct, descriptionProduct, ImageData);
+                        resultStr = DataWorker.CreateProduct(CategoryProduct, ManufacturerProduct, ProductName, PriceProduct, descriptionProduct, ImageData);
                         UpdateAllDataView();
                         ShowMessageToUser(resultStr);
                         SetNullValuesToProperties();
@@ -337,6 +358,9 @@ namespace AutoMarket.ViewModel
             UserPassword = null;
             UserPhoneNumber = 0;
 
+            // производители
+            ManufacturerProduct = null;
+
         }
 
         private void UpdateAllDataView()
@@ -344,6 +368,7 @@ namespace AutoMarket.ViewModel
             UpdateAllCategoriesView();
             UpdateAllProductsView();
             UpdateAllUsersView();
+            UpdateAllManufacturerView();
         }
         private void UpdateAllCategoriesView()
         {
@@ -352,6 +377,15 @@ namespace AutoMarket.ViewModel
             AdminView.AllCategoriesView.Items.Clear();
             AdminView.AllCategoriesView.ItemsSource = AllCategories;
             AdminView.AllCategoriesView.Items.Refresh();
+        }
+
+        private void UpdateAllManufacturerView()
+        {
+            AllManufacturers = DataWorker.GetAllManufacturers();
+            AdminView.AllManufacturersView.ItemsSource = null;
+            AdminView.AllManufacturersView.Items.Clear();
+            AdminView.AllManufacturersView.ItemsSource = AllManufacturers;
+            AdminView.AllManufacturersView.Items.Refresh();
         }
 
         private void UpdateAllProductsView()

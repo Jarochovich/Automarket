@@ -1,4 +1,5 @@
-﻿using AutoMarket.ViewModel;
+﻿using AutoMarket.Model;
+using AutoMarket.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace AutoMarket.View
         public static DataGrid AllCategoriesView;
         public static DataGrid AllProductsView;
         public static DataGrid AllUsersView;
+        public static DataGrid AllManufacturersView;
         public AdminView()
         {
             InitializeComponent();
@@ -30,6 +32,7 @@ namespace AutoMarket.View
             AllCategoriesView = ViewAllCategories;
             AllProductsView = ViewAllProducts;
             AllUsersView = ViewAllUsers;
+            AllManufacturersView = ViewAllManufacturers;
         }
     }
 }

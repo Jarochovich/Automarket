@@ -174,7 +174,8 @@
                         <!-- CATEGORIES TAB -->
                         <TabItem Name="CategoriesTab">
                             <TabItem.Header>
-                                <TextBlock Text="Categorys" Foreground="white"/>
+                                <TextBlock Text="Categories" 
+                                           Foreground="white"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626">
@@ -205,7 +206,55 @@
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
+
+
+                        <!-- Manufacturers TAB -->
+                        <TabItem Name="ManufacturersTab">
+                            <TabItem.Header>
+                                <TextBlock Text="Manufacturers" Foreground="white"/>
+                            </TabItem.Header>
+                            <TabItem.ContextMenu>
+                                <ContextMenu Foreground="#fc2626">
+                                    <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                                </ContextMenu>
+                            </TabItem.ContextMenu>
+
+                            <DataGrid Name="ViewAllManufacturers"
+                                      ItemsSource="{Binding AllManufacturers}"
+                                      SelectedItem="{Binding SelectedManufacturer}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      Foreground="White"
+                                      Background="Transparent"
+                                      RowBackground="Transparent"
+                                      AlternatingRowBackground="#1E1E1E"
+                                      BorderBrush="#3A3A3A"
+                                      GridLinesVisibility="None"
+                                      HeadersVisibility="Column"
+                                      CanUserAddRows="False"
+                                      Style="{StaticResource MaterialDesignDataGrid}"
+                                      materialDesign:DataGridAssist.CellPadding="12,6"
+                                      materialDesign:DataGridAssist.ColumnHeaderPadding="8">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ManufacturerId" Binding="{Binding Id}" />
+                                    <DataGridTextColumn Header="Manufacturer" Binding="{Binding Name}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
+                    
+
+
+
+
                     </TabControl>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
 
                     <StackPanel Grid.Row="1" 
                                 Orientation="Horizontal" 

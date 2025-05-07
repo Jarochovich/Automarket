@@ -91,7 +91,8 @@
                     <ComboBox Width="150"
                               Margin="10"
                               ItemsSource="{Binding Manufacturers}" 
-                              SelectedItem="{Binding SelectedManufacturer}" 
+                              SelectedItem="{Binding SelectedManufacturer}"
+                              DisplayMemberPath="Name"
                               materialDesign:HintAssist.Hint="Производитель"/>
 
                     <!-- Фильтр по цене (от) -->
@@ -109,6 +110,12 @@
                     <!-- Кнопка применить -->
                     <Button Content="Применить фильтр"
                             Command="{Binding ApplyFilterCommand}"
+                            Margin="0,10,0,10"
+                            Foreground="White"/>
+                    
+                    <!-- Сбросить фильтры -->
+                    <Button Content="Сбросить фильтр"
+                            Command="{Binding ResetFilterCommand}"
                             Margin="0,10,0,10"
                             Foreground="White"/>
                 </StackPanel>

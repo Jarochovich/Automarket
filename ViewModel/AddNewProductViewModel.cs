@@ -19,6 +19,7 @@ namespace AutoMarket.ViewModel
     {
         public ObservableCollection<Category> AllCategories { get; set; }
         public Category CategoryProduct { get; set; }
+        public Manufacturer ManufacturerProduct { get; set; }
 
         public string ProductName { get; set; }
         public string DescriptionProduct { get; set; }
@@ -83,6 +84,7 @@ namespace AutoMarket.ViewModel
 
             var result = DataWorker.CreateProduct(
                 CategoryProduct,
+                ManufacturerProduct,
                 ProductName,
                 PriceProduct,
                 DescriptionProduct,

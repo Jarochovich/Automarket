@@ -79,20 +79,41 @@ namespace AutoMarket.ViewModel
             }
         }
 
+        public ObservableCollection<Manufacturer> Manufacturers { get; set; }
+
+        private Manufacturer _selectedManufacturer;
+        public Manufacturer SelectedManufacturer
+        {
+            get => _selectedManufacturer;
+            set
+            {
+                _selectedManufacturer = value;
+                OnPropertyChanged(nameof(SelectedManufacturer));
+                FilterProducts();
+            }
+        }
+
         public ICommand ProfileCommand { get; }
         public ICommand CartCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand OpenProductDetailsCommand { get; }
+        public ICommand ResetFilterCommand { get; }
+
 
         public MainViewModel()
         {
+            AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
             Categories = new ObservableCollection<Category>(DataWorker.GetAllCategories());
+            Manufacturers = new ObservableCollection<Manufacturer>(DataWorker.GetAllManufacturers());
+
+
+            Products = new ObservableCollection<Product>(); // старт — пусто
+
             ProfileCommand = new RelayCommand(_ => MessageBox.Show("Профиль"));
             CartCommand = new RelayCommand(OpenCart);
             LogoutCommand = new RelayCommand(_ => Logout());
-            AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
-            Products = new ObservableCollection<Product>();
-            OpenProductDetailsCommand = new RelayCommand(p => OpenProductDetails((Product)p)); // Передаем продукт через команду
+            OpenProductDetailsCommand = new RelayCommand(p => OpenProductDetails((Product)p));
+            ResetFilterCommand = new RelayCommand(_ => ResetFilters());
         }
 
         private void LoadProducts()
@@ -105,6 +126,7 @@ namespace AutoMarket.ViewModel
                 {
                     Products.Add(product);
                 }
+
             }
         }
 
@@ -124,15 +146,27 @@ namespace AutoMarket.ViewModel
 
         private void FilterProducts()
         {
-            if (string.IsNullOrWhiteSpace(SearchText))
+            var filtered = AllProducts.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
             {
-                Products = new ObservableCollection<Product>(AllProducts);
+                filtered = filtered.Where(p => p.Name != null &&
+                    p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
             }
-            else
+
+            if (SelectedManufacturer != null)
             {
-                var filtered = AllProducts.Where(p => !string.IsNullOrEmpty(p.Name) && p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-                Products = new ObservableCollection<Product>(filtered);
+                filtered = filtered.Where(p => p.ManufacturerId == SelectedManufacturer.Id);
             }
+
+            Products = new ObservableCollection<Product>(filtered);
+        }
+
+        private void ResetFilters()
+        {
+            SearchText = null;
+            SelectedManufacturer = null;
+            FilterProducts();
         }
 
         private void Logout()
@@ -149,7 +183,5 @@ namespace AutoMarket.ViewModel
 
 
         public ICollectionView GroupedProductsView { get; private set; }
-
-      
     }
 }

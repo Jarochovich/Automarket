@@ -16,9 +16,15 @@
         <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Orientation="Vertical">
             <TextBlock Text="Категория:"/>
             <ComboBox ItemsSource="{Binding AllCategories}" 
-                      SelectedItem="{Binding CategoryProduct}"
-                      DisplayMemberPath="Name"
-                      Margin="0,5"/>
+              SelectedItem="{Binding CategoryProduct}"
+              DisplayMemberPath="Name"
+              Margin="0,5"/>
+
+            <TextBlock Text="Производитель:"/>
+            <ComboBox ItemsSource="{Binding AllManufacturers}" 
+              SelectedItem="{Binding ManufacturerProduct}"
+              DisplayMemberPath="Name"
+              Margin="0,5"/>
 
             <TextBlock Text="Название:"/>
             <TextBox Text="{Binding ProductName}" Margin="0,5"/>

@@ -15,19 +15,24 @@
         <StackPanel Grid.Row="0" HorizontalAlignment="Center"
             VerticalAlignment="Center" Orientation="Vertical"
             Width="200">
-            <TextBlock Text="New Category"></TextBlock>
+            <TextBlock Text="Новая категория"></TextBlock>
             <ComboBox ItemsSource="{Binding AllCategories}" 
                       SelectedItem="{Binding CategoryProduct}"
                       DisplayMemberPath="Name"/>
-            <TextBlock Text="New Product"></TextBlock>
+            <TextBlock Text="Новый производитель"></TextBlock>
+            <ComboBox ItemsSource="{Binding AllManufacturers}" 
+                      SelectedItem="{Binding ManufacturerProduct}"
+                      DisplayMemberPath="Name"/>
+            <TextBlock Text="Новый продукт"></TextBlock>
             <TextBox Text="{Binding ProductName}"></TextBox>
-            <TextBlock Text="New Price"></TextBlock>
+            <TextBlock Text="Новая цена"></TextBlock>
             <TextBox Text="{Binding PriceProduct}"></TextBox>
-            <TextBlock Text="New Description"></TextBlock>
+            <TextBlock Text="Новое описание"></TextBlock>
             <TextBox Text="{Binding descriptionProduct}"></TextBox>
         </StackPanel>
         <Button Grid.Row="1"
                 Command="{Binding EditProduct}"
-                CommandParameter="{Binding ElementName=EditProductWindow}">Edit Product</Button>
+                CommandParameter="{Binding ElementName=EditProductWindow}"
+                Content="Сохранить изменения"/> 
     </Grid>
 </Window>

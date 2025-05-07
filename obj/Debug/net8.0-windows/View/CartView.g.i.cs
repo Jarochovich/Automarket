@@ -52,7 +52,7 @@ namespace AutoMarket.View {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/AutoMarket;V1.0.0.0;component/view/cartview.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/AutoMarket;component/view/cartview.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\View\CartView.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

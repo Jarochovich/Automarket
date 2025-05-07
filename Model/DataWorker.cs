@@ -21,6 +21,16 @@ namespace AutoMarket.Model
             }
         }
 
+        // получить всех производителей
+        public static List<Manufacturer> GetAllManufacturers()
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                var results = db.Manufacturers.ToList();
+                return results;
+            }
+        }
+
         // получить все продукты
         public static List<Product> GetAllProducts()
         {
@@ -115,7 +125,7 @@ namespace AutoMarket.Model
         }
 
         // добавить продукт
-        public static string CreateProduct(Category category, string name, decimal price, string description, byte[] imageData = null)
+        public static string CreateProduct(Category category, Manufacturer manufacturer, string name, decimal price, string description, byte[] imageData = null)
         {
             string result = "Продукт уже существует";
             using (ApplicationContext db = new ApplicationContext())
@@ -124,7 +134,7 @@ namespace AutoMarket.Model
                 bool checkIsExist = db.Products.Any(el => el.Name == name && el.Price == price);
                 if (!checkIsExist)
                 {
-                    Product newProduct = new Product { CategoryId = category.Id, Name = name, Price = price, Description = description, ImageData = imageData };
+                    Product newProduct = new Product { CategoryId = category.Id, ManufacturerId = manufacturer.Id, Name = name, Price = price, Description = description, ImageData = imageData };
                     db.Products.Add(newProduct);
                     db.SaveChanges();
                     result = "Продукт добавлен!";
@@ -217,7 +227,7 @@ namespace AutoMarket.Model
         }
 
         // изменить продукт
-        public static string EditProduct(Product oldProduct, int newCategoryId, string newName, decimal newPrice, string newDescription)
+        public static string EditProduct(Product oldProduct, int newCategoryId, int newManufacturerId, string newName, decimal newPrice, string newDescription)
         {
             string result = "Такого продукта нет!";
 
@@ -227,6 +237,7 @@ namespace AutoMarket.Model
                 if (product != null)
                 {
                     product.CategoryId = newCategoryId;
+                    product.ManufacturerId = newManufacturerId;
                     product.Name = newName;
                     product.Price = newPrice;
                     product.Description = newDescription;
