@@ -11,7 +11,7 @@ using AutoMarket.View;
 
 namespace AutoMarket.ViewModel 
 {
-    public class MessageViewModel : INotifyPropertyChanged
+    public class MessageViewModel : BaseViewModel
     {
         public ICommand CloseWindowCommand { get; }
 
@@ -36,17 +36,6 @@ namespace AutoMarket.ViewModel
             if (obj is Window window)
             {
                 window.Close();
-            }
-        }
-
-
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public void NotifyPropertyChanged(String propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
     }

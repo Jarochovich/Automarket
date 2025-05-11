@@ -14,8 +14,34 @@ namespace AutoMarket.ViewModel
     {
         // корзина
         public CartViewModel CartVM { get; set; } = new CartViewModel();
+        // языки
+        public ICommand SetRussianCommand { get; }
+        public ICommand SetEnglishCommand { get; }
 
-        
+
+        private decimal? _minPrice;
+        public decimal? MinPrice
+        {
+            get => _minPrice;
+            set
+            {
+                _minPrice = value;
+                OnPropertyChanged(nameof(MinPrice));
+                FilterProducts();
+            }
+        }
+
+        private decimal? _maxPrice;
+        public decimal? MaxPrice
+        {
+            get => _maxPrice;
+            set
+            {
+                _maxPrice = value;
+                OnPropertyChanged(nameof(MaxPrice));
+                FilterProducts();
+            }
+        }
 
         private BitmapImage _imagePreview;
         public BitmapImage ImagePreview
@@ -98,6 +124,7 @@ namespace AutoMarket.ViewModel
         public ICommand LogoutCommand { get; }
         public ICommand OpenProductDetailsCommand { get; }
         public ICommand ResetFilterCommand { get; }
+        public ICommand AddToCartCommand { get; }
 
 
         public MainViewModel()
@@ -114,7 +141,13 @@ namespace AutoMarket.ViewModel
             LogoutCommand = new RelayCommand(_ => Logout());
             OpenProductDetailsCommand = new RelayCommand(p => OpenProductDetails((Product)p));
             ResetFilterCommand = new RelayCommand(_ => ResetFilters());
+
+            AddToCartCommand = new RelayCommand(ExecuteAddToCart);
+
+            SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
+            SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
         }
+
 
         private void LoadProducts()
         {
@@ -137,6 +170,14 @@ namespace AutoMarket.ViewModel
             view.ShowDialog();
         }
 
+        private void ExecuteAddToCart(object parameter)
+        {
+            // Приводим параметр к типу Product и вызываем AddToCart
+            if (parameter is Product product)
+            {
+                CartVM.AddToCart(product);  // Добавляем в корзину
+            }
+        }
 
         private void OpenCart(object parameter)
         {
@@ -147,6 +188,9 @@ namespace AutoMarket.ViewModel
         private void FilterProducts()
         {
             var filtered = AllProducts.AsEnumerable();
+
+            if (SelectedCategory != null)
+                filtered = filtered.Where(p => p.CategoryId == SelectedCategory.Id);
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
@@ -159,14 +203,27 @@ namespace AutoMarket.ViewModel
                 filtered = filtered.Where(p => p.ManufacturerId == SelectedManufacturer.Id);
             }
 
+            if (MinPrice != null)
+            {
+                filtered = filtered.Where(p => p.Price >= MinPrice.Value);
+            }
+
+            if (MaxPrice != null)
+            {
+                filtered = filtered.Where(p => p.Price <= MaxPrice.Value);
+            }
+
             Products = new ObservableCollection<Product>(filtered);
         }
 
         private void ResetFilters()
         {
-            SearchText = null;
+            SearchText = string.Empty;
             SelectedManufacturer = null;
-            FilterProducts();
+            SelectedCategory = null;
+            MinPrice = null;
+            MaxPrice = null;
+            Products = new ObservableCollection<Product>();
         }
 
         private void Logout()
@@ -180,8 +237,5 @@ namespace AutoMarket.ViewModel
                 .FirstOrDefault(w => w.DataContext == this)?
                 .Close();
         }
-
-
-        public ICollectionView GroupedProductsView { get; private set; }
     }
 }

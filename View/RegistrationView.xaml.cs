@@ -26,6 +26,7 @@ namespace AutoMarket.View
             var vm = new RegistrationViewModel();
             vm.CloseAction = new Action(() => this.Close());
             this.DataContext = vm;
+            Loaded += OnWindowLoaded;
 
             if (DataContext is RegistrationViewModel viewModel)
             {
@@ -34,18 +35,30 @@ namespace AutoMarket.View
             }
         }
 
+        private void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is RegistrationViewModel vm)
+            {
+                vm.CompleteInitialLoad();
+            }
+        }
+
         private RegistrationViewModel ViewModel => (RegistrationViewModel)DataContext;
 
         private void FirstPassBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (DataContext != null)
-                ViewModel.Password = ((PasswordBox)sender).Password;
+            if (DataContext is RegistrationViewModel vm)
+            {
+                vm.Password = FirstPassBox.Password;
+            }
         }
-        
+
         private void SecondPassBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (DataContext != null)
-                ViewModel.ConfirmPassword = ((PasswordBox)sender).Password;
+            if (DataContext is RegistrationViewModel vm)
+            {
+                vm.ConfirmPassword = SecondPassBox.Password;
+            }
         }
     }
  }

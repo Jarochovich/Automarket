@@ -3,24 +3,72 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
         mc:Ignorable="d"
-        Title="Корзина" Height="450" Width="800"
+        Title="{DynamicResource Basket}" Height="450" Width="800"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <!-- Список товаров в корзине -->
-        <ListView ItemsSource="{Binding CartProducts}" Margin="10">
+        <ListView ItemsSource="{Binding CartItems}" Margin="10">
             <ListView.View>
                 <GridView>
-                    <!-- Колонки для отображения товаров -->
-                    <GridViewColumn Header="Название товара" DisplayMemberBinding="{Binding Name}" Width="200"/>
-                    <GridViewColumn Header="Цена" DisplayMemberBinding="{Binding Price}" Width="100"/>
-                    <GridViewColumn Header="Количество" DisplayMemberBinding="{Binding CountItem}" Width="100"/>
-
-                    <!-- Удалить товар -->
-                    <GridViewColumn Header="Удалить">
+                    <!-- Название товара -->
+                    <GridViewColumn Header="{DynamicResource Name}" Width="200">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="Удалить" Command="{Binding DataContext.RemoveCommand}" CommandParameter="{Binding}" />
+                                <TextBlock Text="{Binding Product.Name}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- Цена -->
+                    <GridViewColumn Header="{DynamicResource Price}" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Product.Price}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- Количество -->
+                    <GridViewColumn Header="{DynamicResource Quantity}" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <!-- Кнопка уменьшения количества -->
+                                    <Button  
+                                            Background="Transparent" 
+                                            BorderBrush="Transparent"
+                                            Command="{Binding DataContext.DecreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}" >
+                                        <svg:SvgViewbox Source="pack://application:,,,/Resources/Pictures/minus.svg" Stretch="Uniform" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- Текущий счетчик -->
+                                    <TextBlock Text="{Binding CountItem}" Width="30" 
+                                               HorizontalAlignment="Center" TextAlignment="Center" 
+                                               VerticalAlignment="Center"/>
+
+                                    <!-- Кнопка увеличения количества -->
+                                    <Button 
+                                            Background="Transparent" 
+                                            BorderBrush="Transparent"
+                                            Command="{Binding DataContext.IncreaseQuantityCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}" >
+                                        <svg:SvgViewbox Source="pack://application:,,,/Resources/Pictures/plus.svg" Stretch="Uniform" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- Удалить товар -->
+                    <GridViewColumn Header="{DynamicResource Actions}" Width="150">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Удалить"
+                                        Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                        CommandParameter="{Binding}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -42,7 +90,7 @@
                 Margin="0,10,10,10"
                 FontSize="16"
                 FontWeight="Bold" 
-                Content="Оплатить"
+                Content="{DynamicResource Pay}"
                 Command="{Binding PayCommand}"/>
     </Grid>
 </Window>

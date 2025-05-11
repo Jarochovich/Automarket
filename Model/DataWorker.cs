@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMarket.Model.Data;
 using System.Linq;
 using AutoMarket.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoMarket.Model
 {
@@ -34,20 +35,24 @@ namespace AutoMarket.Model
         // получить все продукты
         public static List<Product> GetAllProducts()
         {
-            using (ApplicationContext db = new ApplicationContext())
+            using (var db = new ApplicationContext())
             {
-                var results = db.Products.ToList();
-                return results;
+                return db.Products
+                  .Include(p => p.Manufacturer)
+                  .Include(p => p.Category) // Добавляем загрузку категории
+                  .ToList();
             }
         }
 
         // получить продукты конкретной категории
         public static List<Product> GetProductsByCategory(int categoryId)
         {
-            using(ApplicationContext db = new ApplicationContext())
+            using (var db = new ApplicationContext())
             {
-                var results = db.Products.Where(p => p.CategoryId == categoryId).ToList();
-                return results;
+                return db.Products
+                         .Include(p => p.Manufacturer)
+                         .Where(p => p.CategoryId == categoryId)
+                         .ToList();
             }
         }
 
@@ -227,7 +232,7 @@ namespace AutoMarket.Model
         }
 
         // изменить продукт
-        public static string EditProduct(Product oldProduct, int newCategoryId, int newManufacturerId, string newName, decimal newPrice, string newDescription)
+        public static string EditProduct(Product oldProduct, Category newCategoryName, int newManufacturerId, string newName, decimal newPrice, string newDescription, byte[] newImageData)
         {
             string result = "Такого продукта нет!";
 
@@ -236,11 +241,12 @@ namespace AutoMarket.Model
                 Product product = db.Products.FirstOrDefault(prod => prod.Id == oldProduct.Id);
                 if (product != null)
                 {
-                    product.CategoryId = newCategoryId;
+                    product.Category = newCategoryName;
                     product.ManufacturerId = newManufacturerId;
                     product.Name = newName;
                     product.Price = newPrice;
                     product.Description = newDescription;
+                    product.ImageData = newImageData;
                     db.SaveChanges();
                     result = $"Продукт {oldProduct.Name} успешно изменен!";
                 }

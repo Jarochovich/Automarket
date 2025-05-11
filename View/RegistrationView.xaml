@@ -6,46 +6,81 @@
         xmlns:local="clr-namespace:AutoMarket.View"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
+        xmlns:helpers="clr-namespace:AutoMarket.Helpers"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="Регистрация" Height="450" Width="800">
+        xmlns:converters="clr-namespace:AutoMarket.Helpers"
+        Title="{DynamicResource RegisterButton}" Height="500" Width="800">
+
+    <Window.Resources>
+        <converters:PhoneNumberFormatter x:Key="PhoneNumberFormatter" />
+
+        <Style TargetType="{x:Type PasswordBox}" BasedOn="{StaticResource MaterialDesignFloatingHintPasswordBox}">
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <StackPanel>
+                            <AdornedElementPlaceholder/>
+                            <TextBlock Text="{Binding [0].ErrorContent}" 
+                                           Foreground="Red"
+                                           Margin="0 4 0 0"
+                                           FontSize="12"/>
+                        </StackPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    
+    
+    
+    
     <Grid Background="#ffdadada">
         <Border MinWidth="250" Margin="20" Padding="20" Background="#ffffffff" VerticalAlignment="Center" MaxWidth="600" CornerRadius="20">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="LightGray"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock Text="Здравствуйте!" FontSize="20" FontWeight="Bold" Margin="0 0 0 30"/>
-                
-                <Grid Margin="0 0 0 30">
-                    <Button Content="Регистрация" 
+                <TextBlock Text="{DynamicResource GreetingText}" FontSize="20" FontWeight="Bold" Margin="0 0 0 30"/>
+
+                <Grid Margin="0 0 0 20">
+                    <Button Content="{DynamicResource RegisterButton}" 
                             HorizontalAlignment="Left"/>
-                    <Button Content="Войти" 
+                    <Button Content="{DynamicResource LoginButton}" 
                             HorizontalAlignment="Right" 
                             Style="{StaticResource MaterialDesignFlatButton}"
                             Command="{Binding ShowAuthCommand}"/>
                 </Grid>
 
                 <TextBox x:Name="LoginBox" 
-                         Text="{Binding Login, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                         materialDesign:HintAssist.Hint="Введите логин" 
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                         />
+                          Margin="0 10"
+         Text="{Binding Login, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+         materialDesign:HintAssist.Hint="{DynamicResource LoginHint}" 
+         Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+
+                <!-- Удалите кастомные ErrorTemplate из PasswordBox -->
                 <PasswordBox x:Name="FirstPassBox" 
-                             PasswordChanged="FirstPassBox_PasswordChanged"
-                             materialDesign:HintAssist.Hint="Введите пароль" 
-                             Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
+                             Margin="0 10"
+                 helpers:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay, ValidatesOnDataErrors=True}"
+                 materialDesign:HintAssist.Hint="{DynamicResource PasswordHint}"
+                 Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
+
                 <PasswordBox x:Name="SecondPassBox"
-                             PasswordChanged="SecondPassBox_PasswordChanged"
-                             materialDesign:HintAssist.Hint="Повторите пароль" 
-                             Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
+                             Margin="0 10"
+                 helpers:PasswordBoxAssistant.BoundPassword="{Binding ConfirmPassword, Mode=TwoWay, ValidatesOnDataErrors=True}"
+                 materialDesign:HintAssist.Hint="{DynamicResource ConfirmPasswordHint}"
+                 Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
+
                 <TextBox x:Name="PhoneBox"
-                         Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                         materialDesign:HintAssist.Hint="Номер телефона" 
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-                
-                <Button Margin="0 20" 
-                        Content='Зарегистрироваться'
-                        Command="{Binding RegisterCommand}"/>
+                         Margin="0 10"
+         Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, Converter={StaticResource PhoneNumberFormatter}}"
+         materialDesign:HintAssist.Hint="{DynamicResource PhoneNumberHint}" 
+         Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+
+                <Button Margin="0 20"
+                        Content="{DynamicResource RegisterButton}"
+                        Command="{Binding RegisterCommand}"
+                          />
             </StackPanel>
         </Border>
     </Grid>

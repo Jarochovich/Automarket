@@ -5,48 +5,116 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoMarket.View"
         mc:Ignorable="d"
-        Title="AddNewProductView" Height="500" Width="500"
+        xmlns:converters="clr-namespace:AutoMarket.Helpers"
+        Title="{DynamicResource WindowAddingProduct}" 
+        Height="540" Width="500"
         Name="AddNewProductWindow">
+
+    <Window.Resources>
+        <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
+    </Window.Resources>
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Orientation="Vertical">
-            <TextBlock Text="Категория:"/>
-            <ComboBox ItemsSource="{Binding AllCategories}" 
-              SelectedItem="{Binding CategoryProduct}"
-              DisplayMemberPath="Name"
-              Margin="0,5"/>
+        <ScrollViewer>
+            <StackPanel Grid.Row="0" 
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Top" 
+                        Orientation="Vertical">
+                <TextBlock Text="{DynamicResource Categories}"/>
+                <ComboBox ItemsSource="{Binding AllCategories}" 
+                          SelectedItem="{Binding CategoryProduct}"
+                          DisplayMemberPath="Name"
+                          Margin="0,5"/>
 
-            <TextBlock Text="Производитель:"/>
-            <ComboBox ItemsSource="{Binding AllManufacturers}" 
-              SelectedItem="{Binding ManufacturerProduct}"
-              DisplayMemberPath="Name"
-              Margin="0,5"/>
+                <TextBlock Text="{DynamicResource ManufacturerHint}"/>
+                <ComboBox ItemsSource="{Binding AllManufacturers}" 
+                          SelectedItem="{Binding ManufacturerProduct}"
+                          DisplayMemberPath="Name"
+                          Margin="0,5"/>
 
-            <TextBlock Text="Название:"/>
-            <TextBox Text="{Binding ProductName}" Margin="0,5"/>
+                <TextBlock Text="{DynamicResource Name}"/>
+                <TextBox Text="{Binding ProductName}" Margin="0,5"/>
 
-            <TextBlock Text="Цена:"/>
-            <TextBox Text="{Binding PriceProduct, UpdateSourceTrigger=PropertyChanged}" Margin="0,5"/>
+                <TextBlock Text="{DynamicResource Price}"/>
+                <TextBox Text="{Binding PriceProduct, UpdateSourceTrigger=PropertyChanged}" Margin="0,5"/>
 
-            <TextBlock Text="Описание:"/>
-            <TextBox Text="{Binding descriptionProduct}" Margin="0,5" AcceptsReturn="True" Height="60"/>
+                <TextBlock Text="{DynamicResource Description}"/>
+                <TextBox Text="{Binding descriptionProduct}" 
+                         Margin="0,5" 
+                         AcceptsReturn="True" 
+                         Height="50"/>
 
-            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                <Button Content="Загрузить изображение" Command="{Binding LoadImageCommand}" Width="180"/>
-                <Image Source="{Binding ImagePreview}" Width="100" Height="70" Margin="10,0,0,0"/>
+                <!-- Загрузка изображения -->
+                <TextBlock Text="{DynamicResource ProductImage}" 
+                           Margin="0,10,0,0"/>
+                <StackPanel Orientation="Horizontal" 
+                            Margin="0,10,0,0">
+                   
+                    <Border BorderBrush="#CCCCCC" 
+                            BorderThickness="1" 
+                            CornerRadius="4"
+                            Padding="10"
+                            Background="#F5F5F5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Button Content="{DynamicResource SelectImage}" 
+                                    Command="{Binding LoadImageCommand}"
+                                    HorizontalAlignment="Left"
+                                    Padding="10,5"
+                                    Margin="0,0,0,10"/>
+
+                            <!-- Область предпросмотра -->
+                            <Border Grid.Row="1" 
+                                    BorderBrush="#DDDDDD" 
+                                    BorderThickness="1"
+                                    Background="White"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                <Image Source="{Binding ImagePath}" 
+                                       MaxWidth="300"
+                                       MaxHeight="200"
+                                       Stretch="Uniform"/>
+                                    
+                            </Border>
+
+                            <!-- Заглушка, когда нет изображения -->
+                            <TextBlock Grid.Row="1"
+                                       Text="{DynamicResource NoImageSelected}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="#888888"
+                                       FontStyle="Italic">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ImagePreview}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
 
         <Button Grid.Row="1"
-                Content="Добавить продукт"
+                Content="{DynamicResource Add_new_product}"
                 Command="{Binding AddNewProduct}"
                 CommandParameter="{Binding ElementName=AddNewProductWindow}"
                 Height="40"
-                Background="#1E88E5"
                 Foreground="White"
                 FontWeight="Bold"
                 Margin="0,20,0,0"/>

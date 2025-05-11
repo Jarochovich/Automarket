@@ -7,36 +7,35 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="Авторизация" Height="450" Width="800">
+        Title="{DynamicResource LoginTitle}" Height="450" Width="800">
     <Grid Background="#ffdadada">
         <Border MinWidth="250" Margin="20" Padding="20" Background="#ffffffff" VerticalAlignment="Center" MaxWidth="600" CornerRadius="20">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="LightGray"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock Text="Авторизация" FontSize="20" FontWeight="Bold" Margin="0 0 0 30"/>
+                <TextBlock Text="{DynamicResource LoginTitle}" FontSize="20" FontWeight="Bold" Margin="0 0 0 30"/>
 
                 <Grid Margin="0 0 0 30">
-                    <Button Content="Регистрация" 
+                    <Button Content="{DynamicResource RegisterButton}" 
                             HorizontalAlignment="Left"
                             Command="{Binding ShowRegisterCommand}"/>
-                    <Button Content="Войти" 
+                    <Button Content="{DynamicResource LoginButton}" 
                             HorizontalAlignment="Right" 
                             Style="{StaticResource MaterialDesignFlatButton}"/>
                 </Grid>
 
                 <TextBox x:Name="LoginBox" 
                          Text="{Binding Login, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                         materialDesign:HintAssist.Hint="Введите логин" 
-                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                         />
+                         materialDesign:HintAssist.Hint="{DynamicResource LoginHint}" 
+                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
                 <PasswordBox x:Name="PassBox" 
                              PasswordChanged="FirstPassBox_PasswordChanged"
-                             materialDesign:HintAssist.Hint="Введите пароль" 
+                             materialDesign:HintAssist.Hint="{DynamicResource PasswordHint}" 
                              Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
 
                 <Button Margin="0 20" 
-                        Content='Войти'
+                        Content="{DynamicResource LoginButton}"
                         Command="{Binding AuthCommand}"/>
             </StackPanel>
         </Border>

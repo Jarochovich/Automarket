@@ -29,6 +29,16 @@ namespace AutoMarket.View
             DataManageVM.ProductName = product.Name;
             DataManageVM.PriceProduct = product.Price;
             DataManageVM.descriptionProduct = product.Description;
+
+            // Важно: устанавливаем связанные объекты
+            DataManageVM.ManufacturerProduct = product.Manufacturer;
+            DataManageVM.CategoryProduct = product.Category; // Это ключевая строка
+
+            // Устанавливаем изображение, если оно есть
+            if (product.ImageData != null)
+            {
+                DataManageVM.ImageD = product.ImageData;
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ namespace AutoMarket.Model
         public int CategoryId { get; set; }
         public Category Category { get; set; }
         public int ManufacturerId { get; set; }
-        public Manufacturer Manufactuter { get; set; }
+        public Manufacturer Manufacturer { get; set; }
         public string Name { get; set; }
         public decimal Price { get; set; }
         public string Description { get; set; }

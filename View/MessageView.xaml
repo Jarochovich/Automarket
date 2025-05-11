@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AutoMarket.View"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="Сообщение" Height="150" Width="250"
+        Title="{DynamicResource Message}" Height="150" Width="250"
         Name="MessageWindow">
     <Grid>
         <Grid.RowDefinitions>

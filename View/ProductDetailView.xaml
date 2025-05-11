@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AutoMarket.View"
         xmlns:converters="clr-namespace:AutoMarket.Helpers"
         mc:Ignorable="d"
-        Title="Информация о товаре" Height="600" Width="900"
+        Title="{DynamicResource Product_information}" Height="600" Width="900"
         Background="#FAFAFA"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowStartupLocation="CenterScreen">
@@ -15,14 +15,25 @@
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
     </Window.Resources>
 
-    <Border Margin="20" Padding="20" Background="White" CornerRadius="5" BorderBrush="#DDD" BorderThickness="1">
+    <Border Margin="20" 
+            Padding="20" 
+            Background="White" 
+            CornerRadius="5" 
+            BorderBrush="#DDD" 
+            BorderThickness="1">
         <ScrollViewer>
             <StackPanel>
 
                 <!-- Верхняя часть: Картинка слева, инфо справа -->
-                <DockPanel LastChildFill="True" Margin="0,0,0,20">
+                <DockPanel LastChildFill="True" 
+                           Margin="0,0,0,20">
                     <!-- Картинка -->
-                    <Border Margin="5" Padding="25" Background="White" CornerRadius="10" BorderBrush="#DDD" BorderThickness="1">
+                    <Border Margin="5" 
+                            Padding="25" 
+                            Background="White" 
+                            CornerRadius="10" 
+                            BorderBrush="#DDD" 
+                            BorderThickness="1">
                     <Image Source="{Binding Product.ImageData, Converter={StaticResource ByteArrayToImageConverter}}"
                            Height="250"
                            MaxWidth="250"
@@ -31,7 +42,9 @@
                            DockPanel.Dock="Left" />
                     </Border>
                     <!-- Информация справа от картинки -->
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Margin="20,0,0,0">
+                    <StackPanel VerticalAlignment="Center" 
+                                HorizontalAlignment="Right" 
+                                Margin="20,0,0,0">
                         <TextBlock Text="{Binding Product.Name}" 
                                    FontSize="24" 
                                    FontWeight="Bold" 
@@ -44,7 +57,7 @@
                                    Foreground="#2E7D32"
                                    Margin="0,0,0,20" />
 
-                        <Button Content="Добавить в корзину"
+                        <Button Content="{DynamicResource Add_to_cart}"
                                 Width="200"
                                 Height="40"
                                 Cursor="Hand"
@@ -55,7 +68,7 @@
                 </DockPanel>
 
                 <!-- Описание -->
-                <TextBlock Text="Описание" 
+                <TextBlock Text="{DynamicResource Description}" 
                            FontSize="16" 
                            FontWeight="Bold" 
                            Foreground="#333"
@@ -68,7 +81,7 @@
                            Margin="0,0,0,20" />
 
                 <!-- Отзывы -->
-                <TextBlock Text="Отзывы" 
+                <TextBlock Text="{DynamicResource Reviews}" 
                            FontSize="16" 
                            FontWeight="Bold" 
                            Foreground="#333"

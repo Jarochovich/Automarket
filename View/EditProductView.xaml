@@ -4,35 +4,136 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoMarket.View"
+        xmlns:converters="clr-namespace:AutoMarket.Helpers"
         mc:Ignorable="d"
-        Title="EditProductView" Height="450" Width="800"
-        Name="EditProductWindow">
-    <Grid>
+        Title="{DynamicResource Editing_a_product}" 
+        Height="600" 
+        Width="600"
+        Name="EditProductWindow"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
+    </Window.Resources>
+
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" HorizontalAlignment="Center"
-            VerticalAlignment="Center" Orientation="Vertical"
-            Width="200">
-            <TextBlock Text="Новая категория"></TextBlock>
-            <ComboBox ItemsSource="{Binding AllCategories}" 
-                      SelectedItem="{Binding CategoryProduct}"
-                      DisplayMemberPath="Name"/>
-            <TextBlock Text="Новый производитель"></TextBlock>
-            <ComboBox ItemsSource="{Binding AllManufacturers}" 
-                      SelectedItem="{Binding ManufacturerProduct}"
-                      DisplayMemberPath="Name"/>
-            <TextBlock Text="Новый продукт"></TextBlock>
-            <TextBox Text="{Binding ProductName}"></TextBox>
-            <TextBlock Text="Новая цена"></TextBlock>
-            <TextBox Text="{Binding PriceProduct}"></TextBox>
-            <TextBlock Text="Новое описание"></TextBlock>
-            <TextBox Text="{Binding descriptionProduct}"></TextBox>
-        </StackPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Top" 
+                        Orientation="Vertical"
+                        Width="400">
+
+                <!-- Категория -->
+                <TextBlock Text="{DynamicResource Categories}" 
+                           Margin="0,5,0,2"/>
+                <ComboBox ItemsSource="{Binding AllCategories}" 
+                          SelectedItem="{Binding CategoryProduct}"
+                          DisplayMemberPath="Name"
+                          Margin="0,0,0,10"/>
+
+                <!-- Производитель -->
+                <TextBlock Text="{DynamicResource ManufacturerHint}" 
+                           Margin="0,5,0,2"/>
+                <ComboBox ItemsSource="{Binding AllManufacturers}" 
+                          SelectedItem="{Binding ManufacturerProduct}"
+                          DisplayMemberPath="Name"
+                          Margin="0,0,0,10"/>
+
+                <!-- Название -->
+                <TextBlock Text="{DynamicResource Name}" 
+                           Margin="0,5,0,2"/>
+                <TextBox Text="{Binding ProductName}" 
+                         Margin="0,0,0,10"/>
+
+                <!-- Цена -->
+                <TextBlock Text="{DynamicResource Price}"
+                           Margin="0,5,0,2"/>
+                <TextBox Text="{Binding PriceProduct}" 
+                         Margin="0,0,0,10"/>
+
+                <!-- Описание -->
+                <TextBlock Text="{DynamicResource Description}" 
+                           Margin="0,5,0,2"/>
+                <TextBox Text="{Binding descriptionProduct}" 
+                         Margin="0,0,0,10"
+                         AcceptsReturn="True" 
+                         Height="80"
+                         TextWrapping="Wrap"/>
+
+                <!-- Изображение (исправленная версия) -->
+                <TextBlock Text="{DynamicResource ProductImage}" 
+                           Margin="0,10,0,2"/>
+                <StackPanel Orientation="Horizontal" 
+                            Margin="0,5,0,10">
+                    
+
+                    <Border BorderBrush="#CCCCCC" 
+                            BorderThickness="1" 
+                            CornerRadius="4"
+                            Padding="10"
+                            Background="#F5F5F5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Button Content="{DynamicResource SelectImage}" 
+                                    Command="{Binding LoadImageCommand}"
+                                    Padding="10,5"
+                                    Margin="0,0,10,0"/>
+
+                            <!-- Область предпросмотра -->
+                            <Border Grid.Row="1" 
+                                    BorderBrush="#DDDDDD" 
+                                    BorderThickness="1"
+                                    Background="White"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                                <Image Source="{Binding ImagePath}" 
+                                       MaxWidth="300"
+                                       MaxHeight="200"
+                                       Stretch="Uniform"/>
+
+                            </Border>
+
+                            <!-- Заглушка, когда нет изображения -->
+                            <TextBlock Grid.Row="1"
+                                       Text="{DynamicResource NoImageSelected}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="#888888"
+                                       FontStyle="Italic">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ImagePreview}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Кнопка сохранения -->
         <Button Grid.Row="1"
+                Content="{DynamicResource Save_changes}"
                 Command="{Binding EditProduct}"
                 CommandParameter="{Binding ElementName=EditProductWindow}"
-                Content="Сохранить изменения"/> 
+                Height="40"
+                Foreground="White"
+                FontWeight="Bold"
+                HorizontalAlignment="Stretch"/>
     </Grid>
 </Window>

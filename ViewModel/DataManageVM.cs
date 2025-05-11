@@ -17,15 +17,21 @@ using Microsoft.Win32;
 
 namespace AutoMarket.ViewModel
 {
-    class DataManageVM : INotifyPropertyChanged
+    class DataManageVM : BaseViewModel
     {
         public ICommand LoadImageCommand { get; }
         public ICommand LogoutCommand { get; }
-       
+        // языки
+        public ICommand SetRussianCommand { get; }
+        public ICommand SetEnglishCommand { get; }
+
         public DataManageVM()
         {
             LoadImageCommand = new RelayCommand(param => LoadImage());
             LogoutCommand = new RelayCommand(_ => Logout());
+
+            SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
+            SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
         }
 
         private void Logout()
@@ -39,19 +45,37 @@ namespace AutoMarket.ViewModel
                 .FirstOrDefault(w => w.DataContext == this)?
                 .Close();
         }
+        private string _imagePath;
+        public string ImagePath
+        {
+            get => _imagePath;
+            set
+            {
+                _imagePath = value;
+                OnPropertyChanged(nameof(ImagePath));
+            }
+        }
 
         private void LoadImage()
         {
-            // Открытие диалогового окна для выбора изображения
-            OpenFileDialog ofd = new OpenFileDialog
+            var openFileDialog = new OpenFileDialog
             {
-                Filter = "Image Files (*.jpg;*.png)|*.jpg;*.png"
+                Filter = "Image Files (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png",
+                Title = "Выберите изображение товара"
             };
 
-            if (ofd.ShowDialog() == true)
+            if (openFileDialog.ShowDialog() == true)
             {
-                // Считывание выбранного файла в байтовый массив
-                ImageData = File.ReadAllBytes(ofd.FileName);
+                try
+                {
+                    ImagePath = openFileDialog.FileName;
+                    ImageData = File.ReadAllBytes(ImagePath);
+                    OnPropertyChanged(nameof(ImagePreview)); // Важно уведомить об изменении
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка загрузки изображения: {ex.Message}");
+                }
             }
         }
 
@@ -63,7 +87,7 @@ namespace AutoMarket.ViewModel
             get { return allCategories; }
             set { 
                 allCategories = value;
-                NotifyPropertyChanged("AllCategories");
+                OnPropertyChanged("AllCategories");
                 }
         }
 
@@ -75,7 +99,7 @@ namespace AutoMarket.ViewModel
             set
             {
                 allManufacturers = value;
-                NotifyPropertyChanged("AllManufacturers");
+                OnPropertyChanged("AllManufacturers");
             }
         }
 
@@ -87,7 +111,7 @@ namespace AutoMarket.ViewModel
             set
             {
                 allProducts = value;
-                NotifyPropertyChanged("AllProducts");
+                OnPropertyChanged("AllProducts");
             }
         }
 
@@ -99,7 +123,7 @@ namespace AutoMarket.ViewModel
             set
             {
                 allUsers = value;
-                NotifyPropertyChanged("AllUsers");
+                OnPropertyChanged("AllUsers");
             }
         }
 
@@ -112,6 +136,8 @@ namespace AutoMarket.ViewModel
         public static string ProductName { get; set; }
         public static decimal PriceProduct { get; set; }
         public static string descriptionProduct { get; set; }
+        public static byte[] ImageD { get; set; }
+
 
         // пользователи
         public static string UserLogin { get; set; }
@@ -129,9 +155,13 @@ namespace AutoMarket.ViewModel
             set
             {
                 _imageData = value;
-                NotifyPropertyChanged(nameof(ImageData)); // Уведомляем о изменении
+                ImageD = value;
+                OnPropertyChanged(nameof(ImageData)); // Уведомляем о изменении
             }
         }
+
+        
+        
 
         // свойства для выделенных элементов
         public TabItem SelectedTabItem { get; set; }
@@ -145,25 +175,33 @@ namespace AutoMarket.ViewModel
         {
             get
             {
-                if (ImageData == null) return null;
-                var image = new BitmapImage();
-                using (var ms = new MemoryStream(ImageData))
+                if (ImageData == null || ImageData.Length == 0)
+                    return null;
+
+                try
                 {
-                    ms.Position = 0;
-                    image.BeginInit();
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.StreamSource = ms;
-                    image.EndInit();
-                    image.Freeze();
+                    var image = new BitmapImage();
+                    using (var ms = new MemoryStream(ImageData))
+                    {
+                        image.BeginInit();
+                        image.CacheOption = BitmapCacheOption.OnLoad;
+                        image.StreamSource = ms;
+                        image.EndInit();
+                    }
+                    image.Freeze(); // Для безопасности в многопоточной среде
+                    return image;
                 }
-                return image;
+                catch
+                {
+                    return null;
+                }
             }
         }
 
 
 
         #region COMMANDS_TO_EDIT
-        private RelayCommand editProduct { get; set; }
+        private RelayCommand editProduct;
         public RelayCommand EditProduct
         {
             get
@@ -174,7 +212,15 @@ namespace AutoMarket.ViewModel
                     string resultStr = "Не выбран продукт";
                     if (SelectedProduct != null)
                     {
-                        resultStr = DataWorker.EditProduct(SelectedProduct, CategoryProduct.Id, ManufacturerProduct.Id, ProductName, PriceProduct, descriptionProduct);
+                        resultStr = DataWorker.EditProduct(
+                            SelectedProduct,
+                            CategoryProduct,
+                            ManufacturerProduct.Id,
+                            ProductName,
+                            PriceProduct,
+                            descriptionProduct,
+                            ImageData); // Добавляем передачу изображения
+
                         UpdateAllDataView();
                         SetNullValuesToProperties();
                         ShowMessageToUser(resultStr);
@@ -184,12 +230,11 @@ namespace AutoMarket.ViewModel
                     {
                         ShowMessageToUser(resultStr);
                     }
-                }
-                );
+                });
             }
         }
 
-      
+
         #endregion
 
         #region COMMANDS_TO_ADD
@@ -416,13 +461,6 @@ namespace AutoMarket.ViewModel
             SetCenterPositionAndOpen(messageView);
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public void NotifyPropertyChanged(String propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
+        
     }
 }

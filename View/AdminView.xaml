@@ -9,12 +9,12 @@
         WindowState="Maximized"
         xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="AdminView" Height="450" Width="800">
+        Title="{DynamicResource AdminPanel}" Height="450" Width="800">
 
     <Window.Resources>
 
         <CollectionViewSource x:Key="GroupedProducts"
-                          Source="{Binding Products}">
+                              Source="{Binding Products}">
             <CollectionViewSource.GroupDescriptions>
                 <PropertyGroupDescription PropertyName="Category.Name"/>
             </CollectionViewSource.GroupDescriptions>
@@ -25,34 +25,6 @@
             <Setter Property="TextElement.FontFamily" Value="/Fonts/#Roboto" />
         </Style>
 
-        <!--SidebarButtonStyle-->
-        <Style x:Key="SidebarButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Background" Value="#EEEEEE"/>
-            <Setter Property="BorderBrush" Value="#CCCCCC"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                     BorderBrush="{TemplateBinding BorderBrush}" 
-                     BorderThickness="{TemplateBinding BorderThickness}"
-                     CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#D0D7FF"/>
-                    <Setter Property="BorderBrush" Value="#5946D7"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
        
 
         <!--cart-Products-->
@@ -103,9 +75,9 @@
                                 <TextBlock Text="Users" Foreground="white"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
-                                <ContextMenu Foreground="#fc2626">
-                                    <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
-                                    <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                                <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
+                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
                             </TabItem.ContextMenu>
 
@@ -140,9 +112,9 @@
                                 <TextBlock Text="Product" Foreground="white"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
-                                <ContextMenu Foreground="#fc2626">
-                                    <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
-                                    <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                                <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
+                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
                             </TabItem.ContextMenu>
 
@@ -178,9 +150,9 @@
                                            Foreground="white"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
-                                <ContextMenu Foreground="#fc2626">
-                                    <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
-                                    <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                                <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
+                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
                             </TabItem.ContextMenu>
 
@@ -214,9 +186,9 @@
                                 <TextBlock Text="Manufacturers" Foreground="white"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
-                                <ContextMenu Foreground="#fc2626">
-                                    <MenuItem Header="Редактировать" Command="{Binding OpenEditItem}"/>
-                                    <MenuItem Header="Удалить" Command="{Binding DeleteItem}"/>
+                                <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
+                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
                             </TabItem.ContextMenu>
 
@@ -259,9 +231,9 @@
                     <StackPanel Grid.Row="1" 
                                 Orientation="Horizontal" 
                                 HorizontalAlignment="Right">
-                        <Button Content="Добавить новую категорию" Command="{Binding OpenAddNewCategory}" />
-                        <Button Content="Добавить новый продукт" Command="{Binding OpenAddNewProduct}"/>
-                        <Button Content="Добавить нового пользователя" Command="{Binding OpenAddNewUser}"/>
+                        <!--<Button Content="Добавить новую категорию" Command="{Binding OpenAddNewCategory}" />-->
+                        <Button Content="{DynamicResource Add_new_product}" Command="{Binding OpenAddNewProduct}"/>
+                        <!--<Button Content="Добавить нового пользователя" Command="{Binding OpenAddNewUser}"/>-->
                     </StackPanel>
 
 
@@ -275,30 +247,28 @@
         <!-- Header -->
         <Grid Grid.Row="0" Background="#fc2626" Height="60">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
                 <!-- Логотип -->
-                <ColumnDefinition Width="*"/>
-                <!-- Поисковая строка -->
                 <ColumnDefinition Width="Auto"/>
+                
+                <ColumnDefinition Width="*"/>
                 <!-- Кнопки -->
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <!-- Логотип -->
-            <TextBlock Text="АвтоМаркет"
-           Foreground="White"
-           FontSize="20"
-           FontWeight="Bold"
-           Margin="20,0"
-           VerticalAlignment="Center"
-           Grid.Column="0" />
-
-            
+            <TextBlock Text="{DynamicResource Title}"
+                       Foreground="White"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Margin="20,0"
+                       VerticalAlignment="Center"
+                       Grid.Column="0" />
 
             <!-- Кнопки -->
             <StackPanel Orientation="Horizontal"
-        VerticalAlignment="Center"
-        Margin="20,0"
-        Grid.Column="2">
+                        VerticalAlignment="Center"
+                        Margin="20,0"
+                        Grid.Column="2">
 
                 <!-- Выйти -->
                 <Button Command="{Binding LogoutCommand}"
@@ -307,7 +277,7 @@
                     Foreground="White"
                     Cursor="Hand"
                     Margin="3,0">
-                    <TextBlock Text="Выйти"/>
+                    <TextBlock Text="{DynamicResource Logout}"/>
                 </Button>
 
             </StackPanel>
@@ -318,7 +288,9 @@
                Background="#fc2626"
                VerticalAlignment="Center" 
                Height="40">
-            <TextBlock Text="©2025 АвтоМаркет. Все права защищены." 
+            <Button Content="🇷🇺 Русский" Command="{Binding SetRussianCommand}" Margin="5"/>
+            <Button Content="🇺🇸 English" Command="{Binding SetEnglishCommand}" Margin="5"/>
+            <TextBlock Text="{DynamicResource Footer_text}" 
                    FontSize="12" 
                    Margin="10,0" 
                    Foreground="White"

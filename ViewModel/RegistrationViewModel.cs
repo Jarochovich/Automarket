@@ -3,6 +3,7 @@ using AutoMarket.View;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -17,7 +18,11 @@ namespace AutoMarket.ViewModel
         private string _login;
         private string _password;
         private string _confirmPassword;
-        private string _phoneNumber;
+        private string _phoneNumber = string.Empty; // вместо "+375"
+
+        private readonly HashSet<string> _touchedProperties = new(); // Добавлено поле для отслеживания изменённых свойств
+
+        private bool _isInitialLoad = true;
 
         public PasswordBox FirstPassBox { get; set; }
         public PasswordBox SecondPassBox { get; set; }
@@ -35,13 +40,31 @@ namespace AutoMarket.ViewModel
             }
         }
 
+        public string PhoneNumber
+        {
+            get => _phoneNumber;
+            set
+            {
+                // Убираем только нецифровые символы, сохраняя код страны
+                var newValue = Regex.Replace(value, @"[^\d]", "");
+                if (newValue.StartsWith("375"))
+                    newValue = "+" + newValue;
+
+                _phoneNumber = newValue;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanRegister));
+            }
+        }
+
         public string Password
         {
             get => _password;
             set
             {
-                _password = value.Trim();
-                _isFormTouched = true;  // Отмечаем, что пользователь взаимодействовал с полем
+                _password = value;
+                // Добавляем в "тронутые" только после начальной загрузки
+                if (!_isInitialLoad)
+                    _touchedProperties.Add(nameof(Password));
                 OnPropertyChanged();
             }
         }
@@ -51,22 +74,13 @@ namespace AutoMarket.ViewModel
             get => _confirmPassword;
             set
             {
-                _confirmPassword = value.Trim();
-                _isFormTouched = true;  // Отмечаем, что пользователь взаимодействовал с полем
+                _confirmPassword = value;
+                _touchedProperties.Add(nameof(ConfirmPassword)); // Помечаем как "тронутое"
                 OnPropertyChanged();
             }
         }
 
-        public string PhoneNumber
-        {
-            get => _phoneNumber;
-            set
-            {
-                _phoneNumber = value.Trim();
-                _isFormTouched = true;  // Отмечаем, что пользователь взаимодействовал с полем
-                OnPropertyChanged();
-            }
-        }
+        
 
         public ICommand RegisterCommand { get; }
         public ICommand ShowAuthCommand { get; }
@@ -77,7 +91,6 @@ namespace AutoMarket.ViewModel
             RegisterCommand = new RelayCommand(param => OnRegister(), (parameter) => CanRegister());
             ShowAuthCommand = new RelayCommand(param => ShowLoginWindow());
         }
-
 
         private void ShowLoginWindow()
         {
@@ -90,15 +103,26 @@ namespace AutoMarket.ViewModel
         // Проверка, может ли быть выполнена регистрация
         private bool CanRegister()
         {
+            // Не разрешаем регистрацию во время начальной загрузки
+            if (_isInitialLoad) return false;
+
             return !string.IsNullOrWhiteSpace(Login) &&
-           !string.IsNullOrWhiteSpace(Password) &&
-           Password == ConfirmPassword && 
-           !string.IsNullOrEmpty(PhoneNumber) &&// Проверяем, что пароли совпадают
-           !HasValidationErrors();  // Убедимся, что нет ошибок валидации
+                   !string.IsNullOrWhiteSpace(Password) &&
+                   Password == ConfirmPassword &&
+                   IsValidPhoneNumber(PhoneNumber);
+        }
+
+        private bool IsValidPhoneNumber(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone)) return false;
+
+            var cleanPhone = CleanPhoneNumber(phone);
+            return cleanPhone.Length == 12 &&
+                   Regex.IsMatch(cleanPhone, @"^375(29|25|44|33|17)\d{7}$");
         }
 
         // Регистрация
-       private void OnRegister()
+        private void OnRegister()
         {
             if (HasValidationErrors())
             {
@@ -107,14 +131,13 @@ namespace AutoMarket.ViewModel
             }
 
             // Логика для регистрации пользователя
-            // Пример регистрации
-
             if (DataWorker.CreateUser(Login, Password, PhoneNumber))
             {
                 ShowMessageToUser("Регистрация прошла успешно");
 
-                // Очищаем поля после успешной регистрации
                 ClearFields();
+                ResetValidation(); // Сбрасываем валидацию после успешной регистрации
+                ShowLoginWindow();
             }
             else
             {
@@ -122,25 +145,17 @@ namespace AutoMarket.ViewModel
             }
         }
 
-
         private void ClearFields()
         {
             Login = string.Empty;
             Password = string.Empty;
             ConfirmPassword = string.Empty;
-            PhoneNumber = string.Empty;
-            // Очищаем поля PasswordBox в View
-            if (FirstPassBox != null)
-            {
-                FirstPassBox.Clear(); // Очистка первого пароля
-            }
-            if (SecondPassBox != null)
-            {
-                SecondPassBox.Clear(); // Очистка второго пароля
-            }
+            PhoneNumber = string.Empty; // Или string.Empty, в зависимости от ваших требований
+
+            if (FirstPassBox != null) FirstPassBox.Clear();
+            if (SecondPassBox != null) SecondPassBox.Clear();
         }
 
-        // Проверка ошибок в данных
         private bool HasValidationErrors()
         {
             var propertiesToCheck = new[] { nameof(ShowLoginWindow), nameof(Password), nameof(ConfirmPassword), nameof(PhoneNumber) };
@@ -153,39 +168,79 @@ namespace AutoMarket.ViewModel
         }
 
         // Валидация данных
-        private readonly HashSet<string> _touchedProperties = new();
-
         public string this[string columnName]
         {
             get
             {
-                if (!_touchedProperties.Contains(columnName))
+                // Пропускаем валидацию при первой загрузке
+                if (_isInitialLoad)
                     return null;
+
+                // Для паролей проверяем только если они не пустые
+                if ((columnName == nameof(Password) || columnName == nameof(ConfirmPassword)))
+                {
+                    if (string.IsNullOrEmpty(Password) )return null;
+                }
 
                 return columnName switch
                 {
-                    nameof(ShowLoginWindow) => string.IsNullOrWhiteSpace(Login)
-                        ? "Логин обязателен" : null,
-
-                    nameof(Password) => string.IsNullOrWhiteSpace(Password)
-                        ? "Пароль обязателен" : null,
-
-                    nameof(ConfirmPassword) => Password != ConfirmPassword
-                        ? "Пароли не совпадают" : null,
-
-                    nameof(PhoneNumber) => string.IsNullOrWhiteSpace(PhoneNumber)
-                        ? "Телефон обязателен"
-                        : !Regex.IsMatch(PhoneNumber, @"^\d{7}$")
-                            ? "Номер телефона должен содержать 7 цифр"
-                            : null,
-
+                    nameof(Login) => string.IsNullOrWhiteSpace(Login) ? "Логин обязателен" : null,
+                    nameof(Password) => ValidatePassword(),
+                    nameof(ConfirmPassword) => Password != ConfirmPassword ? "Пароли не совпадают" : null,
+                    nameof(PhoneNumber) => IsValidPhoneNumber(PhoneNumber)
+                        ? null
+                        : "Номер должен быть в формате +375 (XX) XXX-XX-XX",
                     _ => null
                 };
             }
         }
 
-        public string Error => null;
+        // Добавляем метод для завершения начальной загрузки
+        public void CompleteInitialLoad()
+        {
+            _isInitialLoad = false;
+        }
+        private string ValidatePassword()
+        {
+            if (string.IsNullOrEmpty(Password))
+                return "Пароль обязателен";
 
+            var errors = new List<string>();
+
+            if (Password.Length < 8)
+                errors.Add("не менее 8 символов");
+
+            if (!Password.Any(char.IsDigit))
+                errors.Add("минимум 1 цифру");
+
+            if (!Password.Any(char.IsUpper))
+                errors.Add("минимум 1 заглавную букву");
+
+            return errors.Count > 0
+                ? $"Требования: {string.Join(", ", errors)}"
+                : null;
+        }
+
+     
+
+        // Очищаем номер телефона от всех символов, кроме цифр
+        private string CleanPhoneNumber(string phone)
+        {
+            return new string(phone.Where(char.IsDigit).ToArray());
+        }
+
+        // Добавим метод для сброса валидации
+        public void ResetValidation()
+        {
+            _touchedProperties.Clear();
+            OnPropertyChanged(nameof(Login));
+            OnPropertyChanged(nameof(Password));
+            OnPropertyChanged(nameof(ConfirmPassword));
+            OnPropertyChanged(nameof(PhoneNumber));
+        }
+
+
+        public string Error => null;
 
         private void ShowMessageToUser(string message)
         {
@@ -195,7 +250,6 @@ namespace AutoMarket.ViewModel
             };
             messageView.ShowDialog();
         }
-
 
         // INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
@@ -208,5 +262,4 @@ namespace AutoMarket.ViewModel
             CommandManager.InvalidateRequerySuggested();
         }
     }
-
 }

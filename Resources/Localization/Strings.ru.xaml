@@ -1,0 +1,60 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="Title">Автомаркет</sys:String>
+    <sys:String x:Key="Login">Войти</sys:String>
+    <sys:String x:Key="Register">Регистрация</sys:String>
+    <sys:String x:Key="Logout">Выйти</sys:String>
+    <sys:String x:Key="Categories">Категории</sys:String>
+    <sys:String x:Key="Filtration">Фильтрация</sys:String>
+    <sys:String x:Key="Apply_filter">Применить фильтр</sys:String>
+    <sys:String x:Key="Reset_filter">Сбросить фильтр</sys:String>
+    <sys:String x:Key="Footer_text">©2025 АвтоМаркет. Все права защищены.</sys:String>
+    <sys:String x:Key="ManufacturerHint">Производитель</sys:String>
+    <sys:String x:Key="Price_from">Цена от</sys:String>
+    <sys:String x:Key="Price_up_to">Цена до</sys:String>
+
+    <sys:String x:Key="GreetingText">Здравствуйте!</sys:String>
+    <sys:String x:Key="RegisterButton">Регистрация</sys:String>
+    <sys:String x:Key="LoginButton">Войти</sys:String>
+    <sys:String x:Key="LoginHint">Введите логин</sys:String>
+    <sys:String x:Key="PasswordHint">Введите пароль</sys:String>
+    <sys:String x:Key="ConfirmPasswordHint">Повторите пароль</sys:String>
+    <sys:String x:Key="PhoneNumberHint">Номер телефона</sys:String>
+    <sys:String x:Key="RegisterText">Зарегистрироваться</sys:String>
+
+
+    <sys:String x:Key="LoginTitle">Авторизация</sys:String>
+
+    <sys:String x:Key="Add_new_product">Добавить продукт</sys:String>
+
+    <sys:String x:Key="Name">Название</sys:String>
+    <sys:String x:Key="Price">Цена</sys:String>
+    <sys:String x:Key="Description">Описание</sys:String>
+    <sys:String x:Key="ProductImage">Изображение товара</sys:String>
+    <sys:String x:Key="SelectImage">Выбрать изображение...</sys:String>
+    <sys:String x:Key="NoImageSelected">Изображение не выбрано</sys:String>
+    <sys:String x:Key="WindowAddingProduct">Добавление нового продукта</sys:String>
+
+    <sys:String x:Key="Edit">Изменить</sys:String>
+    <sys:String x:Key="Delete">Удалить</sys:String>
+
+    <sys:String x:Key="Save_changes">Сохранить изменения</sys:String>
+
+    <sys:String x:Key="Message">Сообщение</sys:String>
+
+    <sys:String x:Key="Editing_a_product">Редактирование товара</sys:String>
+
+    <sys:String x:Key="Quantity">Количество</sys:String>
+    <sys:String x:Key="Actions">Действия</sys:String>
+    <sys:String x:Key="Pay">Оплатить</sys:String>
+    <sys:String x:Key="Basket">Корзина</sys:String>
+
+    <sys:String x:Key="Reviews">Отзывы</sys:String>
+    <sys:String x:Key="Add_to_cart">Добавить в корзину</sys:String>
+    <sys:String x:Key="Product_information">Информация о товаре</sys:String>
+
+    <sys:String x:Key="MainView">Главное окно</sys:String>
+    <sys:String x:Key="AdminPanel">Панель администратора</sys:String>
+
+</ResourceDictionary>
