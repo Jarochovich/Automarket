@@ -8,11 +8,10 @@
         WindowStartupLocation="CenterScreen"
         xmlns:helpers="clr-namespace:AutoMarket.Helpers"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:converters="clr-namespace:AutoMarket.Helpers"
         Title="{DynamicResource RegisterButton}" Height="500" Width="800">
 
     <Window.Resources>
-        <converters:PhoneNumberFormatter x:Key="PhoneNumberFormatter" />
+        <helpers:PhoneNumberFormatter x:Key="PhoneNumberFormatter" />
 
         <Style TargetType="{x:Type PasswordBox}" BasedOn="{StaticResource MaterialDesignFloatingHintPasswordBox}">
             <Setter Property="Validation.ErrorTemplate">

@@ -59,9 +59,9 @@
 
 
             <!-- Main content -->
-            <ScrollViewer Grid.Row="1" Foreground="White"
+            <ScrollViewer Grid.Row="1" 
                       Grid.Column="1" 
-                      Background="#1E1E1E">
+                      Background="{DynamicResource MaterialDesignPaper}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -72,7 +72,7 @@
                         <!-- USERS TAB -->
                         <TabItem Name="UsersTab">
                             <TabItem.Header>
-                                <TextBlock Text="Users" Foreground="white"/>
+                                <TextBlock Text="Users" Foreground="{DynamicResource MaterialDesignBody}"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
@@ -86,11 +86,9 @@
                                       SelectedItem="{Binding SelectedUser}"
                                       AutoGenerateColumns="False"
                                       IsReadOnly="True"
-                                      Foreground="White"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
                                       Background="Transparent"
                                       RowBackground="Transparent"
-                                      AlternatingRowBackground="#1E1E1E"
-                                      BorderBrush="#3A3A3A"
                                       GridLinesVisibility="None"
                                       HeadersVisibility="Column"
                                       CanUserAddRows="False"
@@ -109,7 +107,7 @@
                         <!-- PRODUCTS TAB -->
                         <TabItem Name="ProductsTab">
                             <TabItem.Header>
-                                <TextBlock Text="Product" Foreground="white"/>
+                                <TextBlock Text="Product" Foreground="{DynamicResource MaterialDesignBody}"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
@@ -123,11 +121,9 @@
                                       SelectedItem="{Binding SelectedProduct}"
                                       AutoGenerateColumns="False"
                                       IsReadOnly="True"
-                                      Foreground="White"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
                                       Background="Transparent"
                                       RowBackground="Transparent"
-                                      AlternatingRowBackground="#1E1E1E"
-                                      BorderBrush="#3A3A3A"
                                       GridLinesVisibility="None"
                                       HeadersVisibility="Column"
                                       CanUserAddRows="False"
@@ -147,7 +143,7 @@
                         <TabItem Name="CategoriesTab">
                             <TabItem.Header>
                                 <TextBlock Text="Categories" 
-                                           Foreground="white"/>
+                                           Foreground="{DynamicResource MaterialDesignBody}"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
@@ -161,11 +157,9 @@
                                       SelectedItem="{Binding SelectedCategory}"
                                       AutoGenerateColumns="False"
                                       IsReadOnly="True"
-                                      Foreground="White"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
                                       Background="Transparent"
                                       RowBackground="Transparent"
-                                      AlternatingRowBackground="#1E1E1E"
-                                      BorderBrush="#3A3A3A"
                                       GridLinesVisibility="None"
                                       HeadersVisibility="Column"
                                       CanUserAddRows="False"
@@ -183,7 +177,7 @@
                         <!-- Manufacturers TAB -->
                         <TabItem Name="ManufacturersTab">
                             <TabItem.Header>
-                                <TextBlock Text="Manufacturers" Foreground="white"/>
+                                <TextBlock Text="Manufacturers" Foreground="{DynamicResource MaterialDesignBody}"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
@@ -197,11 +191,10 @@
                                       SelectedItem="{Binding SelectedManufacturer}"
                                       AutoGenerateColumns="False"
                                       IsReadOnly="True"
-                                      Foreground="White"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
                                       Background="Transparent"
                                       RowBackground="Transparent"
-                                      AlternatingRowBackground="#1E1E1E"
-                                      BorderBrush="#3A3A3A"
+                                    
                                       GridLinesVisibility="None"
                                       HeadersVisibility="Column"
                                       CanUserAddRows="False"
@@ -290,6 +283,15 @@
                Height="40">
             <Button Content="🇷🇺 Русский" Command="{Binding SetRussianCommand}" Margin="5"/>
             <Button Content="🇺🇸 English" Command="{Binding SetEnglishCommand}" Margin="5"/>
+            <ToggleButton x:Name="ThemeToggle"
+              ToolTip="Переключить тему"
+              IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+              Command="{Binding ToggleThemeCommand}">
+                <StackPanel Orientation="Horizontal">
+
+                    <materialDesign:PackIcon Kind="WeatherNight" Width="16" Height="16"/>
+                </StackPanel>
+            </ToggleButton>
             <TextBlock Text="{DynamicResource Footer_text}" 
                    FontSize="12" 
                    Margin="10,0" 

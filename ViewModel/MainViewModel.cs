@@ -1,12 +1,13 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Data;
 using AutoMarket.Model;
 using AutoMarket.View;
-using System.ComponentModel;
 using System.Windows.Media.Imaging;
+using MaterialDesignThemes.Wpf;
+using System.Linq;
+using AutoMarket.Helpers;
+using static MaterialDesignThemes.Wpf.Theme.ToolBar;
 
 namespace AutoMarket.ViewModel
 {
@@ -14,6 +15,7 @@ namespace AutoMarket.ViewModel
     {
         // корзина
         public CartViewModel CartVM { get; set; } = new CartViewModel();
+
         // языки
         public ICommand SetRussianCommand { get; }
         public ICommand SetEnglishCommand { get; }
@@ -126,13 +128,11 @@ namespace AutoMarket.ViewModel
         public ICommand ResetFilterCommand { get; }
         public ICommand AddToCartCommand { get; }
 
-
         public MainViewModel()
         {
             AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
             Categories = new ObservableCollection<Category>(DataWorker.GetAllCategories());
             Manufacturers = new ObservableCollection<Manufacturer>(DataWorker.GetAllManufacturers());
-
 
             Products = new ObservableCollection<Product>(); // старт — пусто
 
@@ -141,17 +141,16 @@ namespace AutoMarket.ViewModel
             LogoutCommand = new RelayCommand(_ => Logout());
             OpenProductDetailsCommand = new RelayCommand(p => OpenProductDetails((Product)p));
             ResetFilterCommand = new RelayCommand(_ => ResetFilters());
-
             AddToCartCommand = new RelayCommand(ExecuteAddToCart);
 
             SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
             SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
+
         }
 
 
         private void LoadProducts()
         {
-            // Загружаем продукты для выбранной категории
             if (SelectedCategory != null)
             {
                 Products.Clear();
@@ -159,7 +158,6 @@ namespace AutoMarket.ViewModel
                 {
                     Products.Add(product);
                 }
-
             }
         }
 
@@ -172,16 +170,15 @@ namespace AutoMarket.ViewModel
 
         private void ExecuteAddToCart(object parameter)
         {
-            // Приводим параметр к типу Product и вызываем AddToCart
             if (parameter is Product product)
             {
-                CartVM.AddToCart(product);  // Добавляем в корзину
+                CartVM.AddToCart(product);
             }
         }
 
         private void OpenCart(object parameter)
         {
-            var view = new CartView(CartVM);
+            var view = new CartView(CartVM); // Исправлено CArtVM на CartVM
             view.ShowDialog();
         }
 
@@ -231,7 +228,6 @@ namespace AutoMarket.ViewModel
             var authView = new AutorizationView();
             authView.Show();
 
-            // Закрытие текущего окна, связанного с этим ViewModel
             Application.Current.Windows
                 .OfType<Window>()
                 .FirstOrDefault(w => w.DataContext == this)?
