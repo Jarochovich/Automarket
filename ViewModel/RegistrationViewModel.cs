@@ -122,7 +122,7 @@ namespace AutoMarket.ViewModel
         }
 
         // Регистрация
-        private void OnRegister()
+        private async void OnRegister() // Добавляем async
         {
             if (HasValidationErrors())
             {
@@ -130,13 +130,14 @@ namespace AutoMarket.ViewModel
                 return;
             }
 
-            // Логика для регистрации пользователя
-            if (DataWorker.CreateUser(Login, Password, PhoneNumber))
+            // Добавляем await перед вызовом асинхронного метода
+            bool isCreated = await DataWorker.CreateUserAsync(Login, Password, PhoneNumber);
+
+            if (isCreated)
             {
                 ShowMessageToUser("Регистрация прошла успешно");
-
                 ClearFields();
-                ResetValidation(); // Сбрасываем валидацию после успешной регистрации
+                ResetValidation();
                 ShowLoginWindow();
             }
             else

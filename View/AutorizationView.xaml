@@ -9,12 +9,12 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="{DynamicResource LoginTitle}" Height="450" Width="800">
     <Grid Background="#ffdadada">
-        <Border MinWidth="250" Margin="20" Padding="20" Background="#ffffffff" VerticalAlignment="Center" MaxWidth="600" CornerRadius="20">
+        <Border MinWidth="250" Margin="20" Padding="20" Background="{DynamicResource MaterialDesignPaper}" VerticalAlignment="Center" MaxWidth="600" CornerRadius="20">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="LightGray"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock Text="{DynamicResource LoginTitle}" FontSize="20" FontWeight="Bold" Margin="0 0 0 30"/>
+                <TextBlock Text="{DynamicResource LoginTitle}" FontSize="20" FontWeight="Bold" Margin="0 0 0 30" Foreground="{DynamicResource MaterialDesignBody}"/>
 
                 <Grid Margin="0 0 0 30">
                     <Button Content="{DynamicResource RegisterButton}" 
@@ -26,10 +26,12 @@
                 </Grid>
 
                 <TextBox x:Name="LoginBox" 
+                         Foreground="{DynamicResource MaterialDesignBody}"
                          Text="{Binding Login, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
                          materialDesign:HintAssist.Hint="{DynamicResource LoginHint}" 
                          Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
                 <PasswordBox x:Name="PassBox" 
+                             Foreground="{DynamicResource MaterialDesignBody}"
                              PasswordChanged="FirstPassBox_PasswordChanged"
                              materialDesign:HintAssist.Hint="{DynamicResource PasswordHint}" 
                              Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>

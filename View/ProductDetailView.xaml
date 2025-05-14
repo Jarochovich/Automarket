@@ -17,7 +17,7 @@
 
     <Border Margin="20" 
             Padding="20" 
-            Background="White" 
+            Background="{DynamicResource MaterialDesignPaper}"
             CornerRadius="5" 
             BorderBrush="#DDD" 
             BorderThickness="1">
@@ -48,7 +48,7 @@
                         <TextBlock Text="{Binding Product.Name}" 
                                    FontSize="24" 
                                    FontWeight="Bold" 
-                                   Foreground="#333"
+                                   Foreground="{DynamicResource MaterialDesignBody}"
                                    Margin="0,0,0,10" />
 
                         <TextBlock Text="{Binding Product.Price, StringFormat='Цена: {0} BYN'}"
@@ -61,7 +61,7 @@
                                 Width="200"
                                 Height="40"
                                 Cursor="Hand"
-                                Foreground="White"
+                                Foreground="{DynamicResource MaterialDesignBody}"
                                 HorizontalAlignment="Center"
                                 Command="{Binding AddToCartCommand}"/>
                     </StackPanel>
@@ -71,26 +71,26 @@
                 <TextBlock Text="{DynamicResource Description}" 
                            FontSize="16" 
                            FontWeight="Bold" 
-                           Foreground="#333"
+                           Foreground="{DynamicResource MaterialDesignBody}"
                            Margin="0,0,0,5" />
 
                 <TextBlock Text="{Binding Product.Description}" 
                            TextWrapping="Wrap" 
                            FontSize="14"
-                           Foreground="#555"
+                           Foreground="{DynamicResource MaterialDesignBody}"
                            Margin="0,0,0,20" />
 
                 <!-- Отзывы -->
                 <TextBlock Text="{DynamicResource Reviews}" 
                            FontSize="16" 
                            FontWeight="Bold" 
-                           Foreground="#333"
+                           Foreground="{DynamicResource MaterialDesignBody}"
                            Margin="0,0,0,10" />
 
                 <ItemsControl ItemsSource="{Binding Reviews}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="#F9F9F9" 
+                            <Border Background="{DynamicResource MaterialDesignBody}"
                                     BorderBrush="#CCC" 
                                     BorderThickness="1" 
                                     CornerRadius="5"

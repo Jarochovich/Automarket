@@ -5,9 +5,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,7 +16,6 @@ namespace AutoMarket.ViewModel
         private string _login;
         private string _password;
         public PasswordBox PassBox { get; set; }
-
         private bool _isFormTouched;
 
         public string Login
@@ -45,22 +41,21 @@ namespace AutoMarket.ViewModel
         }
 
         public ICommand AuthCommand { get; }
-        public ICommand ShowRegisterCommand { get; }  // Команда для показа RegistrationView
+        public ICommand ShowRegisterCommand { get; }
 
         public Action CloseAction { get; set; }
 
         public AutorizationViewModel()
         {
             AuthCommand = new RelayCommand(param => OnLogin(), param => CanLogin());
-            ShowRegisterCommand = new RelayCommand(param => OpenRegisterView());  // Инициализируем команду
+            ShowRegisterCommand = new RelayCommand(param => OpenRegisterView());
         }
 
         private bool CanLogin()
         {
-            return !string.IsNullOrWhiteSpace(Login) && !string.IsNullOrWhiteSpace(Password);  // Кнопка доступна, если оба поля заполнены
+            return !string.IsNullOrWhiteSpace(Login) && !string.IsNullOrWhiteSpace(Password);
         }
 
-        // логика входа
         private void OnLogin()
         {
             if (HasValidationErrors())
@@ -69,25 +64,31 @@ namespace AutoMarket.ViewModel
                 return;
             }
 
+            // Проверка администратора
             bool isAdmin = DataWorker.IsAdmin(Login, Password);
             if (isAdmin)
             {
-                // Переход к AdminView
-                ShowMessageToUser("Адмнинистратор! Вы успешно авторизовались!");
+                var adminUser = DataWorker.GetUserByLogin(Login);
+                UserSession.Login(adminUser);
+
+                ShowMessageToUser("Администратор! Вы успешно авторизовались!");
                 AdminView adminView = new AdminView();
                 adminView.Show();
-                CloseAction?.Invoke();  // Закрыть окно авторизации
+                CloseAction?.Invoke();
                 return;
             }
 
+            // Проверка обычного пользователя
             if (DataWorker.GetUser(Login, Password))
             {
-                ShowMessageToUser("Пользователь! Вы успешно авторизовались!");
+                var user = DataWorker.GetUserByLogin(Login);
+                UserSession.Login(user);
+
+                ShowMessageToUser("Вы успешно авторизовались!");
                 ClearFields();
+
                 var mainView = new MainView();
                 mainView.Show();
-
-                // Закрываем окно авторизации
                 CloseAction?.Invoke();
             }
             else
@@ -98,11 +99,8 @@ namespace AutoMarket.ViewModel
 
         private void OpenRegisterView()
         {
-            // Создаём и показываем окно регистрации
             var registerView = new RegistrationView();
             registerView.Show();
-
-            // Закрываем окно авторизации
             CloseAction?.Invoke();
         }
 
@@ -110,22 +108,13 @@ namespace AutoMarket.ViewModel
         {
             Login = string.Empty;
             Password = string.Empty;
-            // Очищаем поля PasswordBox в View
-            if (PassBox != null)
-            {
-                PassBox.Clear(); // Очистка пароля
-            }
+            PassBox?.Clear();
         }
 
         private bool HasValidationErrors()
         {
             var propertiesToCheck = new[] { nameof(Login), nameof(Password) };
-            foreach (var property in propertiesToCheck)
-            {
-                if (!string.IsNullOrEmpty(this[property])) // Если есть ошибка, вернуть true
-                    return true;
-            }
-            return false; // Если нет ошибок
+            return propertiesToCheck.Any(property => !string.IsNullOrEmpty(this[property]));
         }
 
         private readonly HashSet<string> _touchedProperties = new();
@@ -148,7 +137,6 @@ namespace AutoMarket.ViewModel
 
         public string Error => null;
 
-
         private void ShowMessageToUser(string message)
         {
             MessageView messageView = new MessageView
@@ -168,5 +156,4 @@ namespace AutoMarket.ViewModel
             CommandManager.InvalidateRequerySuggested();
         }
     }
-
 }

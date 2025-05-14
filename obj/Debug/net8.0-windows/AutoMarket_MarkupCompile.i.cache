@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 C:\Users\yarok\Desktop\Стасян\4_СЕМ_ЛАБЫ\CursProj\AutoMarket\App.xaml
-9-60588154
+12-328646048
 
-37-1060405946
-239893785439
-View\AddNewProductView.xaml;View\AdminView.xaml;View\AutorizationView.xaml;View\CartView.xaml;View\EditProductView.xaml;View\MainView.xaml;View\MessageView.xaml;View\ProductDetailView.xaml;View\RegistrationView.xaml;
+45-447194206
+240451009331
+Resources\Localization\Strings.en.xaml;Resources\Localization\Strings.ru.xaml;View\AccountView.xaml;View\AddNewProductView.xaml;View\AdminView.xaml;View\AutorizationView.xaml;View\CartView.xaml;View\EditProductView.xaml;View\MainView.xaml;View\MessageView.xaml;View\ProductDetailView.xaml;View\RegistrationView.xaml;
 
-False
+True
 

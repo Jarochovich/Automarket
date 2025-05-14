@@ -12,7 +12,6 @@ namespace AutoMarket.ViewModel
 {
     public class BaseViewModel : INotifyPropertyChanged
     {
-        // Тема
         private bool _isDarkTheme;
         public bool IsDarkTheme
         {
@@ -24,15 +23,21 @@ namespace AutoMarket.ViewModel
                     _isDarkTheme = value;
                     ThemeManagerHelper.SetDarkTheme(_isDarkTheme);
                     //OnPropertyChanged(nameof(IsDarkTheme));
+
+                    // Можно сохранить настройку темы, если нужно
+                    // Properties.Settings.Default.IsDarkTheme = _isDarkTheme;
+                    // Properties.Settings.Default.Save();
                 }
             }
         }
 
         public ICommand ToggleThemeCommand { get; }
+
         public BaseViewModel()
         {
+            // Инициализация темы (лучше делать асинхронно, если загрузка тяжелая)
             _isDarkTheme = ThemeManagerHelper.IsDarkTheme();
-            ToggleThemeCommand = new RelayCommand(_ => IsDarkTheme = !IsDarkTheme);
+            ToggleThemeCommand = new RelayCommand(_ => ToggleTheme());
         }
 
         private void ToggleTheme()
@@ -40,12 +45,12 @@ namespace AutoMarket.ViewModel
             IsDarkTheme = !IsDarkTheme;
         }
 
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
+

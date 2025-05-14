@@ -44,80 +44,68 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="60"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            
-            
 
-            <StackPanel Grid.Column="0" 
-                        Grid.Row="1"
-                        Background="{DynamicResource MaterialDesignPaper}"
-                        >
-                <TextBlock Text="{DynamicResource Categories}" 
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource MaterialDesignBody}"
-                           FontSize="16" 
-                           Margin="10"/>
-                <ListBox ItemsSource="{Binding Categories}"
-                         SelectedItem="{Binding SelectedCategory}"
-                         DisplayMemberPath="Name"
-                         Margin="10"/>
-            </StackPanel>
 
-            <!-- Filter -->
-            <StackPanel Grid.Column="0" 
-                        Grid.Row="0"
-                        Grid.ColumnSpan="3"
-                        Background="{DynamicResource MaterialDesignPaper}"
-                        Orientation="Horizontal">
-                <TextBlock Text="{DynamicResource Filtration}" 
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource MaterialDesignBody}"
-                           FontSize="16" 
-                           Margin="10"
-                           VerticalAlignment="Center"/>
-                <StackPanel Margin="10, 0, 10, 0" 
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Center">
-                    <!-- Фильтр по производителю -->
+            <Border Grid.Column="0" Grid.Row="1"
+                    BorderBrush="{DynamicResource MaterialDesignDivider}"
+                    BorderThickness="0 0 1 0"
+                    Background="{DynamicResource MaterialDesignPaper}"
+                    Padding="0 0 5 0">
+                <StackPanel Grid.Column="0" 
+                            Grid.Row="1"
+                            Background="{DynamicResource MaterialDesignPaper}">
+                    
+                    <TextBlock Text="{DynamicResource Filtration}" 
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource MaterialDesignBody}"
+                               FontSize="16" 
+                               Margin="10"/>
+                    <ComboBox ItemsSource="{Binding Categories}"
+                              SelectedItem="{Binding SelectedCategory}"
+                              DisplayMemberPath="Name"
+                              Margin="10"
+                              
+                              Foreground="{DynamicResource MaterialDesignBody}"
+                              materialDesign:HintAssist.Hint="Выберите категорию"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+
                     <ComboBox Width="150"
                               Margin="10"
+                              HorizontalAlignment="Left"
                               Foreground="{DynamicResource MaterialDesignBody}"
                               ItemsSource="{Binding Manufacturers}" 
                               SelectedItem="{Binding SelectedManufacturer}"
                               DisplayMemberPath="Name"
                               materialDesign:HintAssist.Hint="{DynamicResource ManufacturerHint}"/>
 
-                     <!--Фильтр по цене (от)--> 
-                    <TextBox Width="100"
+                    <!--Фильтр по цене (от)-->
+                    <TextBox Width="150"
                              Margin="10"
+                             HorizontalAlignment="Left"
                              Foreground="{DynamicResource MaterialDesignBody}"
                              Text="{Binding MinPrice, UpdateSourceTrigger=PropertyChanged}"
                              materialDesign:HintAssist.Hint="{DynamicResource Price_from}"/>
 
-                     <!--Фильтр по цене (до)--> 
-                    <TextBox Width="100"
+                    <!--Фильтр по цене (до)-->
+                    <TextBox Width="150"
                              Margin="10,10,10,10"
+                             HorizontalAlignment="Left"
                              Foreground="{DynamicResource MaterialDesignBody}"
                              Text="{Binding MaxPrice, UpdateSourceTrigger=PropertyChanged}"
                              materialDesign:HintAssist.Hint="{DynamicResource Price_up_to}"/>
 
-                     <!--Кнопка применить--><!-- 
-                    <Button Content="{DynamicResource Apply_filter}"
-                            Command="{Binding ApplyFilterCommand}"
-                            Margin="10"
-                            Foreground="White"/>-->
-                    
-                     <!--Сбросить фильтры--> 
+                    <!--Сбросить фильтры-->
                     <Button Content="{DynamicResource Reset_filter}"
                             Command="{Binding ResetFilterCommand}"
                             Margin="10"
                             Foreground="{DynamicResource MaterialDesignBody}"/>
-                </StackPanel>
 
-            </StackPanel>
+                </StackPanel>
+            </Border>
+
 
 
             <!-- Main content -->
@@ -266,11 +254,18 @@
                         Grid.Column="2">
 
                 <!-- Профиль -->
+
                 <Button Command="{Binding ProfileCommand}"
+                        ToolTip="Личный кабинет"
                         Background="Transparent"
                         BorderBrush="Transparent"
                         Margin="3,0">
-                    <svg:SvgViewbox Source="pack://application:,,,/Resources/Pictures/profile.svg" Stretch="Uniform" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <svg:SvgViewbox Source="pack://application:,,,/Resources/Pictures/profile.svg" 
+                    Stretch="Uniform" 
+                    Height="24" 
+                    Width="24" 
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Center"/>
                 </Button>
 
                 <!-- Корзина -->
@@ -303,11 +298,9 @@
             <Button Content="🇷🇺 Русский" Command="{Binding SetRussianCommand}" Margin="5"/>
             <Button Content="🇺🇸 English" Command="{Binding SetEnglishCommand}" Margin="5"/>
             <ToggleButton x:Name="ThemeToggle"
-                          ToolTip="Переключить тему"
-                          IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                          Command="{Binding ToggleThemeCommand}">
+              ToolTip="Переключить тему"
+              IsChecked="{Binding IsDarkTheme, Mode=TwoWay}">
                 <StackPanel Orientation="Horizontal">
-                    
                     <materialDesign:PackIcon Kind="WeatherNight" Width="16" Height="16"/>
                 </StackPanel>
             </ToggleButton>

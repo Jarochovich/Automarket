@@ -1,13 +1,13 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using AutoMarket.Helpers;
 using AutoMarket.Model;
 using AutoMarket.View;
-using System.Windows.Media.Imaging;
 using MaterialDesignThemes.Wpf;
-using System.Linq;
-using AutoMarket.Helpers;
-using static MaterialDesignThemes.Wpf.Theme.ToolBar;
 
 namespace AutoMarket.ViewModel
 {
@@ -19,7 +19,6 @@ namespace AutoMarket.ViewModel
         // языки
         public ICommand SetRussianCommand { get; }
         public ICommand SetEnglishCommand { get; }
-
 
         private decimal? _minPrice;
         public decimal? MinPrice
@@ -121,12 +120,12 @@ namespace AutoMarket.ViewModel
             }
         }
 
-        public ICommand ProfileCommand { get; }
         public ICommand CartCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand OpenProductDetailsCommand { get; }
         public ICommand ResetFilterCommand { get; }
         public ICommand AddToCartCommand { get; }
+        public ICommand ProfileCommand { get; }
 
         public MainViewModel()
         {
@@ -136,18 +135,16 @@ namespace AutoMarket.ViewModel
 
             Products = new ObservableCollection<Product>(); // старт — пусто
 
-            ProfileCommand = new RelayCommand(_ => MessageBox.Show("Профиль"));
             CartCommand = new RelayCommand(OpenCart);
             LogoutCommand = new RelayCommand(_ => Logout());
             OpenProductDetailsCommand = new RelayCommand(p => OpenProductDetails((Product)p));
             ResetFilterCommand = new RelayCommand(_ => ResetFilters());
             AddToCartCommand = new RelayCommand(ExecuteAddToCart);
+            ProfileCommand = new RelayCommand(OpenAccount);
 
             SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
             SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
-
         }
-
 
         private void LoadProducts()
         {
@@ -178,7 +175,7 @@ namespace AutoMarket.ViewModel
 
         private void OpenCart(object parameter)
         {
-            var view = new CartView(CartVM); // Исправлено CArtVM на CartVM
+            var view = new CartView(CartVM);
             view.ShowDialog();
         }
 
@@ -225,6 +222,8 @@ namespace AutoMarket.ViewModel
 
         private void Logout()
         {
+            UserSession.Logout();
+
             var authView = new AutorizationView();
             authView.Show();
 
@@ -232,6 +231,63 @@ namespace AutoMarket.ViewModel
                 .OfType<Window>()
                 .FirstOrDefault(w => w.DataContext == this)?
                 .Close();
+        }
+
+        private User GetCurrentUser()
+        {
+            if (!UserSession.IsLoggedIn)
+            {
+                // Если пользователь не авторизован, показываем окно входа
+                var loginResult = ShowLoginDialog();
+
+                if (loginResult == true)
+                {
+                    return UserSession.CurrentUser;
+                }
+                return null;
+            }
+
+            return UserSession.CurrentUser;
+        }
+
+        private void OpenAccount(object parameter)
+        {
+            var currentUser = GetCurrentUser();
+
+            if (currentUser != null)
+            {
+                var accountView = new AccountView();
+                accountView.DataContext = new AccountViewModel(currentUser);
+                accountView.Owner = Application.Current.MainWindow; // Устанавливаем владельца
+                accountView.Show();
+
+                // Не скрываем главное окно, а оставляем его открытым
+                // Application.Current.MainWindow?.Hide();
+            }
+        }
+
+        private bool? ShowLoginDialog()
+        {
+            var loginView = new AutorizationView
+            {
+                Owner = Application.Current.MainWindow // Устанавливаем владельца
+            };
+            return loginView.ShowDialog();
+        }
+
+        private void ShowLoginWindow()
+        {
+            var loginView = new AutorizationView();
+            loginView.Show();
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window is MainView)
+                {
+                    window.Close();
+                    break;
+                }
+            }
         }
     }
 }

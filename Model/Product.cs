@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,10 @@ namespace AutoMarket.Model
 
         // навигационное свойство для отзывов
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+        // Добавляем новое свойство (не сохраняемое в БД)
+        [NotMapped] // Атрибут указывает, что это свойство не должно маппиться в БД
+        public int PurchaseQuantity { get; set; }
 
     }
 }

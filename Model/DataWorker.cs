@@ -7,6 +7,7 @@ using AutoMarket.Model.Data;
 using System.Linq;
 using AutoMarket.Helpers;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace AutoMarket.Model
 {
@@ -108,7 +109,61 @@ namespace AutoMarket.Model
             return hash == user.PasswordHash;
         }
 
+        // получить пользователя по логину
+        public static User GetUserByLogin(string login)
+        {
+            using var db = new ApplicationContext();
+            return db.Users.FirstOrDefault(u => u.Login == login);
+        }
 
+        public static List<Product> GetPurchasedProducts(int userId)
+        {
+            try
+            {
+                using (var db = new ApplicationContext())
+                {
+                    var result = db.Purchases
+                        .Where(p => p.UserId == userId)
+                        .Include(p => p.Product)
+                            .ThenInclude(prod => prod.Manufacturer)
+                        .Include(p => p.Product)
+                            .ThenInclude(prod => prod.Category)
+                        .AsNoTracking()
+                        .Select(p => new
+                        {
+                            Product = new Product
+                            {
+                                Id = p.Product.Id,
+                                Name = p.Product.Name,
+                                Price = p.Product.Price,
+                                Description = p.Product.Description,
+                                ImageData = p.Product.ImageData,
+                                CategoryId = p.Product.CategoryId,
+                                ManufacturerId = p.Product.ManufacturerId,
+                                Category = p.Product.Category,
+                                Manufacturer = p.Product.Manufacturer,
+                                Reviews = p.Product.Reviews
+                            },
+                            p.Quantity
+                        })
+                        .AsEnumerable()
+                        .Select(x =>
+                        {
+                            x.Product.PurchaseQuantity = x.Quantity;
+                            return x.Product;
+                        })
+                        .ToList();
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки
+                Debug.WriteLine($"Ошибка при загрузке покупок: {ex}");
+                throw; // Перебрасываем исключение для обработки в UI
+            }
+        }
 
         // создать категорию
         public static string CreateCategory(string category)
@@ -148,26 +203,25 @@ namespace AutoMarket.Model
             }
         }
 
-        // добавить пользователя
-        public static bool CreateUser(string login, string password, string phone)
+        // Добавить пользователя (асинхронно)
+        public static async Task<bool> CreateUserAsync(string login, string password, string phone)
         {
-            using var db = new ApplicationContext();
-
-            if (db.Users.Any(u => u.Login == login)) return false;
+            await using var db = new ApplicationContext();
+            if (await db.Users.AnyAsync(u => u.Login == login))
+                return false;
 
             string salt = Hashing.GenerateSalt();
             string hash = Hashing.HashPassword(password, salt);
 
-            var user = new User
+            await db.Users.AddAsync(new User
             {
                 Login = login,
                 PasswordSalt = salt,
                 PasswordHash = hash,
                 PhoneNumber = phone
-            };
+            });
 
-            db.Users.Add(user);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return true;
         }
 

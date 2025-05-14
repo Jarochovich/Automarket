@@ -35,12 +35,12 @@
     
     
     <Grid Background="#ffdadada">
-        <Border MinWidth="250" Margin="20" Padding="20" Background="#ffffffff" VerticalAlignment="Center" MaxWidth="600" CornerRadius="20">
+        <Border MinWidth="250" Margin="20" Padding="20" Background="{DynamicResource MaterialDesignPaper}" VerticalAlignment="Center" MaxWidth="600" CornerRadius="20">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="LightGray"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock Text="{DynamicResource GreetingText}" FontSize="20" FontWeight="Bold" Margin="0 0 0 30"/>
+                <TextBlock Text="{DynamicResource GreetingText}" FontSize="20" FontWeight="Bold" Margin="0 0 0 30" Foreground="{DynamicResource MaterialDesignBody}"/>
 
                 <Grid Margin="0 0 0 20">
                     <Button Content="{DynamicResource RegisterButton}" 
@@ -53,6 +53,7 @@
 
                 <TextBox x:Name="LoginBox" 
                           Margin="0 10"
+                         Foreground="{DynamicResource MaterialDesignBody}"
          Text="{Binding Login, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
          materialDesign:HintAssist.Hint="{DynamicResource LoginHint}" 
          Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
@@ -60,18 +61,21 @@
                 <!-- Удалите кастомные ErrorTemplate из PasswordBox -->
                 <PasswordBox x:Name="FirstPassBox" 
                              Margin="0 10"
+                             Foreground="{DynamicResource MaterialDesignBody}"
                  helpers:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay, ValidatesOnDataErrors=True}"
                  materialDesign:HintAssist.Hint="{DynamicResource PasswordHint}"
                  Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
 
                 <PasswordBox x:Name="SecondPassBox"
                              Margin="0 10"
+                             Foreground="{DynamicResource MaterialDesignBody}"
                  helpers:PasswordBoxAssistant.BoundPassword="{Binding ConfirmPassword, Mode=TwoWay, ValidatesOnDataErrors=True}"
                  materialDesign:HintAssist.Hint="{DynamicResource ConfirmPasswordHint}"
                  Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
 
                 <TextBox x:Name="PhoneBox"
                          Margin="0 10"
+                         Foreground="{DynamicResource MaterialDesignBody}"
          Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, Converter={StaticResource PhoneNumberFormatter}}"
          materialDesign:HintAssist.Hint="{DynamicResource PhoneNumberHint}" 
          Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
@@ -79,6 +83,7 @@
                 <Button Margin="0 20"
                         Content="{DynamicResource RegisterButton}"
                         Command="{Binding RegisterCommand}"
+                        
                           />
             </StackPanel>
         </Border>
