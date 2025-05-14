@@ -13,6 +13,40 @@ namespace AutoMarket.ViewModel
 {
     public class MainViewModel : BaseViewModel
     {
+        private int _someValue;
+        public int SomeValue
+        {
+            get => _someValue;
+            set
+            {
+                if (_someValue != value)
+                {
+                    _someValue = value;
+                    OnPropertyChanged(nameof(SomeValue));
+                }
+            }
+        }
+
+        private int _someNumber;
+        public int SomeNumber
+        {
+            get => _someNumber;
+            set => SetProperty(ref _someNumber, value);
+        }
+
+        private bool _isFeatureEnabled;
+        public bool IsFeatureEnabled
+        {
+            get => _isFeatureEnabled;
+            set => SetProperty(ref _isFeatureEnabled, value);
+        }
+
+        public ICommand ConfirmValueCommand { get; }
+
+
+
+
+
         // корзина
         public CartViewModel CartVM { get; set; } = new CartViewModel();
 
@@ -144,6 +178,22 @@ namespace AutoMarket.ViewModel
 
             SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
             SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
+
+            ConfirmValueCommand = new RelayCommand(_ => OnConfirmValue());
+        }
+
+        private void OnConfirmValue()
+        {
+            // обработка подтверждения
+        }
+
+        public void RefreshProducts()
+        {
+            // Обновляем все товары из базы данных
+            AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
+
+            // Применяем фильтрацию, если уже выбраны фильтры
+            FilterProducts();
         }
 
         private void LoadProducts()
@@ -157,6 +207,7 @@ namespace AutoMarket.ViewModel
                 }
             }
         }
+
 
         private void OpenProductDetails(Product product)
         {

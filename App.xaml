@@ -3,9 +3,81 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:AutoMarket"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             StartupUri="View/AdminView.xaml">
+             StartupUri="View/MainView.xaml">
     <Application.Resources>
         <ResourceDictionary>
+
+            <!-- Стиль для кнопок -->
+            <Style x:Key="StandardButton" TargetType="Button">
+                <Setter Property="Background" Value="#FF3F51B5"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Padding" Value="10 5"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Стиль для TextBox -->
+            <Style x:Key="StandardTextBox" TargetType="TextBox">
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="BorderBrush" Value="#FF9E9E9E"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="BorderBrush" Value="#FF3F51B5"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- Стиль для ComboBox -->
+            <Style x:Key="StandardComboBox" TargetType="ComboBox">
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="BorderBrush" Value="#FF9E9E9E"/>
+            </Style>
+
+            <!-- Стиль для ListBox -->
+            <Style x:Key="StandardListBox" TargetType="ListBox">
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="ItemContainerStyle">
+                    <Setter.Value>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Margin" Value="2"/>
+                            <Setter Property="Padding" Value="5"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#FFE3F2FD"/>
+                                    <Setter Property="Foreground" Value="#FF0D47A1"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+
+
+
+
+
+
+
             <ResourceDictionary.MergedDictionaries>
 
                 <materialDesign:BundledTheme BaseTheme="Dark" PrimaryColor="Red" SecondaryColor="Red" />

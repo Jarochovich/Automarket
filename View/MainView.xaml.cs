@@ -25,7 +25,30 @@ namespace AutoMarket.View
         {
             InitializeComponent();
             DataContext = new MainViewModel();
+
+            // Привязка команды
+            CommandBinding refreshBinding = new CommandBinding(
+                Model.CustomCommands.RefreshProducts,
+                ExecuteRefreshProducts,
+                CanExecuteRefreshProducts
+            );
+
+            this.CommandBindings.Add(refreshBinding);
         }
+
+        private void ExecuteRefreshProducts(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.RefreshProducts();
+            }
+        }
+
+        private void CanExecuteRefreshProducts(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true; // Можно добавить логику активации
+        }
+
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -46,6 +69,20 @@ namespace AutoMarket.View
                     detailWindow.ShowDialog();
                 }
             }
+        }
+
+
+
+
+
+        private void OnValueConfirmed(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Value confirmed! (Bubble Event)");
+        }
+
+        private void OnSwitchToggled(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Switch toggled! (Tunnel Event)");
         }
     }
 }
