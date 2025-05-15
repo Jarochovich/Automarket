@@ -90,7 +90,7 @@
         <!-- Кнопка оплаты -->
         <Button VerticalAlignment="Bottom"
                 HorizontalAlignment="Left"
-                Margin="0,10,10,10"
+                Margin="10"
                 FontSize="16"
                 FontWeight="Bold" 
                 Content="{DynamicResource Pay}"

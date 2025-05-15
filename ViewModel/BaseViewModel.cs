@@ -23,11 +23,6 @@ namespace AutoMarket.ViewModel
                 {
                     _isDarkTheme = value;
                     ThemeManagerHelper.SetDarkTheme(_isDarkTheme);
-                    //OnPropertyChanged(nameof(IsDarkTheme));
-
-                    // Можно сохранить настройку темы, если нужно
-                    // Properties.Settings.Default.IsDarkTheme = _isDarkTheme;
-                    // Properties.Settings.Default.Save();
                 }
             }
         }
@@ -41,24 +36,9 @@ namespace AutoMarket.ViewModel
             ToggleThemeCommand = new RelayCommand(_ => ToggleTheme());
         }
 
-        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (Equals(storage, value)) return false;
-
-            storage = value;
-            OnPropertyChanged(propertyName);
-            return true;
-        }
         private void ToggleTheme()
         {
             IsDarkTheme = !IsDarkTheme;
-        }
-        protected bool SetValue<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(propertyName);
-            return true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

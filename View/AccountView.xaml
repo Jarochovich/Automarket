@@ -8,7 +8,8 @@
         xmlns:converters="clr-namespace:AutoMarket.Helpers"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="Личный кабинет" Height="600" Width="1000"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
 
     <Window.Resources>
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
@@ -18,7 +19,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
 
         <!-- Шапка -->
@@ -32,13 +33,17 @@
         </Border>
 
         <!-- Основное содержимое -->
-        <ScrollViewer Grid.Row="1" Padding="20">
+        <ScrollViewer Grid.Row="1" Padding="20" Background="{DynamicResource MaterialDesignPaper}">
             <StackPanel>
                 <!-- Информация о пользователе -->
-                <materialDesign:Card Margin="0 0 0 20" Padding="15">
+                <materialDesign:Card 
+                    Margin="0 0 0 20" 
+                    Padding="15"
+                    Background="{DynamicResource MaterialDesignPaper}">
                     <StackPanel>
                         <TextBlock Text="Персональная информация" 
-                                   FontSize="16" 
+                                   FontSize="16"
+                                   Foreground="{DynamicResource MaterialDesignBody}"
                                    FontWeight="Bold"
                                    Margin="0 0 0 10"/>
 
@@ -53,13 +58,15 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Text="Логин:" Grid.Row="0" Grid.Column="0" Margin="0 0 10 5"/>
-                            <TextBlock Text="{Binding CurrentUser.Login}" Grid.Row="0" Grid.Column="1" Margin="0 0 0 5"/>
+                            <TextBlock Text="Логин:" Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource MaterialDesignBody}" Margin="0 0 10 5"/>
+                            <TextBlock Text="{Binding CurrentUser.Login}" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Margin="0 0 0 5"/>
 
-                            <TextBlock Text="Телефон:" Grid.Row="1" Grid.Column="0" Margin="0 0 10 5"/>
-                            <TextBlock Text="{Binding CurrentUser.PhoneNumber}" Grid.Row="1" Grid.Column="1" Margin="0 0 0 5"/>
+                            <TextBlock Text="Телефон:" Grid.Row="1" Grid.Column="0"
+                                       Foreground="{DynamicResource MaterialDesignBody}" Margin="0 0 10 5"/>
+                            <TextBlock Text="{Binding CurrentUser.PhoneNumber}" Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" Grid.Column="1" Margin="0 0 0 5"/>
 
-                            <Button Content="Редактировать профиль" 
+                            <Button Content="Редактировать профиль"
+                                    Foreground="{DynamicResource MaterialDesignBody}"
                                     Grid.Row="2" Grid.Column="0"
                                     HorizontalAlignment="Left"
                                     Margin="0 10 0 0"
@@ -70,40 +77,87 @@
                 </materialDesign:Card>
 
                 <!-- История покупок -->
-                <materialDesign:Card>
+                <materialDesign:Card Background="{DynamicResource MaterialDesignPaper}">
                     <StackPanel>
                         <TextBlock Text="История покупок" 
+                                   Foreground="{DynamicResource MaterialDesignBody}"
                                    FontSize="16" 
                                    FontWeight="Bold"
                                    Margin="10"/>
 
                         <ListView ItemsSource="{Binding PurchasedProducts}" 
-                                  Height="300"
-                                  BorderThickness="0">
+                                  Height="Auto"
+                                  BorderThickness="0"
+                                  HorizontalContentAlignment="Stretch"
+                                  >
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="#DDD" BorderThickness="0 0 0 1" Padding="10">
+                                    <Border  BorderThickness="0 0 0 1" Padding="10" Margin="5"
+                                            CornerRadius="10" Background="{DynamicResource MaterialDesignPaper}" 
+                                            >
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="3*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="3*"/>
                                             </Grid.ColumnDefinitions>
 
+                                            <!-- Изображение -->
                                             <Image Source="{Binding ImageData, Converter={StaticResource ByteArrayToImageConverter}}"
-                                                   Width="80" Height="80"
+                                                   Width="150" Height="150"
                                                    Grid.Column="0"
                                                    Margin="0 0 10 0"/>
 
-                                            <StackPanel Grid.Column="1">
-                                                <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                                                <TextBlock Text="{Binding Manufacturer.Name}" Margin="0 5 0 0"/>
+                                            <!-- Информация о товаре -->
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                                                <TextBlock 
+                                                    Text="{Binding Name}" 
+                                                    FontWeight="Bold" 
+                                                    Foreground="{DynamicResource MaterialDesignBody}"
+                                                    FontSize="16"/>
+                                                <TextBlock 
+                                                    Text="{Binding Manufacturer.Name}" 
+                                                    FontSize="12" 
+                                                    Foreground="{DynamicResource MaterialDesignBody}" 
+                                                    Margin="0 5 0 0"/>
+                                                <TextBlock 
+                                                    Text="{Binding Price, StringFormat='Цена: {0} BYN'}"
+                                                    Foreground="{DynamicResource MaterialDesignBody}"
+                                                    FontWeight="SemiBold"/>
+                                                <TextBlock 
+                                                    Text="{Binding PurchaseQuantity, StringFormat='Количество: {0}'}"
+                                                    Foreground="{DynamicResource MaterialDesignBody}"/>
+                                                
                                             </StackPanel>
 
-                                            <TextBlock Text="{Binding Price, StringFormat='{}{0} BYN'}" 
-                                                       Grid.Column="2"
-                                                       FontWeight="Bold"
-                                                       VerticalAlignment="Center"/>
+                                            <!-- Отзыв и рейтинг -->
+                                            <StackPanel Grid.Column="2" Margin="10 0 0 0">
+                                                <TextBlock Text="Оцените товар:" FontWeight="Bold"/>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="⭐" Foreground="{DynamicResource MaterialDesignBody}" FontSize="20" Margin="2"/>
+                                                        <TextBlock Text="⭐" Foreground="{DynamicResource MaterialDesignBody}" FontSize="20" Margin="2"/>
+                                                        <TextBlock Text="⭐" Foreground="{DynamicResource MaterialDesignBody}" FontSize="20" Margin="2"/>
+                                                        <TextBlock Text="⭐" Foreground="{DynamicResource MaterialDesignBody}" FontSize="20" Margin="2"/>
+                                                        <TextBlock Text="⭐" Foreground="{DynamicResource MaterialDesignBody}" FontSize="20" Margin="2"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <TextBox Margin="0 10 0 0"
+                                                         Height="60"
+                                                         TextWrapping="Wrap"
+                                                         AcceptsReturn="True"
+                                                         materialDesign:HintAssist.Hint="Ваш отзыв..."/>
+
+                                                <Button Content="Оставить отзыв"
+                                                        Foreground="{DynamicResource MaterialDesignBody}"
+                                                        Margin="0 10 0 0"
+                                                        HorizontalAlignment="Left"
+                                                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                        Padding="8 4"
+                                                        Command="{Binding DataContext.SubmitReviewCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -115,8 +169,9 @@
         </ScrollViewer>
 
         <!-- Нижняя панель -->
-        <Border Grid.Row="2" Background="#f5f5f5" Padding="10">
+        <Border Grid.Row="2" Background="{DynamicResource MaterialDesignPaper}" Padding="10">
             <Button Content="Вернуться в магазин"
+                    
                     Command="{Binding BackToMainCommand}"
                     HorizontalAlignment="Center"
                     Style="{StaticResource MaterialDesignOutlinedButton}"/>

@@ -25,15 +25,6 @@ namespace AutoMarket.View
         {
             InitializeComponent();
             DataContext = new MainViewModel();
-
-            // Привязка команды
-            CommandBinding refreshBinding = new CommandBinding(
-                Model.CustomCommands.RefreshProducts,
-                ExecuteRefreshProducts,
-                CanExecuteRefreshProducts
-            );
-
-            this.CommandBindings.Add(refreshBinding);
         }
 
         private void ExecuteRefreshProducts(object sender, ExecutedRoutedEventArgs e)
@@ -69,20 +60,6 @@ namespace AutoMarket.View
                     detailWindow.ShowDialog();
                 }
             }
-        }
-
-
-
-
-
-        private void OnValueConfirmed(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Value confirmed! (Bubble Event)");
-        }
-
-        private void OnSwitchToggled(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Switch toggled! (Tunnel Event)");
         }
     }
 }

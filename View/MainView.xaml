@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:AutoMarket.View.Controls"
         xmlns:vm="clr-namespace:AutoMarket.ViewModel"
         xmlns:m="clr-namespace:AutoMarket.Model"
         xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
@@ -76,19 +75,19 @@
                               materialDesign:HintAssist.Hint="Выберите категорию"
                               Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
 
-                    <ComboBox Width="150"
+                    <ComboBox Width="193"
                               Margin="10"
                               HorizontalAlignment="Left"
                               Foreground="{DynamicResource MaterialDesignBody}"
                               ItemsSource="{Binding Manufacturers}" 
                               SelectedItem="{Binding SelectedManufacturer}"
                               DisplayMemberPath="Name"
-                              Style="{StaticResource StandardComboBox}"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}"
                               materialDesign:HintAssist.Hint="{DynamicResource ManufacturerHint}"/>
 
                     <!--Фильтр по цене (от)-->
                     <TextBox Width="150"
-                             Margin="10"
+                             Margin="15"
                              HorizontalAlignment="Left"
                              Foreground="{DynamicResource MaterialDesignBody}"
                              Text="{Binding MinPrice, UpdateSourceTrigger=PropertyChanged}"
@@ -96,7 +95,7 @@
 
                     <!--Фильтр по цене (до)-->
                     <TextBox Width="150"
-                             Margin="10,10,10,10"
+                             Margin="15"
                              HorizontalAlignment="Left"
                              Foreground="{DynamicResource MaterialDesignBody}"
                              Text="{Binding MaxPrice, UpdateSourceTrigger=PropertyChanged}"
@@ -105,22 +104,9 @@
                     <!--Сбросить фильтры-->
                     <Button Content="{DynamicResource Reset_filter}"
                             Command="{Binding ResetFilterCommand}"
-                            Margin="10"
+                            Margin="15"
                             Foreground="{DynamicResource MaterialDesignBody}"/>
 
-                    <StackPanel>
-                        <controls:NumericBox Value="{Binding SomeValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                        
-                        <controls:LabeledSwitch Label="Enable Feature"
-                        IsChecked="{Binding IsFeatureEnabled, Mode=TwoWay}" />
-                    </StackPanel>
-
-                    <Button Command="m:CustomCommands.RefreshProducts"
-                            Content="Обновить товары"
-                            Width="150"
-                            Height="30"
-                            Margin="10"
-                            ToolTip="Перезагрузить список товаров"/>
 
                 </StackPanel>
             </Border>

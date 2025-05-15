@@ -15,6 +15,7 @@ namespace AutoMarket.ViewModel
         public ICommand RemoveCommand { get; }
         public ICommand IncreaseQuantityCommand { get; }
         public ICommand DecreaseQuantityCommand { get; }
+        public ICommand PayCommand { get; }
         public ObservableCollection<Product> CartProducts { get; set; } = new ObservableCollection<Product>();
         public CartViewModel()
         {
@@ -22,7 +23,41 @@ namespace AutoMarket.ViewModel
             DecreaseQuantityCommand = new RelayCommand(DecreaseQuantity);
             RemoveCommand = new RelayCommand(RemoveFromCart);
             CartItems.CollectionChanged += (s, e) => RecalculateTotal();
+            PayCommand = new RelayCommand(ExecutePay);
         }
+
+        private void ExecutePay(object parameter)
+        {
+            if (CartItems.Count == 0)
+            {
+                ShowMessageToUser("Корзина пуста.");
+                return;
+            }
+
+            var currentUser = UserSession.CurrentUser; // предположим, у тебя есть текущий пользователь
+            if (currentUser == null)
+            {
+                ShowMessageToUser("Пользователь не авторизован.");
+                return;
+            }
+
+            foreach (var item in CartItems)
+            {
+                DataWorker.SavePurchase(new Purchase
+                {
+                    UserId = currentUser.Id,
+                    ProductId = item.Product.Id,
+                    Quantity = item.CountItem,
+                    PriceAtPurchase = item.Product.Price,
+                    PurchaseDate = DateTime.Now
+                });
+            }
+
+            CartItems.Clear();
+            RecalculateTotal();
+            ShowMessageToUser("Покупка успешно завершена!");
+        }
+
 
         public ObservableCollection<CartItemViewModel> CartItems { get; set; } = new ObservableCollection<CartItemViewModel>();
 
@@ -76,7 +111,6 @@ namespace AutoMarket.ViewModel
             if (parameter is CartItemViewModel item && item.CountItem < 99)
             {
                 item.CountItem++;
-                
             }
         }
 

@@ -165,6 +165,13 @@ namespace AutoMarket.Model
             }
         }
 
+        public static void SavePurchase(Purchase purchase)
+        {
+            using var db = new ApplicationContext();
+            db.Purchases.Add(purchase);
+            db.SaveChanges();
+        }
+
         // создать категорию
         public static string CreateCategory(string category)
         {
