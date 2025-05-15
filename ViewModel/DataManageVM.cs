@@ -127,6 +127,20 @@ namespace AutoMarket.ViewModel
             }
         }
 
+
+        // все отзывы
+        private List<Review> allReviews = DataWorker.GetAllReviews();
+        public List<Review> AllReviews
+        {
+            get { return allReviews; }
+            set
+            {
+                allReviews = value;
+                OnPropertyChanged("AllReviews");
+            }
+        }
+
+
         // категория
         public static string CategoryName { get; set; }
 
@@ -167,6 +181,7 @@ namespace AutoMarket.ViewModel
         public TabItem SelectedTabItem { get; set; }
         public static User SelectedUser { get; set; }
         public static Category SelectedCategory { get; set; }
+        public static Review SelectedReview { get; set; }
         public static Manufacturer SelectedManufacturer { get; set; }
         public static Product SelectedProduct { get; set; }
 
@@ -312,6 +327,12 @@ namespace AutoMarket.ViewModel
                         resultStr = DataWorker.DeleteCategory(SelectedCategory);
                         UpdateAllDataView();
                     }
+                    // удаление отзыва
+                    if (SelectedTabItem.Name == "ReviewsTab" && SelectedReview != null)
+                    {
+                        resultStr = DataWorker.DeleteReview(SelectedReview);
+                        UpdateAllDataView();
+                    }
 
                     ShowMessageToUser(resultStr);
                     SetNullValuesToProperties();
@@ -414,6 +435,7 @@ namespace AutoMarket.ViewModel
             UpdateAllProductsView();
             UpdateAllUsersView();
             UpdateAllManufacturerView();
+            UpdateAllReviewView();
         }
         private void UpdateAllCategoriesView()
         {
@@ -449,6 +471,15 @@ namespace AutoMarket.ViewModel
             AdminView.AllUsersView.Items.Clear();
             AdminView.AllUsersView.ItemsSource = AllUsers;
             AdminView.AllUsersView.Items.Refresh();
+        }
+
+        private void UpdateAllReviewView()
+        {
+            AllReviews = DataWorker.GetAllReviews();
+            AdminView.AllReviewsView.ItemsSource = null;
+            AdminView.AllReviewsView.Items.Clear();
+            AdminView.AllReviewsView.ItemsSource = AllReviews;
+            AdminView.AllReviewsView.Items.Refresh();
         }
         #endregion
 

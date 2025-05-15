@@ -15,7 +15,7 @@ namespace AutoMarket.ViewModel
     {
 
 
-
+        
 
         // корзина
         public CartViewModel CartVM { get; set; } = new CartViewModel();
@@ -133,6 +133,9 @@ namespace AutoMarket.ViewModel
 
         public MainViewModel()
         {
+            LoadAllProductsWithRatings(); // Новый метод для загрузки с рейтингами
+            
+
             AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
             Categories = new ObservableCollection<Category>(DataWorker.GetAllCategories());
             Manufacturers = new ObservableCollection<Manufacturer>(DataWorker.GetAllManufacturers());
@@ -149,6 +152,18 @@ namespace AutoMarket.ViewModel
             SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
             SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
 
+        }
+
+        private void LoadAllProductsWithRatings()
+        {
+            var products = DataWorker.GetAllProducts();
+            foreach (var product in products)
+            {
+                var reviews = DataWorker.GetReviewsByProductId(product.Id);
+                product.Rating = reviews != null && reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+            }
+            AllProducts = new ObservableCollection<Product>(products);
+            Products = new ObservableCollection<Product>();
         }
 
         private void OnConfirmValue()
@@ -169,11 +184,23 @@ namespace AutoMarket.ViewModel
         {
             if (SelectedCategory != null)
             {
-                Products.Clear();
-                foreach (var product in DataWorker.GetProductsByCategory(SelectedCategory.Id))
+                var products = DataWorker.GetProductsByCategory(SelectedCategory.Id);
+
+                foreach (var product in products)
                 {
-                    Products.Add(product);
+                    // Получаем отзывы для продукта и рассчитываем средний рейтинг
+                    var reviews = DataWorker.GetReviewsByProductId(product.Id);
+                    if (reviews != null && reviews.Any())
+                    {
+                        product.Rating = reviews.Average(r => r.Rating);
+                    }
+                    else
+                    {
+                        product.Rating = 0; // Если нет отзывов, рейтинг 0
+                    }
                 }
+
+                Products = new ObservableCollection<Product>(products);
             }
         }
 
@@ -227,7 +254,15 @@ namespace AutoMarket.ViewModel
                 filtered = filtered.Where(p => p.Price <= MaxPrice.Value);
             }
 
-            Products = new ObservableCollection<Product>(filtered);
+            // Рассчитываем рейтинг для отфильтрованных товаров
+            var result = filtered.ToList();
+            foreach (var product in result)
+            {
+                var reviews = DataWorker.GetReviewsByProductId(product.Id);
+                product.Rating = reviews != null && reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+            }
+
+            Products = new ObservableCollection<Product>(result);
         }
 
         private void ResetFilters()
@@ -239,6 +274,8 @@ namespace AutoMarket.ViewModel
             MaxPrice = null;
             Products = new ObservableCollection<Product>();
         }
+
+
 
         private void Logout()
         {

@@ -207,7 +207,49 @@
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
-                    
+
+
+
+
+
+
+                        <!-- Manufacturers TAB -->
+                        <TabItem Name="ReviewsTab">
+                            <TabItem.Header>
+                                <TextBlock Text="Reviews" Foreground="{DynamicResource MaterialDesignBody}"/>
+                            </TabItem.Header>
+                            <TabItem.ContextMenu>
+                                <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
+                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
+                                </ContextMenu>
+                            </TabItem.ContextMenu>
+
+                            <DataGrid Name="ViewAllReviews"
+                                      ItemsSource="{Binding AllReviews}"
+                                      SelectedItem="{Binding SelectedReview}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
+                                      Background="Transparent"
+                                      RowBackground="Transparent"
+                                      
+                                      GridLinesVisibility="None"
+                                      HeadersVisibility="Column"
+                                      CanUserAddRows="False"
+                                      Style="{StaticResource MaterialDesignDataGrid}"
+                                      materialDesign:DataGridAssist.CellPadding="12,6"
+                                      materialDesign:DataGridAssist.ColumnHeaderPadding="8">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
+                                    <DataGridTextColumn Header="Author" Binding="{Binding AuthorName}" />
+                                    <DataGridTextColumn Header="ProductId" Binding="{Binding ProductId}" />
+                                    <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" />
+                                    <DataGridTextColumn Header="Rating" Binding="{Binding Rating}" />
+                                    <DataGridTextColumn Header="Date" Binding="{Binding DateCreated}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>
 
 
 

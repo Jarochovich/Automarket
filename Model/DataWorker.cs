@@ -8,6 +8,7 @@ using System.Linq;
 using AutoMarket.Helpers;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Windows;
 
 namespace AutoMarket.Model
 {
@@ -45,6 +46,17 @@ namespace AutoMarket.Model
             }
         }
 
+        public static List<Review> GetAllReviews()
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                var results = db.Reviews.ToList();
+                return results;
+            }
+        }
+
+        
+
         // получить продукты конкретной категории
         public static List<Product> GetProductsByCategory(int categoryId)
         {
@@ -60,12 +72,25 @@ namespace AutoMarket.Model
         // получить отзывы по продукту
         public static List<Review> GetReviewsByProductId(int productId)
         {
-            using (ApplicationContext db = new ApplicationContext())
+            using (var context = new ApplicationContext())
             {
-                var results = db.Reviews.Where(r => r.ProductId == productId).ToList();
-                return results;
+                return context.Reviews
+                              .Include(r => r.User) // загружаем автора
+                              .Where(r => r.ProductId == productId)
+                              .Select(r => new Review
+                              {
+                                  Id = r.Id,
+                                  Comment = r.Comment,
+                                  Rating = r.Rating,
+                                  ProductId = r.ProductId,
+                                  UserId = r.UserId,
+                                  AuthorName = r.User.Login,
+                                  DateCreated = r.DateCreated
+                              })
+                              .ToList();
             }
         }
+
 
         // получить всех пользователей
         public static List<User> GetAllUsers()
@@ -122,46 +147,31 @@ namespace AutoMarket.Model
             {
                 using (var db = new ApplicationContext())
                 {
-                    var result = db.Purchases
+                    var purchases = db.Purchases
                         .Where(p => p.UserId == userId)
                         .Include(p => p.Product)
                             .ThenInclude(prod => prod.Manufacturer)
                         .Include(p => p.Product)
                             .ThenInclude(prod => prod.Category)
+                        .Include(p => p.Product)
+                            .ThenInclude(prod => prod.Reviews)
                         .AsNoTracking()
-                        .Select(p => new
-                        {
-                            Product = new Product
-                            {
-                                Id = p.Product.Id,
-                                Name = p.Product.Name,
-                                Price = p.Product.Price,
-                                Description = p.Product.Description,
-                                ImageData = p.Product.ImageData,
-                                CategoryId = p.Product.CategoryId,
-                                ManufacturerId = p.Product.ManufacturerId,
-                                Category = p.Product.Category,
-                                Manufacturer = p.Product.Manufacturer,
-                                Reviews = p.Product.Reviews
-                            },
-                            p.Quantity
-                        })
-                        .AsEnumerable()
-                        .Select(x =>
-                        {
-                            x.Product.PurchaseQuantity = x.Quantity;
-                            return x.Product;
-                        })
-                        .ToList();
+                        .ToList(); // Выполняем запрос здесь
 
-                    return result;
+                    // Теперь в C# задаём PurchaseQuantity
+                    var products = purchases.Select(p =>
+                    {
+                        p.Product.PurchaseQuantity = p.Quantity;
+                        return p.Product;
+                    }).ToList();
+
+                    return products;
                 }
             }
             catch (Exception ex)
             {
-                // Логирование ошибки
                 Debug.WriteLine($"Ошибка при загрузке покупок: {ex}");
-                throw; // Перебрасываем исключение для обработки в UI
+                throw;
             }
         }
 
@@ -170,6 +180,50 @@ namespace AutoMarket.Model
             using var db = new ApplicationContext();
             db.Purchases.Add(purchase);
             db.SaveChanges();
+        }
+
+
+        public static bool AddReview(int userId, int productId, string comment, int rating)
+        {
+            try
+            {
+                using (var context = new ApplicationContext())
+                {
+                    var user = context.Users.Find(userId);
+                    var product = context.Products.Find(productId);
+
+                    if (user == null || product == null)
+                        return false;
+
+                    var review = new Review
+                    {
+                        UserId = userId,
+                        ProductId = productId,
+                        Comment = comment,
+                        Rating = rating,
+                        DateCreated = DateTime.Now,
+                        AuthorName = user.Login // !!! ВАЖНО: заполняем обязательное поле
+                    };
+
+                    context.Reviews.Add(review);
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                string error = ex.InnerException?.Message ?? ex.Message;
+                MessageBox.Show($"Ошибка при сохранении: {error}");
+                return false;
+            }
+        }
+
+        public static bool UserHasReviewedProduct(int userId, int productId)
+        {
+            using (var db = new ApplicationContext())
+            {
+                return db.Reviews.Any(r => r.UserId == userId && r.ProductId == productId);
+            }
         }
 
         // создать категорию
@@ -242,6 +296,20 @@ namespace AutoMarket.Model
                 db.Categories.Remove(category);
                 db.SaveChanges();
                 result = $"Категория {category.Name} успешно удалена!";
+            }
+            return result;
+        }
+
+        // удалить отзыв
+        public static string DeleteReview(Review review)
+        {
+            string result = "Такого отзыва нет!";
+
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                db.Reviews.Remove(review);
+                db.SaveChanges();
+                result = $"Комментарий {review.Comment} успешно удален!";
             }
             return result;
         }

@@ -22,6 +22,8 @@ namespace AutoMarket.Model
         // навигационное свойство для отзывов
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
+        public double Rating { get; set; }
+
         // Добавляем новое свойство (не сохраняемое в БД)
         [NotMapped] // Атрибут указывает, что это свойство не должно маппиться в БД
         public int PurchaseQuantity { get; set; }

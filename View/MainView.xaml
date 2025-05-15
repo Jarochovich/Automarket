@@ -15,8 +15,11 @@
         Title="{DynamicResource MainView}" Height="500" Width="1200">
 
     <Window.Resources>
+        <converters:RatingToStarsConverter x:Key="RatingToStarsConverter"/>
+        <converters:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
-       
+
+        
     </Window.Resources>
     
     <Grid>
@@ -164,13 +167,19 @@
                                     <!-- Рейтинг товара -->
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                                         <TextBlock Text="Рейтинг: " VerticalAlignment="Center" Foreground="#555"/>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Path Data="M10,1L12,6L17,6L13,9L14,15L10,12L6,15L7,9L3,6L8,6Z" Fill="Gold" Width="16" Height="16" Margin="1,0"/>
-                                            <Path Data="M10,1L12,6L17,6L13,9L14,15L10,12L6,15L7,9L3,6L8,6Z" Fill="Gold" Width="16" Height="16" Margin="1,0"/>
-                                            <Path Data="M10,1L12,6L17,6L13,9L14,15L10,12L6,15L7,9L3,6L8,6Z" Fill="Gold" Width="16" Height="16" Margin="1,0"/>
-                                            <Path Data="M10,1L12,6L17,6L13,9L14,15L10,12L6,15L7,9L3,6L8,6Z" Fill="Gray" Width="16" Height="16" Margin="1,0"/>
-                                            <Path Data="M10,1L12,6L17,6L13,9L14,15L10,12L6,15L7,9L3,6L8,6Z" Fill="Gray" Width="16" Height="16" Margin="1,0"/>
-                                        </StackPanel>
+
+                                        <ItemsControl ItemsSource="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="★" FontSize="16" Foreground="{Binding Converter={StaticResource BoolToBrushConverter}}"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
                                     </StackPanel>
 
                                     <!-- Grid для кнопок "Подробнее" и "В корзину" -->

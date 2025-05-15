@@ -33,14 +33,19 @@ namespace AutoMarket.ViewModel
         }
 
         public ICommand BackToMainCommand { get; }
+        public ObservableCollection<ProductReviewViewModel> ProductReviews { get; set; }
+
+        public ICommand SubmitReviewCommand { get; }
 
         public AccountViewModel(User user)
         {
             CurrentUser = user;
             PurchasedProducts = new ObservableCollection<Product>();
             BackToMainCommand = new RelayCommand(_ => BackToMain());
+            SubmitReviewCommand = new RelayCommand(SubmitReview);
 
             // Загрузка данных о покупках
+            ProductReviews = new ObservableCollection<ProductReviewViewModel>();
             LoadPurchasedProducts();
         }
 
@@ -55,6 +60,7 @@ namespace AutoMarket.ViewModel
                 }
 
                 PurchasedProducts.Clear();
+                ProductReviews.Clear();
 
                 var products = DataWorker.GetPurchasedProducts(CurrentUser.Id);
 
@@ -66,10 +72,13 @@ namespace AutoMarket.ViewModel
 
                 foreach (var product in products)
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        PurchasedProducts.Add(product);
-                    });
+                    PurchasedProducts.Add(product);
+                    var reviewVM = new ProductReviewViewModel { Product = product };
+
+                    // Проверяем, оставлял ли пользователь отзыв на этот продукт
+                    reviewVM.HasUserReviewed = DataWorker.UserHasReviewedProduct(CurrentUser.Id, product.Id);
+
+                    ProductReviews.Add(reviewVM);
                 }
             }
             catch (Exception ex)
@@ -78,6 +87,38 @@ namespace AutoMarket.ViewModel
                 Debug.WriteLine($"Полная ошибка: {ex}");
             }
         }
+
+        private void SubmitReview(object obj)
+        {
+            if (obj is ProductReviewViewModel reviewVM)
+            {
+                if (reviewVM.HasUserReviewed)
+                {
+                    MessageBox.Show("Вы уже оставили отзыв на этот товар.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(reviewVM.Comment))
+                {
+                    MessageBox.Show("Пожалуйста, напишите отзыв.");
+                    return;
+                }
+                MessageBox.Show($"User: {CurrentUser.Id}, Product: {reviewVM.Product?.Id}, Rating: {reviewVM.Rating}, Comment: {reviewVM.Comment}");
+                bool success = DataWorker.AddReview(CurrentUser.Id, reviewVM.Product.Id, reviewVM.Comment, reviewVM.Rating);
+                if (success)
+                {
+                    MessageBox.Show("Отзыв успешно добавлен.");
+                    reviewVM.Comment = string.Empty;
+                    reviewVM.Rating = 0;
+                    reviewVM.HasUserReviewed = true;
+                }
+                else
+                {
+                    MessageBox.Show("Ошибка при добавлении отзыва.");
+                }
+            }
+        }
+
 
         private void BackToMain()
         {

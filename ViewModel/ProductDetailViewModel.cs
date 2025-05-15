@@ -7,6 +7,18 @@ namespace AutoMarket.ViewModel
     public class ProductDetailViewModel : BaseViewModel
     {
         public Product Product { get; }
+
+        private ObservableCollection<Review> _reviews;
+        public ObservableCollection<Review> Reviews
+        {
+            get => _reviews;
+            set
+            {
+                _reviews = value;
+                OnPropertyChanged(nameof(Reviews));
+            }
+        }
+
         public ICommand AddToCartCommand { get; }
 
         private CartViewModel _cartViewModel;
@@ -16,7 +28,21 @@ namespace AutoMarket.ViewModel
             Product = product;
             _cartViewModel = cartViewModel;
 
+            Reviews = new ObservableCollection<Review>(DataWorker.GetReviewsByProductId(product.Id));
             AddToCartCommand = new RelayCommand(_ => AddToCart());
+
+            LoadReviews();
+        }
+
+        public ProductDetailViewModel(Product product)
+        {
+            Product = product;
+        }
+
+        private void LoadReviews()
+        {
+            var reviews = DataWorker.GetReviewsByProductId(Product.Id); // Метод должен возвращать List<Review>
+            Reviews = new ObservableCollection<Review>(reviews);
         }
 
         private void AddToCart()

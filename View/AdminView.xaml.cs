@@ -25,6 +25,7 @@ namespace AutoMarket.View
         public static DataGrid AllProductsView;
         public static DataGrid AllUsersView;
         public static DataGrid AllManufacturersView;
+        public static DataGrid AllReviewsView;
         public AdminView()
         {
             InitializeComponent();
@@ -33,6 +34,7 @@ namespace AutoMarket.View
             AllProductsView = ViewAllProducts;
             AllUsersView = ViewAllUsers;
             AllManufacturersView = ViewAllManufacturers;
+            AllReviewsView = ViewAllReviews;
         }
     }
 }
