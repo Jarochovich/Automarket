@@ -76,7 +76,6 @@
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
-                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
                                     <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
                             </TabItem.ContextMenu>
@@ -147,7 +146,6 @@
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
-                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
                                     <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
                             </TabItem.ContextMenu>
@@ -181,7 +179,7 @@
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
-                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
+                                    
                                     <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
                             </TabItem.ContextMenu>
@@ -209,18 +207,13 @@
                         </TabItem>
 
 
-
-
-
-
-                        <!-- Manufacturers TAB -->
+                        <!-- Reviews TAB -->
                         <TabItem Name="ReviewsTab">
                             <TabItem.Header>
                                 <TextBlock Text="Reviews" Foreground="{DynamicResource MaterialDesignBody}"/>
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
-                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
                                     <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
                             </TabItem.ContextMenu>
@@ -233,7 +226,6 @@
                                       Foreground="{DynamicResource MaterialDesignBody}"
                                       Background="Transparent"
                                       RowBackground="Transparent"
-                                      
                                       GridLinesVisibility="None"
                                       HeadersVisibility="Column"
                                       CanUserAddRows="False"
@@ -252,6 +244,47 @@
                         </TabItem>
 
 
+
+
+                        <!-- Purchases TAB --><!--
+                        <TabItem Name="PurchasesTab">
+                            <TabItem.Header>
+                                <TextBlock Text="Purchases" Foreground="{DynamicResource MaterialDesignBody}"/>
+                            </TabItem.Header>
+                            <TabItem.ContextMenu>
+                                <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
+                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
+                                    <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
+                                </ContextMenu>
+                            </TabItem.ContextMenu>
+
+                            <DataGrid Name="ViewAllPurchases"
+                                      ItemsSource="{Binding AllPurchases}"
+                                      SelectedItem="{Binding SelectedPurchase}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
+                                      Background="Transparent"
+                                      RowBackground="Transparent"
+                                      GridLinesVisibility="None"
+                                      HeadersVisibility="Column"
+                                      CanUserAddRows="False"
+                                      Style="{StaticResource MaterialDesignDataGrid}"
+                                      materialDesign:DataGridAssist.CellPadding="12,6"
+                                      materialDesign:DataGridAssist.ColumnHeaderPadding="8">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
+                                    <DataGridTextColumn Header="UserId" Binding="{Binding UserId}" />
+                                    <DataGridTextColumn Header="ProductId" Binding="{Binding ProductId}" />
+                                    <DataGridTextColumn Header="Date" Binding="{Binding PurchaseDate}" />
+                                    <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" />
+                                    <DataGridTextColumn Header="PriceAtPurchase" Binding="{Binding PriceAtPurchase}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </TabItem>-->
+
+
+                        
 
 
                     </TabControl>

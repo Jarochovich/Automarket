@@ -15,6 +15,8 @@
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
         <converters:BoolToStarColorConverter x:Key="BoolToStarColorConverter"/>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:BoolToTextReviewConverter x:Key="BoolToTextReviewConverter"/>
     </Window.Resources>
 
     <Grid>
@@ -37,114 +39,177 @@
         <!-- Основное содержимое -->
         <ScrollViewer Grid.Row="1" Padding="20" Background="{DynamicResource MaterialDesignPaper}">
             <StackPanel>
-                <!-- Информация о пользователе -->
-                <materialDesign:Card 
+                <TabControl>
+                    <!-- Информация о пользователе -->
+                    <TabItem Header="Персональная информация">
+                        <materialDesign:Card 
                     Margin="0 0 0 20" 
                     Padding="15"
                     Background="{DynamicResource MaterialDesignPaper}">
-                    <StackPanel>
-                        <TextBlock Text="Персональная информация" 
+                            <StackPanel>
+                                <TextBlock Text="Персональная информация" 
                                    FontSize="16"
                                    Foreground="{DynamicResource MaterialDesignBody}"
                                    FontWeight="Bold"
                                    Margin="0 0 0 10"/>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
 
-                            <TextBlock Text="Логин:" Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource MaterialDesignBody}" Margin="0 0 10 5"/>
-                            <TextBlock Text="{Binding CurrentUser.Login}" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Margin="0 0 0 5"/>
+                                    <TextBlock Text="Логин:" Grid.Row="0" Grid.Column="0" Foreground="{DynamicResource MaterialDesignBody}" Margin="0 0 10 5"/>
+                                    <TextBlock Text="{Binding CurrentUser.Login}" Grid.Row="0" Grid.Column="1" Foreground="{DynamicResource MaterialDesignBody}" Margin="0 0 0 5"/>
 
-                            <TextBlock Text="Телефон:" Grid.Row="1" Grid.Column="0"
+                                    <TextBlock Text="Телефон:" Grid.Row="1" Grid.Column="0"
                                        Foreground="{DynamicResource MaterialDesignBody}" Margin="0 0 10 5"/>
-                            <TextBlock Text="{Binding CurrentUser.PhoneNumber}" Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" Grid.Column="1" Margin="0 0 0 5"/>
+                                    <TextBlock Text="{Binding CurrentUser.PhoneNumber}" Foreground="{DynamicResource MaterialDesignBody}" Grid.Row="1" Grid.Column="1" Margin="0 0 0 5"/>
 
-                            <Button Content="Редактировать профиль"
+                                    <TextBlock Text="Баланс:" Grid.Row="2" Grid.Column="0"
+                                       Foreground="{DynamicResource MaterialDesignBody}" Margin="0 0 10 5"/>
+                                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="{Binding CurrentUser.Balance, StringFormat='{}{0} BYN'}" 
+                                           Foreground="{DynamicResource MaterialDesignBody}" 
+                                           Margin="0 0 10 5"/>
+                                        <Button Content="Пополнить баланс"
+                                        Command="{Binding TopUpBalanceCommand}"
+                                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                                        Padding="5 2"
+                                        FontSize="12"/>
+                                    </StackPanel>
+
+                                    <Button Content="Редактировать профиль"
                                     Foreground="{DynamicResource MaterialDesignBody}"
-                                    Grid.Row="2" Grid.Column="0"
+                                    Grid.Row="3" Grid.Column="0"
                                     HorizontalAlignment="Left"
                                     Margin="0 10 0 0"
                                     Style="{StaticResource MaterialDesignOutlinedButton}"
                                     Padding="10 5"/>
-                        </Grid>
-                    </StackPanel>
-                </materialDesign:Card>
+                                </Grid>
+                            </StackPanel>
+                        </materialDesign:Card>
+                    </TabItem>
 
-                <!-- История покупок -->
-                <materialDesign:Card Background="{DynamicResource MaterialDesignPaper}">
-                    <StackPanel>
-                        <TextBlock Text="История покупок" 
+
+                    <!-- Новая вкладка для управления заказами -->
+                    <TabItem Header="Мои заказы">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Ожидающие подтверждения -->
+                            <GroupBox Grid.Row="0" Header="Ожидают подтверждения" Margin="5"
+                 >
+                                <ListView ItemsSource="{Binding PendingPurchases}">
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="Товар" DisplayMemberBinding="{Binding ProductName}"/>
+                                            <GridViewColumn Header="Количество" DisplayMemberBinding="{Binding Purchase.Quantity}"/>
+                                            <GridViewColumn Header="Сумма" DisplayMemberBinding="{Binding TotalPrice, StringFormat={}{0} BYN}"/>
+                                            <GridViewColumn Header="Действия">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Button Content="Забрать"
+                                                                    Command="{Binding DataContext.ConfirmPurchaseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}" />
+                                                            <Button Content="Отказаться"
+                                                                    Command="{Binding DataContext.CancelPurchaseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </GroupBox>
+
+                            <!-- История покупок (только подтвержденные) -->
+                            <materialDesign:Card Grid.Row="1" Background="{DynamicResource MaterialDesignPaper}">
+                                <!-- существующая разметка истории покупок -->
+                            </materialDesign:Card>
+                        </Grid>
+                    </TabItem>
+
+
+                    <TabItem Header="Архив покупок">
+                        <!-- История покупок -->
+                        <materialDesign:Card Background="{DynamicResource MaterialDesignPaper}">
+                            <StackPanel>
+                                <TextBlock Text="История покупок" 
                                    Foreground="{DynamicResource MaterialDesignBody}"
                                    FontSize="16" 
                                    FontWeight="Bold"
                                    Margin="10"/>
 
-                        <ListView ItemsSource="{Binding ProductReviews}" 
+                                <ListView ItemsSource="{Binding ConfirmedPurchases}"
                                   Height="Auto"
                                   BorderThickness="0"
                                   HorizontalContentAlignment="Stretch"
                                   >
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border  BorderThickness="0 0 0 1" Padding="10" Margin="5"
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border  BorderThickness="0 0 0 1" Padding="10" Margin="5"
                                             CornerRadius="10" Background="{DynamicResource MaterialDesignPaper}" 
                                             >
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="3*"/>
-                                                <ColumnDefinition Width="2*"/>
-                                                <ColumnDefinition Width="3*"/>
-                                            </Grid.ColumnDefinitions>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="3*"/>
+                                                        <ColumnDefinition Width="2*"/>
+                                                        <ColumnDefinition Width="3*"/>
+                                                    </Grid.ColumnDefinitions>
 
-                                            <!-- Изображение -->
-                                            <Image Source="{Binding Product.ImageData, Converter={StaticResource ByteArrayToImageConverter}}"
+                                                    <!-- Изображение -->
+                                                    <Image Source="{Binding Product.ImageData, Converter={StaticResource ByteArrayToImageConverter}}"
                                                    Width="150" Height="150"
                                                    Grid.Column="0"
                                                    Margin="0 0 10 0"/>
 
-                                            <!-- Информация о товаре -->
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Top">
-                                                <TextBlock 
+                                                    <!-- Информация о товаре -->
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                                                        <TextBlock 
                                                     Text="{Binding Product.Name}" 
                                                     FontWeight="Bold" 
                                                     Foreground="{DynamicResource MaterialDesignBody}"
                                                     FontSize="16"/>
-                                                <TextBlock 
+                                                        <TextBlock 
                                                     Text="{Binding Product.Manufacturer.Name}" 
                                                     FontSize="12" 
                                                     Foreground="{DynamicResource MaterialDesignBody}" 
                                                     Margin="0 5 0 0"/>
-                                                <TextBlock 
+                                                        <TextBlock 
                                                     Text="{Binding Product.Price, StringFormat='Цена: {0} BYN'}"
                                                     Foreground="{DynamicResource MaterialDesignBody}"
                                                     FontWeight="SemiBold"/>
-                                                <TextBlock 
+                                                        <TextBlock 
                                                     Text="{Binding Product.PurchaseQuantity, StringFormat='Количество: {0}'}"
                                                     Foreground="{DynamicResource MaterialDesignBody}"/>
-                                                
-                                            </StackPanel>
 
-                                            <!-- Отзыв и рейтинг -->
-                                            <StackPanel Grid.Column="2" Margin="10 0 0 10">
-                                                <TextBlock Text="Оцените товар:" FontWeight="Bold"/>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <ItemsControl ItemsSource="{Binding Stars}">
-                                                        <ItemsControl.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <StackPanel Orientation="Horizontal"/>
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsControl.ItemsPanel>
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Button Content="★"
+                                                    </StackPanel>
+
+                                                    <!-- Отзыв и рейтинг -->
+                                                    <StackPanel Grid.Column="2" Margin="10 0 0 10">
+                                                        <TextBlock Text="Оцените товар:" FontWeight="Bold"/>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <ItemsControl ItemsSource="{Binding Stars}">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <StackPanel Orientation="Horizontal"/>
+                                                                    </ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <Button Content="★"
                                                                         Command="{Binding DataContext.SetRatingCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                         CommandParameter="{Binding Value}"
                                                                         FontSize="24"
@@ -152,12 +217,12 @@
                                                                         BorderThickness="0"
                                                                         Foreground="{Binding IsFilled, Converter={StaticResource BoolToStarColorConverter}}"
                                                                         Cursor="Hand" />
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </StackPanel>
 
-                                                <TextBox Margin="0 10 0 0"
+                                                        <TextBox Margin="0 10 0 0"
                                                          Height="50"
                                                          VerticalContentAlignment="Center"
                                                          Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"
@@ -165,23 +230,25 @@
                                                          AcceptsReturn="True"
                                                          materialDesign:HintAssist.Hint="Ваш отзыв..."/>
 
-                                                <Button Content="Оставить отзыв"
+                                                        <Button Content="{Binding HasUserReviewed, Converter={StaticResource BoolToTextReviewConverter}}"
                                                         Foreground="{DynamicResource MaterialDesignBody}"
                                                         Margin="0 10 0 0"
                                                         HorizontalAlignment="Left"
                                                         Style="{StaticResource MaterialDesignOutlinedButton}"
                                                         Padding="8 4"
                                                         Command="{Binding DataContext.SubmitReviewCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                        CommandParameter="{Binding}"
+                                                        CommandParameter="{Binding}"    
                                                         IsEnabled="{Binding HasUserReviewed, Converter={StaticResource InverseBooleanConverter}}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </StackPanel>
-                </materialDesign:Card>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </materialDesign:Card>
+                    </TabItem>
+                </TabControl>
             </StackPanel>
         </ScrollViewer>
 

@@ -1,4 +1,5 @@
 ﻿using AutoMarket.Model;
+using AutoMarket.Model.Data;
 using AutoMarket.View;
 using System;
 using System.Collections.ObjectModel;
@@ -9,55 +10,12 @@ using System.Windows.Input;
 
 namespace AutoMarket.ViewModel
 {
-
     public class CartViewModel : INotifyPropertyChanged
     {
         public ICommand RemoveCommand { get; }
         public ICommand IncreaseQuantityCommand { get; }
         public ICommand DecreaseQuantityCommand { get; }
         public ICommand PayCommand { get; }
-        public ObservableCollection<Product> CartProducts { get; set; } = new ObservableCollection<Product>();
-        public CartViewModel()
-        {
-            IncreaseQuantityCommand = new RelayCommand(IncreaseQuantity);
-            DecreaseQuantityCommand = new RelayCommand(DecreaseQuantity);
-            RemoveCommand = new RelayCommand(RemoveFromCart);
-            CartItems.CollectionChanged += (s, e) => RecalculateTotal();
-            PayCommand = new RelayCommand(ExecutePay);
-        }
-
-        private void ExecutePay(object parameter)
-        {
-            if (CartItems.Count == 0)
-            {
-                ShowMessageToUser("Корзина пуста.");
-                return;
-            }
-
-            var currentUser = UserSession.CurrentUser; // предположим, у тебя есть текущий пользователь
-            if (currentUser == null)
-            {
-                ShowMessageToUser("Пользователь не авторизован.");
-                return;
-            }
-
-            foreach (var item in CartItems)
-            {
-                DataWorker.SavePurchase(new Purchase
-                {
-                    UserId = currentUser.Id,
-                    ProductId = item.Product.Id,
-                    Quantity = item.CountItem,
-                    PriceAtPurchase = item.Product.Price,
-                    PurchaseDate = DateTime.Now
-                });
-            }
-
-            CartItems.Clear();
-            RecalculateTotal();
-            ShowMessageToUser("Покупка успешно завершена!");
-        }
-
 
         public ObservableCollection<CartItemViewModel> CartItems { get; set; } = new ObservableCollection<CartItemViewModel>();
 
@@ -72,6 +30,77 @@ namespace AutoMarket.ViewModel
                     _totalPrice = value;
                     OnPropertyChanged(nameof(TotalPrice));
                 }
+            }
+        }
+
+        private string _errorMessage;
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set
+            {
+                _errorMessage = value;
+                OnPropertyChanged(nameof(ErrorMessage));
+            }
+        }
+
+        public CartViewModel()
+        {
+            IncreaseQuantityCommand = new RelayCommand(IncreaseQuantity);
+            DecreaseQuantityCommand = new RelayCommand(DecreaseQuantity);
+            RemoveCommand = new RelayCommand(RemoveFromCart);
+            PayCommand = new RelayCommand(ExecutePay);
+
+            CartItems.CollectionChanged += (s, e) => RecalculateTotal();
+        }
+
+        private void ExecutePay(object parameter)
+        {
+            if (CartItems.Count == 0)
+            {
+                MessageBox.Show("Корзина пуста");
+                return;
+            }
+
+            var currentUser = UserSession.CurrentUser;
+            if (currentUser == null)
+            {
+                MessageBox.Show("Пользователь не авторизован");
+                return;
+            }
+
+            if (currentUser.Balance < TotalPrice)
+            {
+                MessageBox.Show($"Недостаточно средств. Ваш баланс: {currentUser.Balance} BYN");
+                return;
+            }
+
+            try
+            {
+                currentUser.Balance -= TotalPrice;
+                DataWorker.UpdateUserBalance(currentUser.Id, -TotalPrice);
+
+                foreach (var item in CartItems)
+                {
+                    var tempPurchase = new Purchase
+                    {
+                        UserId = currentUser.Id,
+                        ProductId = item.Product.Id,
+                        Quantity = item.CountItem,
+                        PriceAtPurchase = item.Product.Price,
+                        PurchaseDate = DateTime.Now,
+                        Status = Purchase.PurchaseStatus.Pending // Это критически важно
+                    };
+
+                    DataWorker.SavePendingPurchase(tempPurchase);
+                }
+
+                CartItems.Clear();
+                ShowMessageToUser("Оплата прошла успешно! Подтвердите получение товаров в личном кабинете.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}");
             }
         }
 
@@ -105,7 +134,6 @@ namespace AutoMarket.ViewModel
             }
         }
 
-        // Количество
         private void IncreaseQuantity(object parameter)
         {
             if (parameter is CartItemViewModel item && item.CountItem < 99)

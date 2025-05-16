@@ -13,5 +13,6 @@ namespace AutoMarket.Model
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
         public string PhoneNumber { get; set; }
+        public decimal Balance { get; set; } = 0;
     }
 }

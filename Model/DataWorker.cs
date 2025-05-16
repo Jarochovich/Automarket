@@ -9,6 +9,7 @@ using AutoMarket.Helpers;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Windows;
+using static AutoMarket.Model.Purchase;
 
 namespace AutoMarket.Model
 {
@@ -102,6 +103,52 @@ namespace AutoMarket.Model
             }
         }
 
+        // проверка баланса пользователя
+        public static bool ProcessPayment(int userId, decimal amount)
+        {
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var user = db.Users.FirstOrDefault(u => u.Id == userId);
+                        if (user == null) return false;
+
+                        if (user.Balance < amount) return false;
+
+                        user.Balance -= amount;
+                        db.SaveChanges();
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+                }
+            }
+        }
+
+        public static Product GetProductById(int productId)
+        {
+            try
+            {
+                using (var context = new ApplicationContext())
+                {
+                    return context.Products
+                        .Include(p => p.Manufacturer) // Если нужно загрузить связанного производителя
+                        .FirstOrDefault(p => p.Id == productId);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при получении продукта: {ex.Message}");
+                return null;
+            }
+        }
+
         // проверка на администратора
         public static bool IsAdmin(string login, string password)
         {
@@ -120,6 +167,151 @@ namespace AutoMarket.Model
                 }
             }
             return false;
+        }
+
+        // Получить ожидающие покупки пользователя
+        public static List<Purchase> GetPendingPurchases(int userId)
+        {
+            using (var db = new ApplicationContext())
+            {
+                return db.Purchases
+                    .Where(p => p.UserId == userId && p.Status == Purchase.PurchaseStatus.Pending)
+                    .ToList();
+            }
+        }
+
+        public static List<Product> GetConfirmedPurchases(int userId)
+        {
+            using (var db = new ApplicationContext())
+            {
+                return db.Purchases
+                    .Include(p => p.Product)
+                    .Where(p => p.UserId == userId && p.Status == PurchaseStatus.Confirmed)
+                    .Select(p => p.Product)
+                    .ToList();
+            }
+        }
+
+        // Обновить статус покупки
+        public static bool UpdatePurchaseStatus(int purchaseId, PurchaseStatus status)
+        {
+            using (var db = new ApplicationContext())
+            {
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var purchase = db.Purchases.FirstOrDefault(p => p.Id == purchaseId);
+                        if (purchase == null) return false;
+
+                        purchase.Status = status;
+                        db.SaveChanges();
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // Получить архивные покупки (подтвержденные и отмененные)
+        public static List<Purchase> GetArchivedPurchases(int userId)
+        {
+            using (var db = new ApplicationContext())
+            {
+                return db.Purchases
+                    .Include(p => p.Product)
+                    .Where(p => p.UserId == userId &&
+                           (p.Status == PurchaseStatus.Confirmed || p.Status == PurchaseStatus.Canceled))
+                    .OrderByDescending(p => p.PurchaseDate)
+                    .ToList();
+            }
+        }
+
+        public static bool ConfirmPurchase(Purchase purchase)
+        {
+            try
+            {
+                using (var context = new ApplicationContext())
+                {
+                    try
+                    {
+                        var dbPurchase = context.Purchases.Find(purchase.Id);
+                        if (dbPurchase == null) return false;
+
+                        dbPurchase.Status = Purchase.PurchaseStatus.Confirmed;
+                        context.SaveChanges();
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Можно залогировать ошибку, если надо
+                return false;
+            }
+        }
+
+
+        public static List<Purchase> GetConfirmedPurchasesByUserId(int userId)
+        {
+            using (var context = new ApplicationContext())
+            {
+                return context.Purchases
+                    .Where(p => p.UserId == userId && p.Status == Purchase.PurchaseStatus.Confirmed)
+                    .ToList();
+            }
+        }
+
+
+        public static void SaveConfirmedPurchase(Purchase purchase)
+        {
+            using (var db = new ApplicationContext())
+            {
+                db.Purchases.Add(purchase);
+                db.SaveChanges();
+            }
+        }
+
+        public static bool CancelPurchase(int purchaseId)
+        {
+            using (var db = new ApplicationContext())
+            {
+                var purchase = db.Purchases.FirstOrDefault(p => p.Id == purchaseId);
+                if (purchase == null) return false;
+
+                purchase.Status = Purchase.PurchaseStatus.Canceled;
+                db.SaveChanges();
+                return true;
+            }
+        }
+
+
+        // Добавить новую покупку (уже есть SavePurchase, но можно добавить статус по умолчанию)
+        public static void SavePurchase(Purchase purchase)
+        {
+            using var db = new ApplicationContext();
+            purchase.Status = PurchaseStatus.Pending; // Устанавливаем статус по умолчанию
+            db.Purchases.Add(purchase);
+            db.SaveChanges();
+        }
+
+        public static Purchase SavePendingPurchase(Purchase purchase)
+        {
+            using (var db = new ApplicationContext())
+            {
+                db.Purchases.Add(purchase);
+                db.SaveChanges();
+                return purchase;
+            }
         }
 
         // получить конкретного пользователя
@@ -175,12 +367,6 @@ namespace AutoMarket.Model
             }
         }
 
-        public static void SavePurchase(Purchase purchase)
-        {
-            using var db = new ApplicationContext();
-            db.Purchases.Add(purchase);
-            db.SaveChanges();
-        }
 
 
         public static bool AddReview(int userId, int productId, string comment, int rating)
@@ -220,9 +406,17 @@ namespace AutoMarket.Model
 
         public static bool UserHasReviewedProduct(int userId, int productId)
         {
-            using (var db = new ApplicationContext())
+            using (var context = new ApplicationContext())
             {
-                return db.Reviews.Any(r => r.UserId == userId && r.ProductId == productId);
+                return context.Reviews.Any(r => r.UserId == userId && r.ProductId == productId);
+            }
+        }
+
+        public static Review GetUserReview(int userId, int productId)
+        {
+            using (var context = new ApplicationContext())
+            {
+                return context.Reviews.FirstOrDefault(r => r.UserId == userId && r.ProductId == productId);
             }
         }
 
@@ -245,22 +439,79 @@ namespace AutoMarket.Model
             }
         }
 
-        // добавить продукт
+        // добавить новый продукт
         public static string CreateProduct(Category category, Manufacturer manufacturer, string name, decimal price, string description, byte[] imageData = null)
         {
+            // Валидация входных параметров
+            if (category == null)
+                return "Не указана категория продукта";
+
+            if (manufacturer == null)
+                return "Не указан производитель";
+
+            if (string.IsNullOrWhiteSpace(name))
+                return "Не указано название продукта";
+
+            if (price <= 0)
+                return "Цена должна быть больше нуля";
+
+            if (string.IsNullOrWhiteSpace(description))
+                return "Не указано описание продукта";
+
             string result = "Продукт уже существует";
             using (ApplicationContext db = new ApplicationContext())
             {
-                // проверка на существование
-                bool checkIsExist = db.Products.Any(el => el.Name == name && el.Price == price);
-                if (!checkIsExist)
+                try
                 {
-                    Product newProduct = new Product { CategoryId = category.Id, ManufacturerId = manufacturer.Id, Name = name, Price = price, Description = description, ImageData = imageData };
-                    db.Products.Add(newProduct);
-                    db.SaveChanges();
-                    result = "Продукт добавлен!";
+                    // проверка на существование (учитываем только имя и цену, так как другие параметры могут повторяться)
+                    bool checkIsExist = db.Products.Any(el => el.Name == name && el.Price == price && el.CategoryId == category.Id);
+                    if (!checkIsExist)
+                    {
+                        Product newProduct = new Product
+                        {
+                            CategoryId = category.Id,
+                            ManufacturerId = manufacturer.Id,
+                            Name = name.Trim(),
+                            Price = price,
+                            Description = description.Trim(),
+                            ImageData = imageData
+                        };
+
+                        db.Products.Add(newProduct);
+                        db.SaveChanges();
+                        result = "Продукт успешно добавлен!";
+                    }
+                    return result;
                 }
-                return result;
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Ошибка при добавлении продукта: {ex.Message}");
+                    return $"Ошибка при добавлении продукта: {ex.Message}";
+                }
+            }
+        }
+
+        // пополнить баланс
+        public static bool UpdateUserBalance(int userId, decimal amount)
+        {
+            try
+            {
+                using (ApplicationContext db = new ApplicationContext())
+                {
+                    var user = db.Users.FirstOrDefault(u => u.Id == userId);
+                    if (user != null)
+                    {
+                        user.Balance += amount;
+                        db.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при обновлении баланса: {ex.Message}");
+                return false;
             }
         }
 
@@ -313,6 +564,21 @@ namespace AutoMarket.Model
             }
             return result;
         }
+
+        //// удалить заказ
+        //public static string DeleteReview(Review review)
+        //{
+        //    string result = "Такого отзыва нет!";
+
+        //    using (ApplicationContext db = new ApplicationContext())
+        //    {
+        //        db.Reviews.Remove(review);
+        //        db.SaveChanges();
+        //        result = $"Комментарий {review.Comment} успешно удален!";
+        //    }
+        //    return result;
+        //}
+
 
         // удалить продукт
         public static string DeleteProduct(Product product)

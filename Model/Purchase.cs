@@ -16,5 +16,14 @@ namespace AutoMarket.Model
         public DateTime PurchaseDate { get; set; }
         public int Quantity { get; set; }
         public decimal PriceAtPurchase { get; set; }
+        public PurchaseStatus Status { get; set; } = PurchaseStatus.Pending; // Новое поле
+
+        // Добавим enum для статусов
+        public enum PurchaseStatus
+        {
+            Pending = 0,    // Ожидает подтверждения
+            Confirmed = 1,  // Подтвержден (Забираю)
+            Canceled = 2   // Отменен (Отказаться)
+        }
     }
 }
