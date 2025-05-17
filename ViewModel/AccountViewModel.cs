@@ -35,6 +35,12 @@ namespace AutoMarket.ViewModel
         public ObservableCollection<Product> PurchasedProducts { get; } = new();
         public ObservableCollection<ProductReviewViewModel> ProductReviews { get; } = new();
 
+
+
+
+
+        
+        // 
         public ICommand BackToMainCommand { get; }
         public ICommand TopUpBalanceCommand { get; }
         public ICommand ConfirmPurchaseCommand { get; }
@@ -51,6 +57,8 @@ namespace AutoMarket.ViewModel
             _submitReviewCommand = new RelayCommand(SubmitReview);
             ConfirmPurchaseCommand = new RelayCommand(ConfirmPurchase);
             CancelPurchaseCommand = new RelayCommand(CancelPurchase);
+
+
 
             LoadPurchasedProducts();
             LoadPurchases();

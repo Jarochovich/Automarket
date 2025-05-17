@@ -13,9 +13,40 @@ namespace AutoMarket.ViewModel
 {
     public class MainViewModel : BaseViewModel
     {
+        // Пагинация
+        private const int ItemsPerPage = 9;
+        private int _currentPage = 1;
+        private int _totalPages = 1;
 
+        public int CurrentPage
+        {
+            get => _currentPage;
+            set
+            {
+                _currentPage = value;
+                OnPropertyChanged(nameof(CurrentPage));
+                OnPropertyChanged(nameof(CanGoToPreviousPage));
+                OnPropertyChanged(nameof(CanGoToNextPage));
+                UpdatePagedProducts();
+            }
+        }
 
-        
+        public int TotalPages
+        {
+            get => _totalPages;
+            set
+            {
+                _totalPages = value;
+                OnPropertyChanged(nameof(TotalPages));
+                OnPropertyChanged(nameof(CanGoToNextPage));
+            }
+        }
+
+        public bool CanGoToPreviousPage => CurrentPage > 1;
+        public bool CanGoToNextPage => CurrentPage < TotalPages;
+
+        public ICommand NextPageCommand { get; }
+        public ICommand PreviousPageCommand { get; }
 
         // корзина
         public CartViewModel CartVM { get; set; } = new CartViewModel();
@@ -23,6 +54,18 @@ namespace AutoMarket.ViewModel
         // языки
         public ICommand SetRussianCommand { get; }
         public ICommand SetEnglishCommand { get; }
+
+        private decimal _maxAvailablePrice;
+        public decimal MaxAvailablePrice
+        {
+            get => _maxAvailablePrice;
+            set
+            {
+                _maxAvailablePrice = value;
+                OnPropertyChanged(nameof(MaxAvailablePrice));
+                FilterProducts();
+            }
+        }
 
         private decimal? _minPrice;
         public decimal? MinPrice
@@ -96,17 +139,36 @@ namespace AutoMarket.ViewModel
             {
                 _allProducts = value;
                 OnPropertyChanged(nameof(AllProducts));
+                // При изменении всех товаров обновляем максимальную цену
+                if (_allProducts != null && _allProducts.Any())
+                {
+                    MaxAvailablePrice = _allProducts.Max(p => p.Price);
+                    MinPrice = 0;
+                    MaxPrice = MaxAvailablePrice;
+                }
             }
         }
 
-        private ObservableCollection<Product> _products;
-        public ObservableCollection<Product> Products
+        private ObservableCollection<Product> _filteredProducts;
+        public ObservableCollection<Product> FilteredProducts
         {
-            get => _products;
+            get => _filteredProducts;
             set
             {
-                _products = value;
-                OnPropertyChanged(nameof(Products));
+                _filteredProducts = value;
+                OnPropertyChanged(nameof(FilteredProducts));
+                UpdatePagedProducts();
+            }
+        }
+
+        private ObservableCollection<Product> _pagedProducts;
+        public ObservableCollection<Product> PagedProducts
+        {
+            get => _pagedProducts;
+            set
+            {
+                _pagedProducts = value;
+                OnPropertyChanged(nameof(PagedProducts));
             }
         }
 
@@ -133,15 +195,14 @@ namespace AutoMarket.ViewModel
 
         public MainViewModel()
         {
-            LoadAllProductsWithRatings(); // Новый метод для загрузки с рейтингами
-            
-
-            AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
+            // Инициализация коллекций
+            AllProducts = new ObservableCollection<Product>();
             Categories = new ObservableCollection<Category>(DataWorker.GetAllCategories());
             Manufacturers = new ObservableCollection<Manufacturer>(DataWorker.GetAllManufacturers());
+            FilteredProducts = new ObservableCollection<Product>();
+            PagedProducts = new ObservableCollection<Product>();
 
-            Products = new ObservableCollection<Product>(); // старт — пусто
-
+            // Команды
             CartCommand = new RelayCommand(OpenCart);
             LogoutCommand = new RelayCommand(_ => Logout());
             OpenProductDetailsCommand = new RelayCommand(p => OpenProductDetails((Product)p));
@@ -152,31 +213,71 @@ namespace AutoMarket.ViewModel
             SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
             SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
 
+            NextPageCommand = new RelayCommand(_ => GoToNextPage());
+            PreviousPageCommand = new RelayCommand(_ => GoToPreviousPage());
+
+            // Загрузка данных
+            LoadAllProductsWithRatings();
         }
 
         private void LoadAllProductsWithRatings()
         {
             var products = DataWorker.GetAllProducts();
-            foreach (var product in products)
+            if (products != null)
             {
-                var reviews = DataWorker.GetReviewsByProductId(product.Id);
-                product.Rating = reviews != null && reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+                foreach (var product in products)
+                {
+                    var reviews = DataWorker.GetReviewsByProductId(product.Id);
+                    product.Rating = reviews != null && reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+                }
+                AllProducts = new ObservableCollection<Product>(products);
             }
-            AllProducts = new ObservableCollection<Product>(products);
-            Products = new ObservableCollection<Product>();
         }
 
-        private void OnConfirmValue()
+        private void GoToNextPage()
         {
-            // обработка подтверждения
+            if (CanGoToNextPage)
+            {
+                CurrentPage++;
+            }
+        }
+
+        private void GoToPreviousPage()
+        {
+            if (CanGoToPreviousPage)
+            {
+                CurrentPage--;
+            }
+        }
+
+        private void UpdatePagedProducts()
+        {
+            if (FilteredProducts == null || !FilteredProducts.Any())
+            {
+                PagedProducts = new ObservableCollection<Product>();
+                return;
+            }
+
+            var skip = (CurrentPage - 1) * ItemsPerPage;
+            var pagedItems = FilteredProducts.Skip(skip).Take(ItemsPerPage).ToList();
+            PagedProducts = new ObservableCollection<Product>(pagedItems);
+        }
+
+        private void CalculateTotalPages()
+        {
+            if (FilteredProducts == null || ItemsPerPage <= 0)
+            {
+                TotalPages = 1;
+                return;
+            }
+
+            TotalPages = (int)Math.Ceiling((double)FilteredProducts.Count / ItemsPerPage);
+            TotalPages = Math.Max(1, TotalPages); // Минимум 1 страница
         }
 
         public void RefreshProducts()
         {
-            // Обновляем все товары из базы данных
-            AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
-
-            // Применяем фильтрацию, если уже выбраны фильтры
+            LoadAllProductsWithRatings();
             FilterProducts();
         }
 
@@ -185,49 +286,32 @@ namespace AutoMarket.ViewModel
             if (SelectedCategory != null)
             {
                 var products = DataWorker.GetProductsByCategory(SelectedCategory.Id);
-
-                foreach (var product in products)
+                if (products != null)
                 {
-                    // Получаем отзывы для продукта и рассчитываем средний рейтинг
-                    var reviews = DataWorker.GetReviewsByProductId(product.Id);
-                    if (reviews != null && reviews.Any())
+                    foreach (var product in products)
                     {
-                        product.Rating = reviews.Average(r => r.Rating);
+                        var reviews = DataWorker.GetReviewsByProductId(product.Id);
+                        product.Rating = reviews != null && reviews.Any() ? reviews.Average(r => r.Rating) : 0;
                     }
-                    else
-                    {
-                        product.Rating = 0; // Если нет отзывов, рейтинг 0
-                    }
+
+                    FilteredProducts = new ObservableCollection<Product>(products);
+                    CurrentPage = 1;
+                    CalculateTotalPages();
                 }
-
-                Products = new ObservableCollection<Product>(products);
             }
-        }
-
-
-        private void OpenProductDetails(Product product)
-        {
-            var viewModel = new ProductDetailViewModel(product, CartVM);
-            var view = new ProductDetailView(viewModel);
-            view.ShowDialog();
-        }
-
-        private void ExecuteAddToCart(object parameter)
-        {
-            if (parameter is Product product)
+            else
             {
-                CartVM.AddToCart(product);
+                // Если категория не выбрана, показываем все товары
+                FilteredProducts = new ObservableCollection<Product>(AllProducts);
+                CurrentPage = 1;
+                CalculateTotalPages();
             }
-        }
-
-        private void OpenCart(object parameter)
-        {
-            var view = new CartView(CartVM);
-            view.ShowDialog();
         }
 
         private void FilterProducts()
         {
+            if (AllProducts == null) return;
+
             var filtered = AllProducts.AsEnumerable();
 
             if (SelectedCategory != null)
@@ -254,7 +338,6 @@ namespace AutoMarket.ViewModel
                 filtered = filtered.Where(p => p.Price <= MaxPrice.Value);
             }
 
-            // Рассчитываем рейтинг для отфильтрованных товаров
             var result = filtered.ToList();
             foreach (var product in result)
             {
@@ -262,7 +345,9 @@ namespace AutoMarket.ViewModel
                 product.Rating = reviews != null && reviews.Any() ? reviews.Average(r => r.Rating) : 0;
             }
 
-            Products = new ObservableCollection<Product>(result);
+            FilteredProducts = new ObservableCollection<Product>(result);
+            CurrentPage = 1;
+            CalculateTotalPages();
         }
 
         private void ResetFilters()
@@ -270,12 +355,33 @@ namespace AutoMarket.ViewModel
             SearchText = string.Empty;
             SelectedManufacturer = null;
             SelectedCategory = null;
-            MinPrice = null;
-            MaxPrice = null;
-            Products = new ObservableCollection<Product>();
+            MinPrice = 0;
+            MaxPrice = MaxAvailablePrice;
+            FilteredProducts = new ObservableCollection<Product>(AllProducts);
+            CurrentPage = 1;
+            CalculateTotalPages();
         }
 
+        private void OpenProductDetails(Product product)
+        {
+            var viewModel = new ProductDetailViewModel(product, CartVM);
+            var view = new ProductDetailView(viewModel);
+            view.ShowDialog();
+        }
 
+        private void ExecuteAddToCart(object parameter)
+        {
+            if (parameter is Product product)
+            {
+                CartVM.AddToCart(product);
+            }
+        }
+
+        private void OpenCart(object parameter)
+        {
+            var view = new CartView(CartVM);
+            view.ShowDialog();
+        }
 
         private void Logout()
         {
@@ -294,7 +400,6 @@ namespace AutoMarket.ViewModel
         {
             if (!UserSession.IsLoggedIn)
             {
-                // Если пользователь не авторизован, показываем окно входа
                 var loginResult = ShowLoginDialog();
 
                 if (loginResult == true)
@@ -315,11 +420,8 @@ namespace AutoMarket.ViewModel
             {
                 var accountView = new AccountView();
                 accountView.DataContext = new AccountViewModel(currentUser);
-                accountView.Owner = Application.Current.MainWindow; // Устанавливаем владельца
+                accountView.Owner = Application.Current.MainWindow;
                 accountView.Show();
-
-                // Не скрываем главное окно, а оставляем его открытым
-                // Application.Current.MainWindow?.Hide();
             }
         }
 
@@ -327,24 +429,9 @@ namespace AutoMarket.ViewModel
         {
             var loginView = new AutorizationView
             {
-                Owner = Application.Current.MainWindow // Устанавливаем владельца
+                Owner = Application.Current.MainWindow
             };
             return loginView.ShowDialog();
-        }
-
-        private void ShowLoginWindow()
-        {
-            var loginView = new AutorizationView();
-            loginView.Show();
-
-            foreach (Window window in Application.Current.Windows)
-            {
-                if (window is MainView)
-                {
-                    window.Close();
-                    break;
-                }
-            }
         }
     }
 }

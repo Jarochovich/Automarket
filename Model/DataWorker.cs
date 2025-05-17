@@ -56,7 +56,96 @@ namespace AutoMarket.Model
             }
         }
 
-        
+        // получить максимальную цену продукта
+        public static decimal GetMaxPriceByProduct()
+        {
+            using (var db = new ApplicationContext())
+            {
+                return db.Products
+                         .Max(p => p.Price);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public static int GetFilteredProductCount(int? categoryId, int? manufacturerId,
+    decimal minPrice, decimal maxPrice, string searchText)
+        {
+            using (var context = new ApplicationContext())
+            {
+                var query = context.Products.AsQueryable();
+
+                if (categoryId.HasValue)
+                    query = query.Where(p => p.CategoryId == categoryId.Value);
+
+                if (manufacturerId.HasValue)
+                    query = query.Where(p => p.ManufacturerId == manufacturerId.Value);
+
+                query = query.Where(p => p.Price >= minPrice && p.Price <= maxPrice);
+
+                if (!string.IsNullOrEmpty(searchText))
+                    query = query.Where(p => p.Name.Contains(searchText));
+
+                return query.Count();
+            }
+        }
+
+        public static List<Product> GetFilteredProducts(int? categoryId, int? manufacturerId,
+            decimal minPrice, decimal maxPrice, string searchText,
+            int pageSize, int skip)
+        {
+            using (var context = new ApplicationContext())
+            {
+                var query = context.Products
+                    .Include(p => p.Manufacturer)
+                    .Include(p => p.Category)
+                    .AsQueryable();
+
+                if (categoryId.HasValue)
+                    query = query.Where(p => p.CategoryId == categoryId.Value);
+
+                if (manufacturerId.HasValue)
+                    query = query.Where(p => p.ManufacturerId == manufacturerId.Value);
+
+                query = query.Where(p => p.Price >= minPrice && p.Price <= maxPrice);
+
+                if (!string.IsNullOrEmpty(searchText))
+                    query = query.Where(p => p.Name.Contains(searchText));
+
+                return query
+                    .OrderBy(p => p.Id)
+                    .Skip(skip)
+                    .Take(pageSize)
+                    .ToList();
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // получить продукты конкретной категории
         public static List<Product> GetProductsByCategory(int categoryId)

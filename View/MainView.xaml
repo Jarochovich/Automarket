@@ -75,7 +75,7 @@
                               Margin="10"
                               
                               Foreground="{DynamicResource MaterialDesignBody}"
-                              materialDesign:HintAssist.Hint="Выберите категорию"
+                              materialDesign:HintAssist.Hint="{DynamicResource Select_category}"
                               Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
 
                     <ComboBox Width="193"
@@ -89,20 +89,31 @@
                               materialDesign:HintAssist.Hint="{DynamicResource ManufacturerHint}"/>
 
                     <!--Фильтр по цене (от)-->
-                    <TextBox Width="150"
-                             Margin="15"
-                             HorizontalAlignment="Left"
-                             Foreground="{DynamicResource MaterialDesignBody}"
-                             Text="{Binding MinPrice, UpdateSourceTrigger=PropertyChanged}"
-                             materialDesign:HintAssist.Hint="{DynamicResource Price_from}"/>
+                    <StackPanel Margin="15">
+                        <TextBlock Text="{DynamicResource Price_from}" Margin="0 0 0 5" Foreground="{DynamicResource MaterialDesignBody}"/>
+                        <Slider Minimum="0" 
+                                Maximum="{Binding MaxAvailablePrice}"
+                                Value="{Binding MinPrice, Mode=TwoWay}"
+                                Margin="0 5"
+                                Width="180"
+                                AutoToolTipPlacement="TopLeft"
+                                AutoToolTipPrecision="2"/>
+                        <TextBlock Text="{Binding MinPrice, StringFormat='{}{0:F2} BYN'}" 
+                                   Foreground="{DynamicResource MaterialDesignBody}"
+                                   HorizontalAlignment="Center"/>
 
-                    <!--Фильтр по цене (до)-->
-                    <TextBox Width="150"
-                             Margin="15"
-                             HorizontalAlignment="Left"
-                             Foreground="{DynamicResource MaterialDesignBody}"
-                             Text="{Binding MaxPrice, UpdateSourceTrigger=PropertyChanged}"
-                             materialDesign:HintAssist.Hint="{DynamicResource Price_up_to}"/>
+                        <TextBlock Text="{DynamicResource Price_up_to}" Margin="0 10 0 5" Foreground="{DynamicResource MaterialDesignBody}"/>
+                        <Slider Minimum="0" 
+                                Maximum="{Binding MaxAvailablePrice}"
+                                Value="{Binding MaxPrice, Mode=TwoWay}"
+                                Margin="0 5"
+                                Width="180"
+                                AutoToolTipPlacement="TopLeft"
+                                AutoToolTipPrecision="2"/>
+                        <TextBlock Text="{Binding MaxPrice, StringFormat='{}{0:F2} BYN'}" 
+                                   Foreground="{DynamicResource MaterialDesignBody}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
 
                     <!--Сбросить фильтры-->
                     <Button Content="{DynamicResource Reset_filter}"
@@ -122,7 +133,7 @@
                           Grid.ColumnSpan="2"
                           
                           Background="{DynamicResource MaterialDesignPaper}">
-                <ListView ItemsSource="{Binding Products}"
+                <ListView ItemsSource="{Binding PagedProducts}"
                           Background="{DynamicResource MaterialDesignPaper}"
                           BorderThickness="0"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
@@ -151,7 +162,7 @@
                                     <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="18" Margin="0,0,0,5" TextWrapping="Wrap" Foreground="{DynamicResource MaterialDesignBody}"/>
 
                                     <!-- Производитель -->
-                                    <TextBlock Text="{Binding Manufacturer.Name, StringFormat='Производитель: {0}'}"
+                                    <TextBlock Text="{Binding Manufacturer.Name,  StringFormat='Производитель: {0}'}"
                                                FontSize="13" 
                                                TextWrapping="Wrap" 
                                                Margin="0,0,0,5" 
@@ -166,7 +177,7 @@
 
                                     <!-- Рейтинг товара -->
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                        <TextBlock Text="Рейтинг: " VerticalAlignment="Center" Foreground="#555"/>
+                                        <TextBlock Text="{DynamicResource Rating}" VerticalAlignment="Center" Foreground="#555"/>
 
                                         <ItemsControl ItemsSource="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}">
                                             <ItemsControl.ItemsPanel>
@@ -192,7 +203,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <!-- Кнопка "Подробнее" -->
-                                        <Button Content="Подробнее"
+                                        <Button Content="{DynamicResource More_details}"
                                                 Command="{Binding DataContext.OpenProductDetailsCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"
                                                 Foreground="White"
@@ -258,7 +269,8 @@
                      materialDesign:ColorZoneAssist.Background="White"
                      Padding="10,0"
                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                     materialDesign:HintAssist.Hint="Поиск товара..."
+                     materialDesign:HintAssist.Hint="{DynamicResource Product_search}"
+                     FontSize="16"
                      Grid.Column="1" />
 
             <!-- Кнопки -->
@@ -302,29 +314,50 @@
             </StackPanel>
         </Grid>
 
-        
+
 
         <!-- Footer -->
         <DockPanel Grid.Row="2" 
-                   Background="#fc2626"
-                   VerticalAlignment="Center" 
-                   Height="40">
-            <Button Content="🇷🇺 Русский" Command="{Binding SetRussianCommand}" Margin="5"/>
-            <Button Content="🇺🇸 English" Command="{Binding SetEnglishCommand}" Margin="5"/>
-            <ToggleButton x:Name="ThemeToggle"
-              ToolTip="Переключить тему"
-              IsChecked="{Binding IsDarkTheme, Mode=TwoWay}">
-                <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="WeatherNight" Width="16" Height="16"/>
-                </StackPanel>
-            </ToggleButton>
+           Background="#fc2626"
+           VerticalAlignment="Center" 
+           Height="40">
+            <!-- Элементы пагинации -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" DockPanel.Dock="Left">
+                <Button Content="&lt;" 
+                Command="{Binding PreviousPageCommand}"
+                Margin="5,0"
+                Style="{StaticResource MaterialDesignFlatButton}"
+                Foreground="White"
+                IsEnabled="{Binding CanGoToPreviousPage}"/>
+
+                <TextBlock Text="{Binding CurrentPage}" 
+                   VerticalAlignment="Center"
+                   Margin="5,0"
+                   Foreground="White"/>
+
+                <TextBlock Text="/" 
+                   VerticalAlignment="Center"
+                   Foreground="White"/>
+
+                <TextBlock Text="{Binding TotalPages}" 
+                   VerticalAlignment="Center"
+                   Margin="0,0,5,0"
+                   Foreground="White"/>
+
+                <Button Content="&gt;" 
+                Command="{Binding NextPageCommand}"
+                Margin="5,0"
+                Style="{StaticResource MaterialDesignFlatButton}"
+                Foreground="White"
+                IsEnabled="{Binding CanGoToNextPage}"/>
+            </StackPanel>
+
             <TextBlock Text="{DynamicResource Footer_text}"
-                       FontSize="12" 
-                       Margin="10,0" 
-                       Foreground="White"
-                       VerticalAlignment="Center" 
-                       HorizontalAlignment="Center"/>
-            
+               FontSize="12" 
+               Margin="10,0" 
+               Foreground="White"
+               VerticalAlignment="Center" 
+               HorizontalAlignment="Center"/>
         </DockPanel>
     </Grid>
 </Window>
