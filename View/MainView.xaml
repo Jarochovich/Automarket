@@ -136,6 +136,7 @@
                 <ListView ItemsSource="{Binding PagedProducts}"
                           Background="{DynamicResource MaterialDesignPaper}"
                           BorderThickness="0"
+                          HorizontalAlignment="Center"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                           Cursor="Hand">
 
@@ -345,10 +346,17 @@
                    Background="#fc2626"
                    VerticalAlignment="Center" 
                    Height="40">
+
+            <TextBlock Text="{DynamicResource Footer_text}"
+           FontSize="12" 
+           Margin="10,0" 
+           Foreground="White"
+           VerticalAlignment="Center" 
+           HorizontalAlignment="Center"/>
             <!-- Элементы пагинации -->
             <StackPanel Orientation="Horizontal" 
                         HorizontalAlignment="Center" 
-                        DockPanel.Dock="Left">
+                        >
                 <Button Content="&lt;" 
                         Command="{Binding PreviousPageCommand}"
                         Margin="5,0"
@@ -378,12 +386,7 @@
                         IsEnabled="{Binding CanGoToNextPage}"/>
             </StackPanel>
 
-            <TextBlock Text="{DynamicResource Footer_text}"
-                       FontSize="12" 
-                       Margin="10,0" 
-                       Foreground="White"
-                       VerticalAlignment="Center" 
-                       HorizontalAlignment="Center"/>
+            
         </DockPanel>
     </Grid>
 </Window>
