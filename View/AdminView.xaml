@@ -289,22 +289,20 @@
 
 
                     </TabControl>
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+
+
+
+
+
+
+
 
                     <StackPanel Grid.Row="1" 
                                 Orientation="Horizontal" 
                                 HorizontalAlignment="Right">
-                        <!--<Button Content="Добавить новую категорию" Command="{Binding OpenAddNewCategory}" />-->
                         <Button Content="{DynamicResource Add_new_product}" 
                                 Command="{Binding OpenAddNewProduct}"
                                 Foreground="{DynamicResource MaterialDesignBody}"/>
-                        <!--<Button Content="Добавить нового пользователя" Command="{Binding OpenAddNewUser}"/>-->
                     </StackPanel>
 
 
@@ -316,11 +314,12 @@
         </Grid>
 
         <!-- Header -->
+        <!-- Header -->
         <Grid Grid.Row="0" Background="#fc2626" Height="60">
             <Grid.ColumnDefinitions>
                 <!-- Логотип -->
                 <ColumnDefinition Width="Auto"/>
-                
+                <!-- Поисковая строка -->
                 <ColumnDefinition Width="*"/>
                 <!-- Кнопки -->
                 <ColumnDefinition Width="Auto"/>
@@ -328,26 +327,40 @@
 
             <!-- Логотип -->
             <TextBlock Text="{DynamicResource Title}"
-                       Foreground="White"
-                       FontSize="20"
-                       FontWeight="Bold"
-                       Margin="20,0"
-                       VerticalAlignment="Center"
-                       Grid.Column="0" />
+               Foreground="White"
+               FontSize="20"
+               FontWeight="Bold"
+               Margin="20,0"
+               VerticalAlignment="Center"
+               Grid.Column="0" />
+
+            <!-- Поисковая строка -->
+            <TextBox Grid.Column="1"
+             Margin="20,0"
+             VerticalAlignment="Center"
+             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+             materialDesign:HintAssist.Hint="{DynamicResource Search}"         
+             FontSize="16"
+             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+             Foreground="{DynamicResource MaterialDesignBody}">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
 
             <!-- Кнопки -->
             <StackPanel Orientation="Horizontal"
-                        VerticalAlignment="Center"
-                        Margin="20,0"
-                        Grid.Column="2">
+                VerticalAlignment="Center"
+                Margin="20,0"
+                Grid.Column="2">
 
                 <!-- Выйти -->
                 <Button Command="{Binding LogoutCommand}"
-                    Background="Transparent"
-                    BorderBrush="Transparent"
-                    Foreground="White"
-                    Cursor="Hand"
-                    Margin="3,0">
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Foreground="White"
+                Cursor="Hand"
+                Margin="3,0">
                     <TextBlock Text="{DynamicResource Logout}"/>
                 </Button>
 

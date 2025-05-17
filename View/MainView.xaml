@@ -148,7 +148,13 @@
 
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="#DDD" BorderThickness="1" CornerRadius="10" Margin="10" Padding="10" Background="{DynamicResource MaterialDesignPaper}" Width="320">
+                            <Border BorderBrush="#DDD" 
+                                    BorderThickness="1" 
+                                    CornerRadius="10" 
+                                    Margin="10" 
+                                    Padding="10" 
+                                    Background="{DynamicResource MaterialDesignPaper}" 
+                                    Width="320">
                                 <StackPanel>
                                     <!-- Изображение товара -->
                                     <Image Source="{Binding ImageData, Converter={StaticResource ByteArrayToImageConverter}}"
@@ -159,7 +165,12 @@
                                            Margin="0,0,0,10"/>
 
                                     <!-- Название товара -->
-                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="18" Margin="0,0,0,5" TextWrapping="Wrap" Foreground="{DynamicResource MaterialDesignBody}"/>
+                                    <TextBlock Text="{Binding Name}" 
+                                               FontWeight="Bold" 
+                                               FontSize="18" 
+                                               Margin="0,0,0,5" 
+                                               TextWrapping="Wrap" 
+                                               Foreground="{DynamicResource MaterialDesignBody}"/>
 
                                     <!-- Производитель -->
                                     <TextBlock Text="{Binding Manufacturer.Name,  StringFormat='Производитель: {0}'}"
@@ -176,8 +187,11 @@
                                                Foreground="#2E7D32"/>
 
                                     <!-- Рейтинг товара -->
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                        <TextBlock Text="{DynamicResource Rating}" VerticalAlignment="Center" Foreground="#555"/>
+                                    <StackPanel Orientation="Horizontal" 
+                                                Margin="0,0,0,5">
+                                        <TextBlock Text="{DynamicResource Rating}" 
+                                                   VerticalAlignment="Center" 
+                                                   Foreground="#555"/>
 
                                         <ItemsControl ItemsSource="{Binding Rating, Converter={StaticResource RatingToStarsConverter}}">
                                             <ItemsControl.ItemsPanel>
@@ -187,14 +201,17 @@
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="★" FontSize="16" Foreground="{Binding Converter={StaticResource BoolToBrushConverter}}"/>
+                                                    <TextBlock Text="★" 
+                                                               FontSize="16" 
+                                                               Foreground="{Binding Converter={StaticResource BoolToBrushConverter}}"/>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                     </StackPanel>
 
                                     <!-- Grid для кнопок "Подробнее" и "В корзину" -->
-                                    <Grid Margin="0,10,0,0" HorizontalAlignment="Stretch">
+                                    <Grid Margin="0,10,0,0" 
+                                          HorizontalAlignment="Stretch">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="2*"/>
                                             <!-- 2/3 -->
@@ -216,19 +233,23 @@
                                                 Grid.Column="0"/>
 
                                         <!-- Кнопка "В корзину" -->
-                                        <Button 
-                                            Command="{Binding DataContext.AddToCartCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                            CommandParameter="{Binding}"
-                                            Foreground="White"
-                                            Background="#2E7D32"
-                                            BorderBrush="#2E7D32"
-                                            Cursor="Hand"
-                                            Margin="10 0 0 0"
-                                            Padding="6,2"
-                                            FontWeight="Bold"
-                                            HorizontalAlignment="Stretch"
-                                            Grid.Column="1">
-                                                <svg:SvgViewbox Source="pack://application:,,,/Resources/Pictures/basket3.svg" Stretch="Uniform" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        <Button Command="{Binding DataContext.AddToCartCommand, RelativeSource={RelativeSource AncestorType=ListView}}"  
+                                                CommandParameter="{Binding}"
+                                                Foreground="White"
+                                                Background="#2E7D32"
+                                                BorderBrush="#2E7D32"
+                                                Cursor="Hand"
+                                                Margin="10 0 0 0"
+                                                Padding="6,2"
+                                                FontWeight="Bold"
+                                                HorizontalAlignment="Stretch"
+                                                Grid.Column="1">
+                                                <svg:SvgViewbox Source="pack://application:,,,/Resources/Pictures/basket3.svg" 
+                                                                Stretch="Uniform" 
+                                                                Height="24" 
+                                                                Width="24" 
+                                                                VerticalAlignment="Center" 
+                                                                HorizontalAlignment="Center"/>
                                         </Button>
                                     </Grid>
                                 </StackPanel>
@@ -242,7 +263,9 @@
         </Grid>
 
         <!-- Header -->
-        <Grid Grid.Row="0" Background="#fc2626" Height="60">
+        <Grid Grid.Row="0" 
+              Background="#fc2626" 
+              Height="60">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <!-- Логотип -->
@@ -282,20 +305,21 @@
                 <!-- Профиль -->
 
                 <Button Command="{Binding ProfileCommand}"
-                        ToolTip="Личный кабинет"
+                        ToolTip="{DynamicResource Account_PersonalCabinet}"
                         Background="Transparent"
                         BorderBrush="Transparent"
                         Margin="3,0">
                     <svg:SvgViewbox Source="pack://application:,,,/Resources/Pictures/profile.svg" 
-                    Stretch="Uniform" 
-                    Height="24" 
-                    Width="24" 
-                    VerticalAlignment="Center" 
-                    HorizontalAlignment="Center"/>
+                                    Stretch="Uniform" 
+                                    Height="24" 
+                                    Width="24" 
+                                    VerticalAlignment="Center" 
+                                    HorizontalAlignment="Center"/>
                 </Button>
 
                 <!-- Корзина -->
                 <Button Command="{Binding CartCommand}"
+                        ToolTip="{DynamicResource Basket}"
                         Background="Transparent"
                         BorderBrush="Transparent"
                         Margin="3,0">
@@ -318,46 +342,48 @@
 
         <!-- Footer -->
         <DockPanel Grid.Row="2" 
-           Background="#fc2626"
-           VerticalAlignment="Center" 
-           Height="40">
+                   Background="#fc2626"
+                   VerticalAlignment="Center" 
+                   Height="40">
             <!-- Элементы пагинации -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" DockPanel.Dock="Left">
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Center" 
+                        DockPanel.Dock="Left">
                 <Button Content="&lt;" 
-                Command="{Binding PreviousPageCommand}"
-                Margin="5,0"
-                Style="{StaticResource MaterialDesignFlatButton}"
-                Foreground="White"
-                IsEnabled="{Binding CanGoToPreviousPage}"/>
+                        Command="{Binding PreviousPageCommand}"
+                        Margin="5,0"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Foreground="White"
+                        IsEnabled="{Binding CanGoToPreviousPage}"/>
 
                 <TextBlock Text="{Binding CurrentPage}" 
-                   VerticalAlignment="Center"
-                   Margin="5,0"
-                   Foreground="White"/>
+                           VerticalAlignment="Center"
+                           Margin="5,0"
+                           Foreground="White"/>
 
                 <TextBlock Text="/" 
-                   VerticalAlignment="Center"
-                   Foreground="White"/>
+                           VerticalAlignment="Center"
+                           Foreground="White"/>
 
                 <TextBlock Text="{Binding TotalPages}" 
-                   VerticalAlignment="Center"
-                   Margin="0,0,5,0"
-                   Foreground="White"/>
+                           VerticalAlignment="Center"
+                           Margin="0,0,5,0"
+                           Foreground="White"/>
 
                 <Button Content="&gt;" 
-                Command="{Binding NextPageCommand}"
-                Margin="5,0"
-                Style="{StaticResource MaterialDesignFlatButton}"
-                Foreground="White"
-                IsEnabled="{Binding CanGoToNextPage}"/>
+                        Command="{Binding NextPageCommand}"
+                        Margin="5,0"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Foreground="White"
+                        IsEnabled="{Binding CanGoToNextPage}"/>
             </StackPanel>
 
             <TextBlock Text="{DynamicResource Footer_text}"
-               FontSize="12" 
-               Margin="10,0" 
-               Foreground="White"
-               VerticalAlignment="Center" 
-               HorizontalAlignment="Center"/>
+                       FontSize="12" 
+                       Margin="10,0" 
+                       Foreground="White"
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Center"/>
         </DockPanel>
     </Grid>
 </Window>

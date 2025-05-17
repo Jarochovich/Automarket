@@ -45,6 +45,7 @@ namespace AutoMarket.ViewModel
         public ICommand TopUpBalanceCommand { get; }
         public ICommand ConfirmPurchaseCommand { get; }
         public ICommand CancelPurchaseCommand { get; }
+
         private ICommand _submitReviewCommand;
         public ICommand SubmitReviewCommand => _submitReviewCommand ??= new RelayCommand(SubmitReview);
 

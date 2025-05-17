@@ -7,25 +7,29 @@
         mc:Ignorable="d"
         xmlns:converters="clr-namespace:AutoMarket.Helpers"
         Title="{DynamicResource WindowAddingProduct}" 
-        Height="540" Width="500"
+        Height="600" 
+        Width="500"
         Name="AddNewProductWindow">
 
     <Window.Resources>
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
     </Window.Resources>
 
-    <Grid Margin="20">
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ScrollViewer>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                      Foreground="{DynamicResource MaterialDesignBody}" 
+                      Background="{DynamicResource MaterialDesignPaper}">
             <StackPanel Grid.Row="0" 
                         HorizontalAlignment="Stretch" 
-                        VerticalAlignment="Top" 
-                        Orientation="Vertical">
-                <TextBlock Text="{DynamicResource Categories}"/>
+                        VerticalAlignment="Center" 
+                        Orientation="Vertical"
+                        Width="400">
+                <TextBlock Text="{DynamicResource Category}"/>
                 <ComboBox ItemsSource="{Binding AllCategories}" 
                           SelectedItem="{Binding CategoryProduct}"
                           DisplayMemberPath="Name"
@@ -44,10 +48,11 @@
                 <TextBox Text="{Binding PriceProduct, UpdateSourceTrigger=PropertyChanged}" Margin="0,5"/>
 
                 <TextBlock Text="{DynamicResource Description}"/>
-                <TextBox Text="{Binding descriptionProduct}" 
-                         Margin="0,5" 
+                <TextBox Text="{Binding DescriptionProduct}" 
+                         Margin="0,0,0,10"
+                         VerticalAlignment="Center"     
                          AcceptsReturn="True" 
-                         Height="50"/>
+                         TextWrapping="Wrap"/>
 
                 <!-- Загрузка изображения -->
                 <TextBlock Text="{DynamicResource ProductImage}" 
@@ -59,7 +64,7 @@
                             BorderThickness="1" 
                             CornerRadius="4"
                             Padding="10"
-                            Background="#F5F5F5">
+                            Background="{DynamicResource MaterialDesignPaper}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -70,6 +75,7 @@
                                     Command="{Binding LoadImageCommand}"
                                     HorizontalAlignment="Left"
                                     Padding="10,5"
+                                    Foreground="{DynamicResource MaterialDesignBody}"
                                     Margin="0,0,0,10"/>
 
                             <!-- Область предпросмотра -->
@@ -117,6 +123,6 @@
                 Height="40"
                 Foreground="White"
                 FontWeight="Bold"
-                Margin="0,20,0,0"/>
+                />
     </Grid>
 </Window>

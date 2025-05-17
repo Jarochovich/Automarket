@@ -14,11 +14,29 @@ using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using Microsoft.Win32;
+using System.Collections.ObjectModel;
 
 namespace AutoMarket.ViewModel
 {
     class DataManageVM : BaseViewModel
     {
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged(nameof(SearchText));
+                ExecuteSearch();
+            }
+        }
+
+        private ICommand _searchCommand;
+        public ICommand SearchCommand => _searchCommand ??= new RelayCommand(_ => ExecuteSearch());
+
+
+
         public ICommand LoadImageCommand { get; }
         public ICommand LogoutCommand { get; }
         // языки
@@ -32,6 +50,96 @@ namespace AutoMarket.ViewModel
 
             SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
             SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
+        }
+
+        private TabItem _selectedTabItem;
+        public TabItem SelectedTabItem
+        {
+            get => _selectedTabItem;
+            set
+            {
+                _selectedTabItem = value;
+                OnPropertyChanged(nameof(SearchText));
+
+            }
+        }
+
+        private void ExecuteSearch()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                // Если строка поиска пустая, показываем все данные
+                switch (SelectedTabItem?.Name)
+                {
+                    case "UsersTab":
+                        AllUsers = DataWorker.GetAllUsers();
+                        break;
+                    case "ProductsTab":
+                        AllProducts = DataWorker.GetAllProducts();
+                        break;
+                    case "CategoriesTab":
+                        AllCategories = DataWorker.GetAllCategories();
+                        break;
+                    case "ManufacturersTab":
+                        AllManufacturers = DataWorker.GetAllManufacturers();
+                        break;
+                    case "ReviewsTab":
+                        AllReviews = DataWorker.GetAllReviews();
+                        break;
+                    case "PurchasesTab":
+                        AllPurchases = DataWorker.GetAllPurchases();
+                        break;
+                }
+                return;
+            }
+
+            var searchTextLower = SearchText.ToLower();
+
+            switch (SelectedTabItem?.Name)
+            {
+                case "UsersTab":
+                    AllUsers = DataWorker.GetAllUsers()
+                        .Where(u => (u.Login != null && u.Login.ToLower().Contains(searchTextLower)) ||
+                                   (u.PhoneNumber != null && u.PhoneNumber.ToLower().Contains(searchTextLower)))
+                        .ToList();
+                    break;
+
+                case "ProductsTab":
+                    AllProducts = DataWorker.GetAllProducts()
+                        .Where(p => (p.Name != null && p.Name.ToLower().Contains(searchTextLower)) ||
+                                  (p.Description != null && p.Description.ToLower().Contains(searchTextLower)) ||
+                                  p.Price.ToString().Contains(SearchText))
+                        .ToList();
+                    break;
+
+                case "CategoriesTab":
+                    AllCategories = DataWorker.GetAllCategories()
+                        .Where(c => c.Name != null && c.Name.ToLower().Contains(searchTextLower))
+                        .ToList();
+                    break;
+
+                case "ManufacturersTab":
+                    AllManufacturers = DataWorker.GetAllManufacturers()
+                        .Where(m => m.Name != null && m.Name.ToLower().Contains(searchTextLower))
+                        .ToList();
+                    break;
+
+                case "ReviewsTab":
+                    AllReviews = DataWorker.GetAllReviews()
+                        .Where(r => (r.AuthorName != null && r.AuthorName.ToLower().Contains(searchTextLower)) ||
+                                    (r.Comment != null && r.Comment.ToLower().Contains(searchTextLower)) ||
+                                    r.Rating.ToString().Contains(SearchText))
+                        .ToList();
+                    break;
+
+                case "PurchasesTab":
+                    AllPurchases = DataWorker.GetAllPurchases()
+                        .Where(p => (p.Status != null && p.Status.ToString().Contains(searchTextLower)) ||
+                                  p.PurchaseDate.ToString().Contains(SearchText) ||
+                                  p.PriceAtPurchase.ToString().Contains(SearchText))
+                        .ToList();
+                    break;
+            }
         }
 
         private void Logout()
@@ -157,11 +265,39 @@ namespace AutoMarket.ViewModel
         public static string CategoryName { get; set; }
 
         // продукт
-        public static Category CategoryProduct { get; set; }
-        public static Manufacturer ManufacturerProduct { get; set; }
-        public static string ProductName { get; set; }
-        public static decimal PriceProduct { get; set; }
-        public static string descriptionProduct { get; set; }
+        private Category _categoryProduct;
+        public Category CategoryProduct
+        {
+            get => _categoryProduct;
+            set { _categoryProduct = value; 
+                OnPropertyChanged(nameof(CategoryProduct)); }
+        }
+        private Manufacturer _manufacturerProduct;
+        public Manufacturer ManufacturerProduct
+        {
+            get => _manufacturerProduct;
+            set { _manufacturerProduct = value; OnPropertyChanged(nameof(ManufacturerProduct)); }
+        }
+
+        private string _productName;
+        public string ProductName
+        {
+            get => _productName;
+            set { _productName = value; OnPropertyChanged(nameof(ProductName)); }
+        }
+        private decimal _priceProduct;
+        public decimal PriceProduct
+        {
+            get => _priceProduct;
+            set { _priceProduct = value; OnPropertyChanged(nameof(PriceProduct)); }
+        }
+
+        private string _descriptionProduct;
+        public string DescriptionProduct
+        {
+            get => _descriptionProduct;
+            set { _descriptionProduct = value; OnPropertyChanged(nameof(DescriptionProduct)); }
+        }
         public static byte[] ImageD { get; set; }
 
 
@@ -190,14 +326,18 @@ namespace AutoMarket.ViewModel
         
 
         // свойства для выделенных элементов
-        public TabItem SelectedTabItem { get; set; }
         public static User SelectedUser { get; set; }
         public static Category SelectedCategory { get; set; }
         public static Review SelectedReview { get; set; }
         public static Purchase SelectedPurchase { get; set; }        
         public static Manufacturer SelectedManufacturer { get; set; }
-        public static Product SelectedProduct { get; set; }
 
+        private Product _selectedProduct;
+        public Product SelectedProduct
+        {
+            get => _selectedProduct;
+            set { _selectedProduct = value; OnPropertyChanged(nameof(SelectedProduct)); }
+        }
 
         public BitmapImage ImagePreview
         {
@@ -243,16 +383,16 @@ namespace AutoMarket.ViewModel
                         resultStr = DataWorker.EditProduct(
                             SelectedProduct,
                             CategoryProduct,
-                            ManufacturerProduct.Id,
+                            ManufacturerProduct,
                             ProductName,
-                            PriceProduct,
-                            descriptionProduct,
+                            PriceProduct.ToString(),
+                            DescriptionProduct,
                             ImageData); // Добавляем передачу изображения
 
                         UpdateAllDataView();
-                        SetNullValuesToProperties();
-                        ShowMessageToUser(resultStr);
+                        //ShowMessageToUser(resultStr);
                         window.Close();
+                        SetNullValuesToProperties();
                     }
                     else
                     {
@@ -278,35 +418,12 @@ namespace AutoMarket.ViewModel
                     Window window = obj as Window;
                     
                     string resultStr = "";
-                    if (CategoryProduct == null)
-                    {
-                        ShowMessageToUser("Укажите категорию товара");
-                    }
-                    if (ProductName == null || ProductName.Replace(" ", "").Length == 0)
-                    {
-                        //SetRedBlockControll(window, "ProductName");
-                    }
-                    if (PriceProduct == 0)
-                    {
-                        //SetRedBlockControll(window, "Price");
-                    }
-                    if (descriptionProduct == null || descriptionProduct.Replace(" ", "").Length == 0)
-                    {
-                        //SetRedBlockControll(window, "Description");
-                    }
-                    if (ManufacturerProduct == null)
-                    {
-                        ShowMessageToUser("Укажите категорию товара");
 
-                    }
-                    else
-                    {
-                        resultStr = DataWorker.CreateProduct(CategoryProduct, ManufacturerProduct, ProductName, PriceProduct, descriptionProduct, ImageData);
-                        UpdateAllDataView();
-                        ShowMessageToUser(resultStr);
-                        SetNullValuesToProperties();
-                        window.Close();
-                    }
+                    resultStr = DataWorker.CreateProduct(CategoryProduct, ManufacturerProduct, ProductName, PriceProduct, DescriptionProduct, ImageData);
+                    UpdateAllDataView();
+                    ShowMessageToUser(resultStr);
+                    SetNullValuesToProperties();
+                    window.Close();
                 });
             }
         }
@@ -437,7 +554,7 @@ namespace AutoMarket.ViewModel
             CategoryProduct = null;
             ProductName = null;
             PriceProduct = 0;
-            descriptionProduct = null;
+            DescriptionProduct = null;
             // пользователи
 
             UserLogin = null;

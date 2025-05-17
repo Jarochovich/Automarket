@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="{DynamicResource Editing_a_product}" 
         Height="600" 
-        Width="600"
+        Width="500"
         Name="EditProductWindow"
         WindowStartupLocation="CenterScreen">
 
@@ -16,20 +16,23 @@
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
     </Window.Resources>
 
-    <Grid Margin="20">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel HorizontalAlignment="Stretch" 
-                        VerticalAlignment="Top" 
+        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                      Foreground="{DynamicResource MaterialDesignBody}" 
+                      Background="{DynamicResource MaterialDesignPaper}">
+            <StackPanel Grid.Row="0"
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Center"
                         Orientation="Vertical"
                         Width="400">
 
                 <!-- Категория -->
-                <TextBlock Text="{DynamicResource Categories}" 
+                <TextBlock Text="{DynamicResource Category}" 
                            Margin="0,5,0,2"/>
                 <ComboBox ItemsSource="{Binding AllCategories}" 
                           SelectedItem="{Binding CategoryProduct}"
@@ -59,10 +62,10 @@
                 <!-- Описание -->
                 <TextBlock Text="{DynamicResource Description}" 
                            Margin="0,5,0,2"/>
-                <TextBox Text="{Binding descriptionProduct}" 
+                <TextBox Text="{Binding DescriptionProduct}" 
                          Margin="0,0,0,10"
+                         VerticalAlignment="Center"     
                          AcceptsReturn="True" 
-                         Height="80"
                          TextWrapping="Wrap"/>
 
                 <!-- Изображение (исправленная версия) -->
@@ -76,7 +79,7 @@
                             BorderThickness="1" 
                             CornerRadius="4"
                             Padding="10"
-                            Background="#F5F5F5">
+                            Background="{DynamicResource MaterialDesignPaper}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -85,8 +88,9 @@
 
                             <Button Content="{DynamicResource SelectImage}" 
                                     Command="{Binding LoadImageCommand}"
+                                    Foreground="{DynamicResource MaterialDesignBody}"
                                     Padding="10,5"
-                                    Margin="0,0,10,0"/>
+                                    Margin="0,0,0,10"/>
 
                             <!-- Область предпросмотра -->
                             <Border Grid.Row="1" 
@@ -95,7 +99,7 @@
                                     Background="White"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center">
-                                <Image Source="{Binding ImagePath}" 
+                                <Image Source="{Binding ImagePreview}" 
                                        MaxWidth="300"
                                        MaxHeight="200"
                                        Stretch="Uniform"/>

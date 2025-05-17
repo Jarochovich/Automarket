@@ -24,21 +24,22 @@ namespace AutoMarket.View
         public EditProductView(Product product)
         {
             InitializeComponent();
-            DataContext = new DataManageVM();
-            DataManageVM.SelectedProduct = product;
-            DataManageVM.ProductName = product.Name;
-            DataManageVM.PriceProduct = product.Price;
-            DataManageVM.descriptionProduct = product.Description;
 
-            // Важно: устанавливаем связанные объекты
-            DataManageVM.ManufacturerProduct = product.Manufacturer;
-            DataManageVM.CategoryProduct = product.Category; // Это ключевая строка
+            var viewModel = new DataManageVM();
+            DataContext = viewModel;
 
-            // Устанавливаем изображение, если оно есть
-            if (product.ImageData != null)
-            {
-                DataManageVM.ImageD = product.ImageData;
-            }
+            viewModel.SelectedProduct = product;
+            viewModel.ProductName = product.Name;
+            viewModel.PriceProduct = product.Price;
+            viewModel.DescriptionProduct = product.Description;
+            viewModel.ImageData = product.ImageData;
+
+            viewModel.CategoryProduct = viewModel.AllCategories
+                .FirstOrDefault(c => c.Id == product.Category?.Id);
+
+            viewModel.ManufacturerProduct = viewModel.AllManufacturers
+                .FirstOrDefault(m => m.Id == product.Manufacturer?.Id);
         }
     }
 }
+

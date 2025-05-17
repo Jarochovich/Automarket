@@ -241,9 +241,8 @@
                                                     Text="{Binding Purchase.Quantity, StringFormat='Количество: {0}'}"
                                                     Foreground="{DynamicResource MaterialDesignBody}" />
 
-                                                        <TextBlock 
-                                                            Text="{Binding Purchase.PurchaseDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
-                                                Foreground="{DynamicResource MaterialDesignBody}"/>
+                                                        <TextBlock Text="{Binding Purchase.PurchaseDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"          
+                                                                   Foreground="{DynamicResource MaterialDesignBody}"/>
 
                                                     </StackPanel>
 
@@ -260,35 +259,35 @@
                                                                 <ItemsControl.ItemTemplate>
                                                                     <DataTemplate>
                                                                         <Button Content="★"
-                                                                        Command="{Binding DataContext.SetRatingCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                        CommandParameter="{Binding Value}"
-                                                                        FontSize="24"
-                                                                        Background="Transparent"
-                                                                        BorderThickness="0"
-                                                                        Foreground="{Binding IsFilled, Converter={StaticResource BoolToStarColorConverter}}"
-                                                                        Cursor="Hand" />
+                                                                                Command="{Binding DataContext.SetRatingCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                                CommandParameter="{Binding Value}"
+                                                                                FontSize="24"
+                                                                                Background="Transparent"
+                                                                                BorderThickness="0"
+                                                                                Foreground="{Binding IsFilled, Converter={StaticResource BoolToStarColorConverter}}"
+                                                                                Cursor="Hand" />
                                                                     </DataTemplate>
                                                                 </ItemsControl.ItemTemplate>
                                                             </ItemsControl>
                                                         </StackPanel>
 
                                                         <TextBox Margin="0 10 0 0"
-                                                         Height="50"
-                                                         VerticalContentAlignment="Center"
-                                                         Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"
-                                                         TextWrapping="Wrap"
-                                                         AcceptsReturn="True"
-                                                         materialDesign:HintAssist.Hint="{DynamicResource Account_YourReview}"/>
+                                                                 Height="50"
+                                                                 VerticalContentAlignment="Center"
+                                                                 Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"
+                                                                 TextWrapping="Wrap"
+                                                                 AcceptsReturn="True"
+                                                                 materialDesign:HintAssist.Hint="{DynamicResource Account_YourReview}"/>
 
                                                         <Button Content="{Binding HasUserReviewed, Converter={StaticResource BoolToTextReviewConverter}}"
-                                                        Foreground="{DynamicResource MaterialDesignBody}"
-                                                        Margin="0 10 0 0"
-                                                        HorizontalAlignment="Left"
-                                                        Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                        Padding="8 4"
-                                                        Command="{Binding DataContext.SubmitReviewCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                        CommandParameter="{Binding}"    
-                                                        IsEnabled="{Binding HasUserReviewed, Converter={StaticResource InverseBooleanConverter}}"/>
+                                                                Foreground="{DynamicResource MaterialDesignBody}"
+                                                                Margin="0 10 0 0"
+                                                                HorizontalAlignment="Left"
+                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                                Padding="8 4"
+                                                                Command="{Binding DataContext.SubmitReviewCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                                CommandParameter="{Binding}"    
+                                                                IsEnabled="{Binding HasUserReviewed, Converter={StaticResource InverseBooleanConverter}}"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>

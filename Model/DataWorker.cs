@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Windows;
 using static AutoMarket.Model.Purchase;
+using System.IO.Pipelines;
+using System.Globalization;
 
 namespace AutoMarket.Model
 {
@@ -68,17 +70,6 @@ namespace AutoMarket.Model
 
 
 
-
-
-
-
-
-
-
-
-
-
-
         public static int GetFilteredProductCount(int? categoryId, int? manufacturerId,
         decimal minPrice, decimal maxPrice, string searchText)
         {
@@ -134,7 +125,35 @@ namespace AutoMarket.Model
 
 
 
+       static private string ValidationFieldProduct(string finalName, decimal finalPrice, string finalDescription, byte[] finalImageData, Category finalCategory, Manufacturer finalManufacturer)
+        {
+            // Валидация
+            if (finalCategory == null)
+                return "Не указана категория продукта";
 
+            if (finalManufacturer == null)
+                return "Не указан производитель";
+
+            if (string.IsNullOrWhiteSpace(finalName))
+                return "Не указано название продукта";
+
+            if (finalName.Length < 2)
+                return "Название продукта должно содержать не менее 2 символов";
+
+            if (finalPrice <= 0)
+                return "Цена должна быть больше нуля";
+
+            if (string.IsNullOrWhiteSpace(finalDescription))
+                return "Не указано описание продукта";
+
+            if (finalDescription.Length < 10)
+                return "Описание товара должно содержать не менее 10 символов";
+
+            if (finalImageData == null || finalImageData.Length == 0)
+                return "Не добавлено изображение товара";
+
+            return "Такого продукта нет!";                                      
+        }                                    
 
 
 
@@ -557,11 +576,20 @@ namespace AutoMarket.Model
             if (string.IsNullOrWhiteSpace(name))
                 return "Не указано название продукта";
 
+            if (name.Length < 2)
+                return "Название продукта должно содержать не менее 2 символов";
+
             if (price <= 0)
                 return "Цена должна быть больше нуля";
 
             if (string.IsNullOrWhiteSpace(description))
                 return "Не указано описание продукта";
+
+            if (description.Length < 10)
+                return "Описание товара должно содержать не менее 10 символов";
+
+            if (imageData == null)
+                return "Не добавлено изображение товара";
 
             string result = "Продукт уже существует";
             using (ApplicationContext db = new ApplicationContext())
@@ -731,27 +759,59 @@ namespace AutoMarket.Model
             return result;
         }
 
-        // изменить продукт
-        public static string EditProduct(Product oldProduct, Category newCategoryName, int newManufacturerId, string newName, decimal newPrice, string newDescription, byte[] newImageData)
+        public static string EditProduct(Product oldProduct, Category newCategory, Manufacturer newManufacturer, string newName, string newPriceStr, string newDescription, byte[] newImageData)
         {
-            string result = "Такого продукта нет!";
+            // Валидация
+            if (newCategory == null)
+                return "Не указана категория продукта";
 
+            if (newManufacturer == null)
+                return "Не указан производитель";
+
+            if (string.IsNullOrWhiteSpace(newName))
+                return "Не указано название продукта";
+
+            if (newName.Length < 2)
+                return "Название продукта должно содержать не менее 2 символов";
+
+            // Улучшенная проверка цены
+            if (string.IsNullOrWhiteSpace(newPriceStr))
+                return "Цена должна быть указана";
+
+            // Нормализация строки с ценой
+            string normalizedPrice = newPriceStr.Trim()
+                                              .Replace(" ", "") // Удаляем пробелы
+                                              .Replace(",", "."); // Заменяем запятые на точки
+
+            if (!decimal.TryParse(normalizedPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal newPrice) || newPrice <= 0)
+                return "Цена должна быть числом больше нуля";
+
+            if (string.IsNullOrWhiteSpace(newDescription))
+                return "Не указано описание продукта";
+
+            if (newDescription.Length < 10)
+                return "Описание товара должно содержать не менее 10 символов";
+
+            if (newImageData == null || newImageData.Length == 0)
+                return "Не добавлено изображение товара";
+
+            // Обновление
             using (ApplicationContext db = new ApplicationContext())
             {
-                Product product = db.Products.FirstOrDefault(prod => prod.Id == oldProduct.Id);
-                if (product != null)
-                {
-                    product.Category = newCategoryName;
-                    product.ManufacturerId = newManufacturerId;
-                    product.Name = newName;
-                    product.Price = newPrice;
-                    product.Description = newDescription;
-                    product.ImageData = newImageData;
-                    db.SaveChanges();
-                    result = $"Продукт {oldProduct.Name} успешно изменен!";
-                }
+                Product product = db.Products.FirstOrDefault(p => p.Id == oldProduct.Id);
+                if (product == null)
+                    return "Продукт не найден!";
+
+                product.Category = newCategory;
+                product.ManufacturerId = newManufacturer.Id;
+                product.Name = newName;
+                product.Price = newPrice;
+                product.Description = newDescription;
+                product.ImageData = newImageData;
+
+                db.SaveChanges();
+                return $"Продукт \"{product.Name}\" успешно изменён!";
             }
-            return result;
         }
 
         // изменить пользователя
