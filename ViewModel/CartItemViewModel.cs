@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace AutoMarket.ViewModel
 {
-    public class CartItemViewModel : INotifyPropertyChanged
+    public class CartItemViewModel : BaseViewModel, INotifyPropertyChanged
     {
         public Product Product { get; }
 
@@ -29,9 +29,5 @@ namespace AutoMarket.ViewModel
             Product = product;
             CountItem = count;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

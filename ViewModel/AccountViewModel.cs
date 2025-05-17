@@ -83,7 +83,7 @@ namespace AutoMarket.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки заказов: {ex.Message}");
+                ShowMessageToUser($"Ошибка загрузки заказов: {ex.Message}");
             }
         }
 
@@ -104,7 +104,7 @@ namespace AutoMarket.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки истории: {ex.Message}");
+                ShowMessageToUser($"Ошибка загрузки истории: {ex.Message}");
             }
         }
 
@@ -112,7 +112,7 @@ namespace AutoMarket.ViewModel
         {
             if (CurrentUser?.Id == null)
             {
-                MessageBox.Show("Пользователь не авторизован");
+                ShowMessageToUser("Пользователь не авторизован");
                 return;
             }
 
@@ -120,11 +120,7 @@ namespace AutoMarket.ViewModel
             ProductReviews.Clear();
 
             var products = DataWorker.GetPurchasedProducts(CurrentUser.Id);
-            if (products == null || !products.Any())
-            {
-                MessageBox.Show("У вас пока нет покупок");
-                return;
-            }
+            
 
             foreach (var product in products)
             {
@@ -148,11 +144,11 @@ namespace AutoMarket.ViewModel
                     PendingPurchases.Remove(purchaseVM);
                     ConfirmedPurchases.Add(purchaseVM);
                     LoadPurchasedProducts();
-                    MessageBox.Show("Заказ подтвержден и перемещен в архив!");
+                    ShowMessageToUser("Заказ подтвержден и перемещен в архив!");
                 }
                 else
                 {
-                    MessageBox.Show("Ошибка при подтверждении заказа.");
+                    ShowMessageToUser("Ошибка при подтверждении заказа.");
                 }
             }
         }
@@ -167,7 +163,7 @@ namespace AutoMarket.ViewModel
                     OnPropertyChanged(nameof(CurrentUser));
                     OnPropertyChanged(nameof(BalanceDisplay));
                     PendingPurchases.Remove(purchaseVM);
-                    MessageBox.Show("Заказ отменен. Деньги возвращены на баланс.");
+                    ShowMessageToUser("Заказ отменен. Деньги возвращены на баланс.");
                 }
             }
         }
@@ -181,25 +177,25 @@ namespace AutoMarket.ViewModel
                     // Проверка данных
                     if (string.IsNullOrWhiteSpace(CurrentUser.Login))
                     {
-                        MessageBox.Show("Не указано имя пользователя");
+                        ShowMessageToUser("Не указано имя пользователя");
                         return;
                     }
 
                     if (purchaseVM.HasUserReviewed)
                     {
-                        MessageBox.Show("Вы уже оставили отзыв на этот товар.");
+                        ShowMessageToUser("Вы уже оставили отзыв на этот товар.");
                         return;
                     }
 
                     if (string.IsNullOrWhiteSpace(purchaseVM.Comment) || purchaseVM.Comment.Length < 10)
                     {
-                        MessageBox.Show("Отзыв должен содержать минимум 10 символов.");
+                        ShowMessageToUser("Отзыв должен содержать минимум 10 символов.");
                         return;
                     }
 
                     if (purchaseVM.Rating < 1 || purchaseVM.Rating > 5)
                     {
-                        MessageBox.Show("Пожалуйста, поставьте оценку от 1 до 5 звезд.");
+                        ShowMessageToUser("Пожалуйста, поставьте оценку от 1 до 5 звезд.");
                         return;
                     }
 
@@ -221,7 +217,7 @@ namespace AutoMarket.ViewModel
                         // Обновляем состояние
                         purchaseVM.HasUserReviewed = true;
 
-                        MessageBox.Show("Спасибо за ваш отзыв!");
+                        ShowMessageToUser("Спасибо за ваш отзыв!");
 
                         // Обновляем список отзывов
                         LoadPurchasedProducts();
@@ -231,11 +227,11 @@ namespace AutoMarket.ViewModel
                 {
                     string errorMessage = "Ошибка сохранения отзыва: ";
                     errorMessage += dbEx.InnerException?.Message ?? dbEx.Message;
-                    MessageBox.Show(errorMessage);
+                    ShowMessageToUser(errorMessage);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Неожиданная ошибка: {ex.Message}");
+                    ShowMessageToUser($"Неожиданная ошибка: {ex.Message}");
                 }
             }
         }
@@ -256,16 +252,16 @@ namespace AutoMarket.ViewModel
                         CurrentUser.Balance += amount;
                         OnPropertyChanged(nameof(CurrentUser));
                         OnPropertyChanged(nameof(BalanceDisplay));
-                        MessageBox.Show($"Баланс успешно пополнен на {amount} BYN");
+                        ShowMessageToUser($"Баланс успешно пополнен на {amount} BYN");
                     }
                     else
                     {
-                        MessageBox.Show("Ошибка при пополнении баланса");
+                        ShowMessageToUser("Ошибка при пополнении баланса");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Введите корректную сумму (положительное число)");
+                    ShowMessageToUser("Введите корректную сумму (положительное число)");
                 }
             }
         }

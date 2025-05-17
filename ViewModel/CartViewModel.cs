@@ -10,7 +10,7 @@ using System.Windows.Input;
 
 namespace AutoMarket.ViewModel
 {
-    public class CartViewModel : INotifyPropertyChanged
+    public class CartViewModel : BaseViewModel, INotifyPropertyChanged
     {
         public ICommand RemoveCommand { get; }
         public ICommand IncreaseQuantityCommand { get; }
@@ -58,20 +58,20 @@ namespace AutoMarket.ViewModel
         {
             if (CartItems.Count == 0)
             {
-                MessageBox.Show("Корзина пуста");
+                ShowMessageToUser("Корзина пуста");
                 return;
             }
 
             var currentUser = UserSession.CurrentUser;
             if (currentUser == null)
             {
-                MessageBox.Show("Пользователь не авторизован");
+                ShowMessageToUser("Пользователь не авторизован");
                 return;
             }
 
             if (currentUser.Balance < TotalPrice)
             {
-                MessageBox.Show($"Недостаточно средств. Ваш баланс: {currentUser.Balance} BYN");
+                ShowMessageToUser($"Недостаточно средств. Ваш баланс: {currentUser.Balance} BYN");
                 return;
             }
 
@@ -100,7 +100,7 @@ namespace AutoMarket.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка: {ex.Message}");
+                ShowMessageToUser($"Ошибка: {ex.Message}");
             }
         }
 
@@ -160,18 +160,5 @@ namespace AutoMarket.ViewModel
         {
             TotalPrice = CartItems.Sum(i => i.TotalPrice);
         }
-
-        private void ShowMessageToUser(string message)
-        {
-            MessageView messageView = new MessageView
-            {
-                DataContext = new MessageViewModel(message)
-            };
-            messageView.ShowDialog();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

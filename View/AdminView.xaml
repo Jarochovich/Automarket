@@ -234,11 +234,11 @@
                                       materialDesign:DataGridAssist.ColumnHeaderPadding="8">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
-                                    <DataGridTextColumn Header="Author" Binding="{Binding AuthorName}" />
                                     <DataGridTextColumn Header="ProductId" Binding="{Binding ProductId}" />
+                                    <DataGridTextColumn Header="Author" Binding="{Binding AuthorName}" />
                                     <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" />
                                     <DataGridTextColumn Header="Rating" Binding="{Binding Rating}" />
-                                    <DataGridTextColumn Header="Date" Binding="{Binding DateCreated}" />
+                                    <DataGridTextColumn Header="Date" Binding="{Binding DateCreated, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </TabItem>
@@ -246,7 +246,7 @@
 
 
 
-                        <!-- Purchases TAB --><!--
+                         <!--Purchases TAB--> 
                         <TabItem Name="PurchasesTab">
                             <TabItem.Header>
                                 <TextBlock Text="Purchases" Foreground="{DynamicResource MaterialDesignBody}"/>
@@ -276,12 +276,13 @@
                                     <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
                                     <DataGridTextColumn Header="UserId" Binding="{Binding UserId}" />
                                     <DataGridTextColumn Header="ProductId" Binding="{Binding ProductId}" />
-                                    <DataGridTextColumn Header="Date" Binding="{Binding PurchaseDate}" />
                                     <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" />
                                     <DataGridTextColumn Header="PriceAtPurchase" Binding="{Binding PriceAtPurchase}" />
+                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" />
+                                    <DataGridTextColumn Header="Date" Binding="{Binding PurchaseDate, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}" />
                                 </DataGrid.Columns>
                             </DataGrid>
-                        </TabItem>-->
+                        </TabItem>
 
 
                         
@@ -300,7 +301,9 @@
                                 Orientation="Horizontal" 
                                 HorizontalAlignment="Right">
                         <!--<Button Content="Добавить новую категорию" Command="{Binding OpenAddNewCategory}" />-->
-                        <Button Content="{DynamicResource Add_new_product}" Command="{Binding OpenAddNewProduct}"/>
+                        <Button Content="{DynamicResource Add_new_product}" 
+                                Command="{Binding OpenAddNewProduct}"
+                                Foreground="{DynamicResource MaterialDesignBody}"/>
                         <!--<Button Content="Добавить нового пользователя" Command="{Binding OpenAddNewUser}"/>-->
                     </StackPanel>
 
@@ -356,23 +359,26 @@
                Background="#fc2626"
                VerticalAlignment="Center" 
                Height="40">
-            <Button Content="🇷🇺 Русский" Command="{Binding SetRussianCommand}" Margin="5"/>
-            <Button Content="🇺🇸 English" Command="{Binding SetEnglishCommand}" Margin="5"/>
+            <Button Content="🇷🇺 Русский" Command="{Binding SetRussianCommand}" Foreground="{DynamicResource MaterialDesignBody}" Margin="5"/>
+            <Button Content="🇺🇸 English" Command="{Binding SetEnglishCommand}" Foreground="{DynamicResource MaterialDesignBody}" Margin="5"/>
             <ToggleButton x:Name="ThemeToggle"
-              ToolTip="Переключить тему"
-              IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-              Command="{Binding ToggleThemeCommand}">
+                          Width="40"
+                          ToolTip="Переключить тему"
+                          IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                          Command="{Binding ToggleThemeCommand}">
                 <StackPanel Orientation="Horizontal">
 
-                    <materialDesign:PackIcon Kind="WeatherNight" Width="16" Height="16"/>
+                    <materialDesign:PackIcon Kind="WeatherNight" 
+                                             Width="18" 
+                                             Height="18"/>
                 </StackPanel>
             </ToggleButton>
             <TextBlock Text="{DynamicResource Footer_text}" 
-                   FontSize="12" 
-                   Margin="10,0" 
-                   Foreground="White"
-                   VerticalAlignment="Center" 
-                   HorizontalAlignment="Center"/>
+                       FontSize="12" 
+                       Margin="10,0" 
+                       Foreground="White"
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Center"/>
         </DockPanel>
     </Grid>
 

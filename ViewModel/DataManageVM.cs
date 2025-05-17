@@ -74,7 +74,7 @@ namespace AutoMarket.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка загрузки изображения: {ex.Message}");
+                    ShowMessageToUser($"Ошибка загрузки изображения: {ex.Message}");
                 }
             }
         }
@@ -140,6 +140,18 @@ namespace AutoMarket.ViewModel
             }
         }
 
+        // все заказы
+        private List<Purchase> allPurchases = DataWorker.GetAllPurchases();
+        public List<Purchase> AllPurchases
+        {
+            get { return allPurchases; }
+            set
+            {
+                allPurchases = value;
+                OnPropertyChanged("AllPurchases");
+            }
+        }
+
 
         // категория
         public static string CategoryName { get; set; }
@@ -182,6 +194,7 @@ namespace AutoMarket.ViewModel
         public static User SelectedUser { get; set; }
         public static Category SelectedCategory { get; set; }
         public static Review SelectedReview { get; set; }
+        public static Purchase SelectedPurchase { get; set; }        
         public static Manufacturer SelectedManufacturer { get; set; }
         public static Product SelectedProduct { get; set; }
 
@@ -309,6 +322,7 @@ namespace AutoMarket.ViewModel
                 return deleteItem ?? new RelayCommand(obj =>
                 {
                     string resultStr = "Ничего не выбрано";
+
                     // удаление пользователь
                     if (SelectedTabItem.Name == "UsersTab" && SelectedUser != null)
                     {
@@ -331,6 +345,12 @@ namespace AutoMarket.ViewModel
                     if (SelectedTabItem.Name == "ReviewsTab" && SelectedReview != null)
                     {
                         resultStr = DataWorker.DeleteReview(SelectedReview);
+                        UpdateAllDataView();
+                    }
+                    // удаление заказа
+                    if (SelectedTabItem.Name == "PurchasesTab" && SelectedPurchase != null)
+                    {
+                        resultStr = DataWorker.DeletePurchase(SelectedPurchase);
                         UpdateAllDataView();
                     }
 
@@ -436,6 +456,7 @@ namespace AutoMarket.ViewModel
             UpdateAllUsersView();
             UpdateAllManufacturerView();
             UpdateAllReviewView();
+            UpdateAllPurchasesView();
         }
         private void UpdateAllCategoriesView()
         {
@@ -481,17 +502,15 @@ namespace AutoMarket.ViewModel
             AdminView.AllReviewsView.ItemsSource = AllReviews;
             AdminView.AllReviewsView.Items.Refresh();
         }
-        #endregion
 
-        private void ShowMessageToUser(string message)
+        private void UpdateAllPurchasesView()
         {
-            MessageView messageView = new MessageView
-            {
-                DataContext = new MessageViewModel(message)
-            };
-            SetCenterPositionAndOpen(messageView);
+            AllPurchases = DataWorker.GetAllPurchases();
+            AdminView.AllPurchasesView.ItemsSource = null;
+            AdminView.AllPurchasesView.Items.Clear();
+            AdminView.AllPurchasesView.ItemsSource = AllPurchases;
+            AdminView.AllPurchasesView.Items.Refresh();
         }
-
-        
+        #endregion        
     }
 }

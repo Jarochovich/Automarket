@@ -10,7 +10,7 @@ using System.Windows.Input;
 
 namespace AutoMarket.ViewModel
 {
-    public class PurchaseViewModel : INotifyPropertyChanged
+    public class PurchaseViewModel : BaseViewModel, INotifyPropertyChanged
     {
         private Product _product;
         private string _comment;
@@ -111,7 +111,7 @@ namespace AutoMarket.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}");
+                ShowMessageToUser($"Ошибка загрузки данных: {ex.Message}");
             }
         }
 
@@ -151,7 +151,7 @@ namespace AutoMarket.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка обновления статуса отзыва: {ex.Message}");
+                ShowMessageToUser($"Ошибка обновления статуса отзыва: {ex.Message}");
             }
         }
 

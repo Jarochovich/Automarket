@@ -91,43 +91,47 @@
                                         <Button Content="{DynamicResource Account_TopUpBalance}" VerticalAlignment="Center" 
                                                 Command="{Binding TopUpBalanceCommand}"
                                                 Style="{StaticResource MaterialDesignOutlinedButton}"
-                                                Padding="5 2"
+                                                Padding="10 0"
                                                 />
                                     </StackPanel>
 
                                     <TextBlock Text="{DynamicResource Account_Settings}" 
                                                Grid.Row="3" 
-                                   FontSize="18"
-                                   Foreground="{DynamicResource MaterialDesignBody}"
-                                   FontWeight="Bold"
-                                   Margin="0 10 0 10"/>
+                                               FontSize="18"
+                                               Foreground="{DynamicResource MaterialDesignBody}"
+                                               FontWeight="Bold"
+                                               Margin="0 10 0 10"/>
 
 
-                                    <StackPanel Grid.Row="4" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0 10 0 0">
+                                    <StackPanel Grid.Row="4" Grid.ColumnSpan="1" Orientation="Vertical" Margin="0 10 0 0">
 
-
+                                        <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{DynamicResource Account_Language}" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" Margin="0 0 10 0" FontSize="16"/>
                                         <Button Content="🇷🇺 Русский"  
-            Command="{Binding SetRussianCommand}" 
-            Margin="5 0"
-            Style="{StaticResource MaterialDesignOutlinedButton}"
-            Padding="5 2"/>
+                                                Command="{Binding SetRussianCommand}" 
+                                                Margin="5 0"
+                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                Padding="10 0"/>
                                         <Button Content="🇺🇸 English" 
-            Command="{Binding SetEnglishCommand}" 
-            Margin="5 0"
-            Style="{StaticResource MaterialDesignOutlinedButton}"
-            Padding="5 2"/>
+                                                Command="{Binding SetEnglishCommand}" 
+                                                Margin="5 0"
+                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                Padding="10 0"/>
+                                        </StackPanel>
 
-                                        <TextBlock Text="{DynamicResource Account_Theme}" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" Margin="15 0 10 0" FontSize="16"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0 10">
+                                        <TextBlock Text="{DynamicResource Account_Theme}" Foreground="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" Margin="0 0 10 0" FontSize="16"/>
                                         <ToggleButton x:Name="ThemeToggle" FontSize="16"
-ToolTip="Переключить тему"
-IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-Command="{Binding ToggleThemeCommand}"
-Margin="0 0 20 0">
+                                                      ToolTip="Переключить тему"
+                                                      Width="40"
+                                                      IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                                                      Command="{Binding ToggleThemeCommand}"
+                                                      Margin="10 0 20 0">
                                             <StackPanel Orientation="Horizontal">
-                                                <materialDesign:PackIcon Kind="WeatherNight" Width="16" Height="16"/>
+                                                <materialDesign:PackIcon Kind="WeatherNight" Width="18" Height="18"/>
                                             </StackPanel>
                                         </ToggleButton>
+                                        </StackPanel>
                                     </StackPanel>
 
 

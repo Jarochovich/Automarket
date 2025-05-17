@@ -1,5 +1,6 @@
 ﻿using AutoMarket.Helpers;
 using AutoMarket.Model;
+using AutoMarket.View;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace AutoMarket.ViewModel
@@ -50,8 +52,17 @@ namespace AutoMarket.ViewModel
             IsDarkTheme = !IsDarkTheme;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public void ShowMessageToUser(string message)
+        {
+            MessageView messageView = new MessageView
+            {
+                DataContext = new MessageViewModel(message)
+            };
+            messageView.ShowDialog();
+        }
 
+
+        public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

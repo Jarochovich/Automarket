@@ -80,7 +80,7 @@ namespace AutoMarket.Model
 
 
         public static int GetFilteredProductCount(int? categoryId, int? manufacturerId,
-    decimal minPrice, decimal maxPrice, string searchText)
+        decimal minPrice, decimal maxPrice, string searchText)
         {
             using (var context = new ApplicationContext())
             {
@@ -306,6 +306,22 @@ namespace AutoMarket.Model
                 }
             }
         }
+
+
+
+        // Получить все заказы
+        public static List<Purchase> GetAllPurchases()
+        {
+            using (var db = new ApplicationContext())
+            {
+                return db.Purchases
+                    .OrderByDescending(p => p.PurchaseDate)
+                    .ToList();
+            }
+        }
+
+
+
 
         // Получить архивные покупки (подтвержденные и отмененные)
         public static List<Purchase> GetArchivedPurchases(int userId)
@@ -654,19 +670,19 @@ namespace AutoMarket.Model
             return result;
         }
 
-        //// удалить заказ
-        //public static string DeleteReview(Review review)
-        //{
-        //    string result = "Такого отзыва нет!";
+        // удалить заказ
+        public static string DeletePurchase(Purchase purchase)
+        {
+            string result = "Такого заказа нет!";
 
-        //    using (ApplicationContext db = new ApplicationContext())
-        //    {
-        //        db.Reviews.Remove(review);
-        //        db.SaveChanges();
-        //        result = $"Комментарий {review.Comment} успешно удален!";
-        //    }
-        //    return result;
-        //}
+            using (ApplicationContext db = new ApplicationContext())
+            {
+                db.Purchases.Remove(purchase);
+                db.SaveChanges();
+                result = $"Заказ пользователя {purchase.User} успешно удален!";
+            }
+            return result;
+        }
 
 
         // удалить продукт

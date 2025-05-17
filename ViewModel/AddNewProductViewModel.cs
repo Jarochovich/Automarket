@@ -15,7 +15,7 @@ using AutoMarket.View;
 
 namespace AutoMarket.ViewModel
 {
-    public class AddProductViewModel : INotifyPropertyChanged
+    public class AddProductViewModel : BaseViewModel, INotifyPropertyChanged
     {
         public ObservableCollection<Category> AllCategories { get; set; }
         public Category CategoryProduct { get; set; }
@@ -97,22 +97,6 @@ namespace AutoMarket.ViewModel
             if (window is Window w) w.Close();
         }
 
-
-        private void ShowMessageToUser(string message)
-        {
-            MessageView messageView = new MessageView
-            {
-                DataContext = new MessageViewModel(message)
-            };
-            SetCenterPositionAndOpen(messageView);
-        }
-
-        private void SetCenterPositionAndOpen(Window window)
-        {
-            window.Owner = Application.Current.MainWindow;
-            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            window.ShowDialog();
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name) =>

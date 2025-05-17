@@ -13,7 +13,7 @@ using System.Windows.Input;
 
 namespace AutoMarket.ViewModel
 {
-    public class RegistrationViewModel : INotifyPropertyChanged, IDataErrorInfo
+    public class RegistrationViewModel : BaseViewModel, INotifyPropertyChanged, IDataErrorInfo
     {
         private string _login;
         private string _password;
@@ -243,14 +243,6 @@ namespace AutoMarket.ViewModel
 
         public string Error => null;
 
-        private void ShowMessageToUser(string message)
-        {
-            MessageView messageView = new MessageView
-            {
-                DataContext = new MessageViewModel(message)
-            };
-            messageView.ShowDialog();
-        }
 
         // INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
