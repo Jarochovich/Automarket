@@ -15,6 +15,7 @@ namespace AutoMarket.Model
         public int ManufacturerId { get; set; }
         public Manufacturer Manufacturer { get; set; }
         public string Name { get; set; }
+        public int Quantity { get; set; } // ← Добавлено
         public decimal Price { get; set; }
         public string Description { get; set; }
         public byte[] ImageData { get; set; }

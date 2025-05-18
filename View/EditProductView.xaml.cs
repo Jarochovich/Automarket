@@ -30,6 +30,7 @@ namespace AutoMarket.View
 
             viewModel.SelectedProduct = product;
             viewModel.ProductName = product.Name;
+            viewModel.QuantityProduct = product.Quantity;
             viewModel.PriceProduct = product.Price;
             viewModel.DescriptionProduct = product.Description;
             viewModel.ImageData = product.ImageData;

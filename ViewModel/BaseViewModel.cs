@@ -29,9 +29,6 @@ namespace AutoMarket.ViewModel
             }
         }
 
-        public ICommand ToggleThemeCommand { get; }
-
-
 
         // языки
         public ICommand SetRussianCommand { get; }
@@ -41,15 +38,11 @@ namespace AutoMarket.ViewModel
         {
             // Инициализация темы (лучше делать асинхронно, если загрузка тяжелая)
             _isDarkTheme = ThemeManagerHelper.IsDarkTheme();
-            ToggleThemeCommand = new RelayCommand(_ => ToggleTheme());
+            ThemeManagerHelper.SetDarkTheme(_isDarkTheme);
+
 
             SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
             SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
-        }
-
-        private void ToggleTheme()
-        {
-            IsDarkTheme = !IsDarkTheme;
         }
 
         public void ShowMessageToUser(string message)

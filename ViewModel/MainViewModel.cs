@@ -13,6 +13,21 @@ namespace AutoMarket.ViewModel
 {
     public class MainViewModel : BaseViewModel
     {
+        //Заголовок
+       
+        private bool _showPopular = true;
+
+        public string Header
+        {
+            get
+            {
+                if (_showPopular)
+                    return "Популярные товары";
+                else
+                    return $"Категория: {SelectedCategory?.Name ?? "Все товары"}";
+            }
+        }
+
         // Пагинация
         private const int ItemsPerPage = 9;
         private int _currentPage = 1;
@@ -49,7 +64,7 @@ namespace AutoMarket.ViewModel
         public ICommand PreviousPageCommand { get; }
 
         // корзина
-        public CartViewModel CartVM { get; set; } = new CartViewModel();
+        public CartViewModel CartVM { get; }
 
         // языки
         public ICommand SetRussianCommand { get; }
@@ -102,6 +117,33 @@ namespace AutoMarket.ViewModel
             }
         }
 
+
+        private Product _selectedProduct;
+
+        public Product SelectedProduct
+        {
+            get => _selectedProduct;
+            set
+            {
+                _selectedProduct = value;
+                OnPropertyChanged(nameof(SelectedProduct));
+                OnPropertyChanged(nameof(Quantity));
+            }
+        }
+
+        public int Quantity
+        {
+            get => SelectedProduct?.Quantity ?? 0;
+            set
+            {
+                if (SelectedProduct != null && SelectedProduct.Quantity != value)
+                {
+                    SelectedProduct.Quantity = value;
+                    OnPropertyChanged(nameof(Quantity));
+                }
+            }
+        }
+
         private string _searchText;
         public string SearchText
         {
@@ -122,8 +164,12 @@ namespace AutoMarket.ViewModel
             {
                 if (_selectedCategory != value)
                 {
+                    _showPopular = false;
                     _selectedCategory = value;
                     OnPropertyChanged(nameof(SelectedCategory));
+                    OnPropertyChanged(nameof(Header)); // уведомляем, что Header изменился
+                    OnPropertyChanged(nameof(Quantity)); // Важно!
+
                     LoadProducts();
                 }
             }
@@ -192,10 +238,14 @@ namespace AutoMarket.ViewModel
         public ICommand ResetFilterCommand { get; }
         public ICommand AddToCartCommand { get; }
         public ICommand ProfileCommand { get; }
+        public ICommand ShowPopularProductsCommand { get; }
 
         public MainViewModel()
         {
+            CartVM = new CartViewModel(this);
+            CartVM.CartUpdated += OnCartUpdated;
             // Инициализация коллекций
+            ShowPopularProductsCommand = new RelayCommand(_ => ShowPopularProducts());
             AllProducts = new ObservableCollection<Product>();
             Categories = new ObservableCollection<Category>(DataWorker.GetAllCategories());
             Manufacturers = new ObservableCollection<Manufacturer>(DataWorker.GetAllManufacturers());
@@ -208,17 +258,69 @@ namespace AutoMarket.ViewModel
             OpenProductDetailsCommand = new RelayCommand(p => OpenProductDetails((Product)p));
             ResetFilterCommand = new RelayCommand(_ => ResetFilters());
             AddToCartCommand = new RelayCommand(ExecuteAddToCart);
-            ProfileCommand = new RelayCommand(OpenAccount);
+            ProfileCommand = new RelayCommand(_ => OpenAccount());
 
-            SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
-            SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
-
+            // Пагинация
             NextPageCommand = new RelayCommand(_ => GoToNextPage());
             PreviousPageCommand = new RelayCommand(_ => GoToPreviousPage());
 
+
+
             // Загрузка данных
             LoadAllProductsWithRatings();
+            _showPopular = true;
+            LoadProducts();
         }
+
+        private void OnCartUpdated()
+        {
+            // Загружаем актуальные данные из базы
+            var allProductsFromDb = DataWorker.GetAllProducts();
+
+            foreach (var product in AllProducts)
+            {
+                var productFromDb = allProductsFromDb.FirstOrDefault(p => p.Id == product.Id);
+                if (productFromDb != null)
+                {
+                    product.Quantity = productFromDb.Quantity;
+                }
+            }
+
+            OnPropertyChanged(nameof(AllProducts));
+            OnPropertyChanged(nameof(PagedProducts));
+            OnPropertyChanged(nameof(FilteredProducts));
+        }
+
+        private void ShowPopularProducts()
+        {
+            SelectedCategory = null;
+            SelectedManufacturer = null;
+
+            var allProducts = DataWorker.GetAllProducts();
+
+            foreach (var product in allProducts)
+            {
+                var reviews = DataWorker.GetReviewsByProductId(product.Id);
+                product.Rating = reviews != null && reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+            }
+
+            var topRatedProducts = allProducts
+                .Where(p => p.Rating >= 4)
+                .OrderByDescending(p => p.Rating)
+                .ToList();
+
+            FilteredProducts = new ObservableCollection<Product>(topRatedProducts);
+
+            _showPopular = true;
+            OnPropertyChanged(nameof(Header));
+
+            CurrentPage = 1;
+            TotalPages = 1;
+
+            OnPropertyChanged(nameof(FilteredProducts));
+            OnPropertyChanged(nameof(Header));
+        }
+
 
         private void LoadAllProductsWithRatings()
         {
@@ -295,21 +397,49 @@ namespace AutoMarket.ViewModel
                     }
 
                     FilteredProducts = new ObservableCollection<Product>(products);
+                    //Header = SelectedCategory?.Name;
+
                     CurrentPage = 1;
                     CalculateTotalPages();
                 }
             }
             else
             {
-                // Если категория не выбрана, показываем все товары
-                FilteredProducts = new ObservableCollection<Product>(AllProducts);
+                // Устанавливаем рейтинг для всех товаров
+                foreach (var product in AllProducts)
+                {
+                    var reviews = DataWorker.GetReviewsByProductId(product.Id);
+                    product.Rating = reviews != null && reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+                }
+
+                var topRatedProducts = AllProducts
+                    .Where(p => p.Rating >= 4)
+                    .OrderByDescending(p => p.Rating)
+                    .ToList();
+
+                FilteredProducts = new ObservableCollection<Product>(topRatedProducts);
+                OnPropertyChanged(nameof(Header));
                 CurrentPage = 1;
-                CalculateTotalPages();
+                TotalPages = 1;
+            }
+            
+        }
+
+        public void UpdateProductQuantity(int productId, int delta)
+        {
+            var product = AllProducts.FirstOrDefault(p => p.Id == productId);
+            if (product != null)
+            {
+                product.Quantity += delta;
+                OnPropertyChanged(nameof(AllProducts));
+                OnPropertyChanged(nameof(PagedProducts));
+                OnPropertyChanged(nameof(FilteredProducts));
             }
         }
 
         private void FilterProducts()
         {
+            _showPopular = false;
             if (AllProducts == null) return;
 
             var filtered = AllProducts.AsEnumerable();
@@ -348,10 +478,12 @@ namespace AutoMarket.ViewModel
             FilteredProducts = new ObservableCollection<Product>(result);
             CurrentPage = 1;
             CalculateTotalPages();
+            OnPropertyChanged(nameof(Header));
         }
 
         private void ResetFilters()
         {
+            _showPopular = false;
             SearchText = string.Empty;
             SelectedManufacturer = null;
             SelectedCategory = null;
@@ -359,7 +491,9 @@ namespace AutoMarket.ViewModel
             MaxPrice = MaxAvailablePrice;
             FilteredProducts = new ObservableCollection<Product>(AllProducts);
             CurrentPage = 1;
+           
             CalculateTotalPages();
+            OnPropertyChanged(nameof(Header));
         }
 
         private void OpenProductDetails(Product product)
@@ -374,6 +508,8 @@ namespace AutoMarket.ViewModel
             if (parameter is Product product)
             {
                 CartVM.AddToCart(product);
+                UpdateProductQuantities(); // Явное обновление
+                OnPropertyChanged(nameof(Quantity)); // Обновляем привязку
             }
         }
 
@@ -412,17 +548,18 @@ namespace AutoMarket.ViewModel
             return UserSession.CurrentUser;
         }
 
-        private void OpenAccount(object parameter)
+        private void OpenAccount()
         {
-            var currentUser = GetCurrentUser();
+            var accountVM = new AccountViewModel(UserSession.CurrentUser);
 
-            if (currentUser != null)
+            // Подписываемся на событие
+            accountVM.ProductQuantityUpdated += (productId, delta) =>
             {
-                var accountView = new AccountView();
-                accountView.DataContext = new AccountViewModel(currentUser);
-                accountView.Owner = Application.Current.MainWindow;
-                accountView.Show();
-            }
+                UpdateProductQuantity(productId, delta);
+            };
+
+            var accountView = new AccountView { DataContext = accountVM };
+            accountView.ShowDialog();
         }
 
         private bool? ShowLoginDialog()
@@ -432,6 +569,43 @@ namespace AutoMarket.ViewModel
                 Owner = Application.Current.MainWindow
             };
             return loginView.ShowDialog();
+        }
+
+        private void UpdateProductQuantities()
+        {
+            // Получаем актуальные данные из базы
+            var allProductsFromDb = DataWorker.GetAllProducts();
+
+            foreach (var product in AllProducts)
+            {
+                var productFromDb = allProductsFromDb.FirstOrDefault(p => p.Id == product.Id);
+                if (productFromDb == null) continue;
+
+                // Обновляем количество на основе данных из базы
+                product.Quantity = productFromDb.Quantity;
+            }
+
+            OnPropertyChanged(nameof(AllProducts));
+            OnPropertyChanged(nameof(PagedProducts));
+            OnPropertyChanged(nameof(FilteredProducts));
+        }
+
+        //public void UpdateProductQuantity(int productId, int delta)
+        //{
+        //    var product = AllProducts.FirstOrDefault(p => p.Id == productId);
+        //    if (product != null)
+        //    {
+        //        product.Quantity += delta;
+        //        OnPropertyChanged(nameof(AllProducts));
+        //    }
+        //}
+
+        public void ReloadProducts()
+        {
+            AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
+            OnPropertyChanged(nameof(AllProducts));
+            // Если используешь PagedProducts — обнови и его
+            UpdatePagedProducts();
         }
     }
 }

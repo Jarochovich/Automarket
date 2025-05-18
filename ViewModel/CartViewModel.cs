@@ -4,14 +4,59 @@ using AutoMarket.View;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Windows;
 using System.Windows.Input;
 
 namespace AutoMarket.ViewModel
 {
-    public class CartViewModel : BaseViewModel, INotifyPropertyChanged
+    public class CartViewModel : BaseViewModel
     {
+        private readonly MainViewModel _mainVM;
+
+        public CartViewModel(MainViewModel mainVM)
+        {
+            _mainVM = mainVM;
+
+
+            // Подписываемся на изменения коллекции
+            CartItems.CollectionChanged += (s, e) =>
+            {
+                if (e.NewItems != null)
+                    foreach (CartItemViewModel item in e.NewItems)
+                        item.PropertyChanged += CartItem_PropertyChanged;
+
+                if (e.OldItems != null)
+                    foreach (CartItemViewModel item in e.OldItems)
+                        item.PropertyChanged -= CartItem_PropertyChanged;
+
+                RecalculateTotal();
+            };
+
+
+            IncreaseQuantityCommand = new RelayCommand(IncreaseQuantity);
+            DecreaseQuantityCommand = new RelayCommand(DecreaseQuantity);
+            RemoveCommand = new RelayCommand(RemoveFromCart);
+            PayCommand = new RelayCommand(ExecutePay);
+            CartItems.CollectionChanged += (s, e) => RecalculateTotal();
+
+            // 🔥 Подписываемся на изменения CountItem у уже добавленных элементов
+            
+        }
+
+        private void RemoveFromCart(object parameter)
+        {
+            if (parameter is CartItemViewModel item)
+            {
+                //item.PropertyChanged -= CartItem_PropertyChanged; // 🧼
+                CartItems.Remove(item);
+                RecalculateTotal();
+                //_mainVM.UpdateProductQuantity(item.Product.Id, +item.CountItem);
+            }
+        }
+
         public ICommand RemoveCommand { get; }
         public ICommand IncreaseQuantityCommand { get; }
         public ICommand DecreaseQuantityCommand { get; }
@@ -44,15 +89,25 @@ namespace AutoMarket.ViewModel
             }
         }
 
-        public CartViewModel()
-        {
-            IncreaseQuantityCommand = new RelayCommand(IncreaseQuantity);
-            DecreaseQuantityCommand = new RelayCommand(DecreaseQuantity);
-            RemoveCommand = new RelayCommand(RemoveFromCart);
-            PayCommand = new RelayCommand(ExecutePay);
+        private int _countItem;
 
-            CartItems.CollectionChanged += (s, e) => RecalculateTotal();
+        public Product Product { get; }
+        public int CountItem
+        {
+            get => _countItem;
+            set
+            {
+                if (_countItem != value)
+                {
+                    _countItem = value;
+                    OnPropertyChanged(nameof(CountItem));
+                    OnPropertyChanged(nameof(TotalPrice));
+                }
+            }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
 
         private void ExecutePay(object parameter)
         {
@@ -89,14 +144,29 @@ namespace AutoMarket.ViewModel
                         Quantity = item.CountItem,
                         PriceAtPurchase = item.Product.Price,
                         PurchaseDate = DateTime.Now,
-                        Status = Purchase.PurchaseStatus.Pending // Это критически важно
+                        Status = Purchase.PurchaseStatus.Pending
                     };
 
                     DataWorker.SavePendingPurchase(tempPurchase);
+
+                    // Получаем новое количество после уменьшения на складе
+                    int newQuantity = DataWorker.DecreaseProductQuantity(item.Product.Id, item.CountItem);
+
+                    if (newQuantity >= 0)
+                    {
+                        item.Product.Quantity = newQuantity;  // Обновляем локальное количество товара
+                                                              // Если Product реализует INotifyPropertyChanged, UI обновится автоматически
+                    }
                 }
 
                 CartItems.Clear();
-                ShowMessageToUser("Оплата прошла успешно! Подтвердите получение товаров в личном кабинете.");
+                RecalculateTotal();
+
+                // Если нужно обновить весь список продуктов из БД, раскомментируйте:
+                // _mainVM.ReloadProducts();
+
+                ShowMessageToUser("Оплата прошла успешно!");
+                CartUpdated?.Invoke();
             }
             catch (Exception ex)
             {
@@ -104,41 +174,90 @@ namespace AutoMarket.ViewModel
             }
         }
 
+
+
         public void AddToCart(Product product)
         {
-            if (product == null) return;
-
-            var existing = CartItems.FirstOrDefault(i => i.Product.Id == product.Id);
-            if (existing != null)
+            if (product == null)
             {
-                existing.CountItem++;
+                ShowMessageToUser("Ошибка: товар не найден");
+                return;
+            }
+
+            // Получаем актуальное количество товара из базы
+            int availableInDb = DataWorker.GetProductQuantity(product.Id);
+
+            // Получаем общее количество этого товара уже в корзине
+            int inCart = CartItems.Where(i => i.Product.Id == product.Id).Sum(i => i.CountItem);
+
+            // Доступное количество = в базе - уже в корзине
+            int available = availableInDb - inCart;
+
+            if (available <= 0)
+            {
+                ShowMessageToUser("Нельзя добавить больше товара, чем есть на складе");
+                return;
+            }
+
+            var existingItem = CartItems.FirstOrDefault(i => i.Product.Id == product.Id);
+
+            if (existingItem != null)
+            {
+                // Проверяем, что после увеличения CountItem не превысит availableInDb
+                if (existingItem.CountItem + 1 > availableInDb)
+                {
+                    ShowMessageToUser("Нельзя добавить больше товара, чем есть на складе");
+                    return;
+                }
+                existingItem.CountItem++;
             }
             else
             {
-                var newItem = new CartItemViewModel(product);
+                // Для нового товара проверяем, что 1 <= availableInDb
+                if (1 > availableInDb)
+                {
+                    ShowMessageToUser("Нельзя добавить больше товара, чем есть на складе");
+                    return;
+                }
+                var newItem = new CartItemViewModel(product) { CountItem = 1 };
                 newItem.PropertyChanged += CartItem_PropertyChanged;
                 CartItems.Add(newItem);
             }
 
+            ShowMessageToUser($"Добавлено: {product.Name}");
             RecalculateTotal();
-            ShowMessageToUser($"Добавлен в корзину: {product.Name}");
+            CartUpdated?.Invoke();
         }
 
-        private void RemoveFromCart(object parameter)
+        // Вспомогательный метод: сколько всего этого товара уже в корзине
+        public int GetTotalInCart(int productId)
         {
-            if (parameter is CartItemViewModel item)
-            {
-                CartItems.Remove(item);
-                item.PropertyChanged -= CartItem_PropertyChanged;
-                RecalculateTotal();
-            }
+            return CartItems.Where(i => i.Product.Id == productId).Sum(i => i.CountItem);
+        }
+
+        public void RemoveFromCart(CartItemViewModel item)
+        {
+            //item.PropertyChanged -= CartItem_PropertyChanged; // 🧼
+            CartItems.Remove(item);
+            RecalculateTotal();
+            //_mainVM.UpdateProductQuantity(item.Product.Id, +item.CountItem);
         }
 
         private void IncreaseQuantity(object parameter)
         {
-            if (parameter is CartItemViewModel item && item.CountItem < 99)
+            if (parameter is CartItemViewModel item)
             {
-                item.CountItem++;
+                int availableInDb = DataWorker.GetProductQuantity(item.Product.Id);
+                int totalInCart = CartItems.Where(i => i.Product.Id == item.Product.Id).Sum(i => i.CountItem);
+
+                if (totalInCart < availableInDb)
+                {
+                    item.CountItem++; // Вызовет PropertyChanged -> RecalculateTotal()
+                }
+                else
+                {
+                    ShowMessageToUser("Нельзя добавить больше товара, чем есть на складе");
+                }
             }
         }
 
@@ -146,19 +265,23 @@ namespace AutoMarket.ViewModel
         {
             if (parameter is CartItemViewModel item && item.CountItem > 1)
             {
-                item.CountItem--;
+                item.CountItem--; // Вызовет PropertyChanged -> RecalculateTotal()
             }
         }
 
         private void CartItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            // Реагируем только на изменения CountItem и TotalPrice
             if (e.PropertyName == nameof(CartItemViewModel.CountItem))
                 RecalculateTotal();
         }
 
+        public event Action CartUpdated;
+
         private void RecalculateTotal()
         {
             TotalPrice = CartItems.Sum(i => i.TotalPrice);
+            OnPropertyChanged(nameof(TotalPrice)); // Явное уведомление для UI
         }
     }
 }

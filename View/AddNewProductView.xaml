@@ -9,6 +9,7 @@
         Title="{DynamicResource WindowAddingProduct}" 
         Height="600" 
         Width="500"
+        FontFamily="{StaticResource CustomFont}"
         Name="AddNewProductWindow">
 
     <Window.Resources>
@@ -43,6 +44,9 @@
 
                 <TextBlock Text="{DynamicResource Name}"/>
                 <TextBox Text="{Binding ProductName}" Margin="0,5"/>
+
+                <TextBlock Text="{DynamicResource Quantity}" />
+                <TextBox Text="{Binding QuantityProduct, UpdateSourceTrigger=PropertyChanged}" Margin="0,5"/>
 
                 <TextBlock Text="{DynamicResource Price}"/>
                 <TextBox Text="{Binding PriceProduct, UpdateSourceTrigger=PropertyChanged}" Margin="0,5"/>

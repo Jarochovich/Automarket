@@ -7,10 +7,12 @@
         xmlns:converters="clr-namespace:AutoMarket.Helpers"
         mc:Ignorable="d"
         Title="{DynamicResource Product_information}" Height="600" Width="900"
-        Background="#FAFAFA"
+        Background="{DynamicResource MaterialDesignBody}"
+        FontFamily="{StaticResource CustomFont}"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowStartupLocation="CenterScreen"
-        MinHeight="435" MinWidth="750">
+        MinHeight="435" 
+        MinWidth="750">
 
     <Window.Resources>
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>

@@ -133,6 +133,8 @@
                                     <DataGridTextColumn Header="Category" Binding="{Binding CategoryId}" />
                                     <DataGridTextColumn Header="Product" Binding="{Binding Name}" />
                                     <DataGridTextColumn Header="Price" Binding="{Binding Price}" />
+                                    <!-- Добавьте эту новую колонку -->
+                                    <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" />
                                     <DataGridTextColumn Header="Description" Binding="{Binding Description}" />
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -144,11 +146,11 @@
                                 <TextBlock Text="Categories" 
                                            Foreground="{DynamicResource MaterialDesignBody}"/>
                             </TabItem.Header>
-                            <TabItem.ContextMenu>
+                            <!--<TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
                                     <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
-                            </TabItem.ContextMenu>
+                            </TabItem.ContextMenu>-->
 
                             <DataGrid Name="ViewAllCategories"
                                       ItemsSource="{Binding AllCategories}"
@@ -177,12 +179,12 @@
                             <TabItem.Header>
                                 <TextBlock Text="Manufacturers" Foreground="{DynamicResource MaterialDesignBody}"/>
                             </TabItem.Header>
-                            <TabItem.ContextMenu>
+                            <!--<TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
                                     
                                     <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
-                            </TabItem.ContextMenu>
+                            </TabItem.ContextMenu>-->
 
                             <DataGrid Name="ViewAllManufacturers"
                                       ItemsSource="{Binding AllManufacturers}"
@@ -253,7 +255,6 @@
                             </TabItem.Header>
                             <TabItem.ContextMenu>
                                 <ContextMenu Foreground="#fc2626" Background="#1E1E1E">
-                                    <MenuItem Foreground="white" Header="{DynamicResource Edit}" Command="{Binding OpenEditItem}"/>
                                     <MenuItem Header="{DynamicResource Delete}" Command="{Binding DeleteItem}"/>
                                 </ContextMenu>
                             </TabItem.ContextMenu>
@@ -377,8 +378,7 @@
             <ToggleButton x:Name="ThemeToggle"
                           Width="40"
                           ToolTip="Переключить тему"
-                          IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                          Command="{Binding ToggleThemeCommand}">
+                          IsChecked="{Binding IsDarkTheme, Mode=TwoWay}">
                 <StackPanel Orientation="Horizontal">
 
                     <materialDesign:PackIcon Kind="WeatherNight" 

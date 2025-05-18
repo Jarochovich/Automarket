@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:AutoMarket.View"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
+        FontFamily="{StaticResource CustomFont}"
         Title="{DynamicResource Message}" Height="150" Width="250"
         Name="MessageWindow">
     <Grid>

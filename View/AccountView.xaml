@@ -9,6 +9,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="Личный кабинет" Height="600" Width="1000"
         WindowStartupLocation="CenterScreen"
+        FontFamily="{StaticResource CustomFont}"
         WindowState="Maximized">
 
     <Window.Resources>
@@ -125,7 +126,6 @@
                                                       ToolTip="Переключить тему"
                                                       Width="40"
                                                       IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                                                      Command="{Binding ToggleThemeCommand}"
                                                       Margin="10 0 20 0">
                                             <StackPanel Orientation="Horizontal">
                                                 <materialDesign:PackIcon Kind="WeatherNight" Width="18" Height="18"/>

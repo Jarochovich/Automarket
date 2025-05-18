@@ -36,9 +36,14 @@ namespace AutoMarket.ViewModel
             {
                 _login = value.Trim();
                 _isFormTouched = true;  // Отмечаем, что пользователь взаимодействовал с полем
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(Login));
             }
         }
+
+        // Минимальная и максимальная длина логина
+        private const int MinLoginLength = 4;
+        private const int MaxLoginLength = 20;
+
 
         public string PhoneNumber
         {
@@ -65,7 +70,7 @@ namespace AutoMarket.ViewModel
                 // Добавляем в "тронутые" только после начальной загрузки
                 if (!_isInitialLoad)
                     _touchedProperties.Add(nameof(Password));
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(Password));
             }
         }
 
@@ -76,7 +81,7 @@ namespace AutoMarket.ViewModel
             {
                 _confirmPassword = value;
                 _touchedProperties.Add(nameof(ConfirmPassword)); // Помечаем как "тронутое"
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(ConfirmPassword));
             }
         }
 
@@ -114,6 +119,7 @@ namespace AutoMarket.ViewModel
 
         private bool IsValidPhoneNumber(string phone)
         {
+
             if (string.IsNullOrWhiteSpace(phone)) return false;
 
             var cleanPhone = CleanPhoneNumber(phone);
@@ -185,7 +191,7 @@ namespace AutoMarket.ViewModel
 
                 return columnName switch
                 {
-                    nameof(Login) => string.IsNullOrWhiteSpace(Login) ? "Логин обязателен" : null,
+                    nameof(Login) => ValidateLogin(),
                     nameof(Password) => ValidatePassword(),
                     nameof(ConfirmPassword) => Password != ConfirmPassword ? "Пароли не совпадают" : null,
                     nameof(PhoneNumber) => IsValidPhoneNumber(PhoneNumber)
@@ -201,6 +207,25 @@ namespace AutoMarket.ViewModel
         {
             _isInitialLoad = false;
         }
+
+        private string ValidateLogin()
+        {
+            if (string.IsNullOrWhiteSpace(Login))
+                return "Логин обязателен";
+
+            if (Login.Length < MinLoginLength)
+                return $"Логин должен содержать минимум {MinLoginLength} символа";
+
+            if (Login.Length > MaxLoginLength)
+                return $"Логин не должен превышать {MaxLoginLength} символов";
+
+            // При необходимости можно добавить дополнительные проверки:
+            if (!Regex.IsMatch(Login, @"^[a-zа-яА-ЯA-Z0-9]+$"))
+                return "Логин может содержать только буквы и цифры";
+
+            return null;
+        }
+
         private string ValidatePassword()
         {
             if (string.IsNullOrEmpty(Password))

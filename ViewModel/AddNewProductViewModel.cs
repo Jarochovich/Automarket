@@ -21,6 +21,16 @@ namespace AutoMarket.ViewModel
         public Category CategoryProduct { get; set; }
         public Manufacturer ManufacturerProduct { get; set; }
 
+        private int _quantityProduct;
+        public int QuantityProduct
+        {
+            get => _quantityProduct;
+            set
+            {
+                _quantityProduct = value;
+                OnPropertyChanged(nameof(QuantityProduct));
+            }
+        }
         public string ProductName { get; set; }
         public string DescriptionProduct { get; set; }
         public decimal PriceProduct { get; set; }
@@ -86,6 +96,7 @@ namespace AutoMarket.ViewModel
                 CategoryProduct,
                 ManufacturerProduct,
                 ProductName,
+                QuantityProduct,
                 PriceProduct,
                 DescriptionProduct,
                 ImageData

@@ -16,6 +16,7 @@ namespace AutoMarket.ViewModel
 {
     public class AccountViewModel : BaseViewModel
     {
+        public event Action<int, int> ProductQuantityUpdated; // productId, delta
         private User _currentUser;
         public User CurrentUser
         {
@@ -53,6 +54,7 @@ namespace AutoMarket.ViewModel
         {
             CurrentUser = user;
 
+            // Инициализация команд
             BackToMainCommand = new RelayCommand(_ => BackToMain());
             TopUpBalanceCommand = new RelayCommand(_ => TopUpBalance());
             _submitReviewCommand = new RelayCommand(SubmitReview);
@@ -160,14 +162,33 @@ namespace AutoMarket.ViewModel
             {
                 if (DataWorker.CancelPurchase(purchaseVM.Purchase.Id))
                 {
+                    // Возвращаем деньги
                     CurrentUser.Balance += purchaseVM.TotalPrice;
                     OnPropertyChanged(nameof(CurrentUser));
                     OnPropertyChanged(nameof(BalanceDisplay));
+
+                    // Удаляем из списка ожидания
                     PendingPurchases.Remove(purchaseVM);
-                    ShowMessageToUser("Заказ отменен. Деньги возвращены на баланс.");
+
+                    // Обновляем данные товара
+                    var updatedProduct = DataWorker.GetProductById(purchaseVM.Product.Id);
+                    if (updatedProduct != null)
+                    {
+                        purchaseVM.Product.Quantity = updatedProduct.Quantity;
+                    }
+
+                    // Уведомляем MainViewModel об изменении количества
+                    ProductQuantityUpdated?.Invoke(purchaseVM.Product.Id, purchaseVM.Purchase.Quantity);
+
+                    ShowMessageToUser("Заказ отменен. Деньги возвращены на баланс. Товар возвращен на склад.");
+                }
+                else
+                {
+                    ShowMessageToUser("Ошибка при отмене заказа.");
                 }
             }
         }
+
 
         private void SubmitReview(object parameter)
         {

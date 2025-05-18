@@ -10,6 +10,7 @@
         Height="600" 
         Width="500"
         Name="EditProductWindow"
+        FontFamily="{StaticResource CustomFont}"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -52,6 +53,9 @@
                            Margin="0,5,0,2"/>
                 <TextBox Text="{Binding ProductName}" 
                          Margin="0,0,0,10"/>
+
+                <TextBlock Text="{DynamicResource Quantity}" />
+                <TextBox Text="{Binding QuantityProduct, UpdateSourceTrigger=PropertyChanged}" Margin="0,5"/>
 
                 <!-- Цена -->
                 <TextBlock Text="{DynamicResource Price}"

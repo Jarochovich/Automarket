@@ -10,19 +10,18 @@
         xmlns:converters="clr-namespace:AutoMarket.Helpers"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowState="Maximized"
-       
-       
-        Title="{DynamicResource MainView}" Height="500" Width="1200">
+        FontFamily="{StaticResource CustomFont}"
+        Title="{DynamicResource MainView}" 
+        MinHeight="600"
+        MinWidth="650">
 
     <Window.Resources>
         <converters:RatingToStarsConverter x:Key="RatingToStarsConverter"/>
         <converters:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
-
-        
     </Window.Resources>
     
-    <Grid>
+    <Grid >
         <!-- Основная сетка: Header / Content / Footer -->
         <Grid.RowDefinitions>
             <!-- Filter -->
@@ -54,11 +53,13 @@
 
 
             <Border Grid.Column="0" Grid.Row="1"
+                    
                     BorderBrush="{DynamicResource MaterialDesignDivider}"
                     BorderThickness="0 0 1 0"
                     Background="{DynamicResource MaterialDesignPaper}"
                     Padding="0 0 5 0">
                 <StackPanel Grid.Column="0" 
+                            
                             Grid.Row="1"
                             Background="{DynamicResource MaterialDesignPaper}">
                     
@@ -115,31 +116,52 @@
                                    HorizontalAlignment="Center"/>
                     </StackPanel>
 
+                    <Button Content="{DynamicResource Popular_Products}"
+                            Margin="10"
+                            Padding="5"
+                            Foreground="{DynamicResource MaterialDesignBody}"
+                            Command="{Binding ShowPopularProductsCommand}" />
+
                     <!--Сбросить фильтры-->
                     <Button Content="{DynamicResource Reset_filter}"
                             Command="{Binding ResetFilterCommand}"
                             Margin="15"
+                            FontSize="16"
                             Foreground="{DynamicResource MaterialDesignBody}"/>
-
-
+                    
                 </StackPanel>
             </Border>
 
-
+            
 
             <!-- Main content -->
             <ScrollViewer Grid.Row="1" 
                           Grid.Column="1"
                           Grid.ColumnSpan="2"
-                          
                           Background="{DynamicResource MaterialDesignPaper}">
-                <ListView ItemsSource="{Binding PagedProducts}"
+
+                <StackPanel Margin="20">
+                    <!-- Заголовок -->
+                    <TextBlock Text="{Binding Header}"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource MaterialDesignBody}"
+                   Margin="0 0 0 20"/>
+                    
+                     <!--Отдельный заголовок для производителя--> 
+                    <TextBlock Text="{Binding SelectedManufacturer.Name, StringFormat='Производитель: {0}'}"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource MaterialDesignBody}"
+                   Margin="0 0 0 20"/>
+
+                    <ListView ItemsSource="{Binding PagedProducts}"
                           Background="{DynamicResource MaterialDesignPaper}"
                           BorderThickness="0"
                           HorizontalAlignment="Center"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                           Cursor="Hand">
-
+                    
                     <!-- Отображение товаров -->
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -149,13 +171,17 @@
 
                     <ListView.ItemTemplate>
                         <DataTemplate>
+
                             <Border BorderBrush="#DDD" 
                                     BorderThickness="1" 
-                                    CornerRadius="10" 
+                                    CornerRadius="10"
+                                    
                                     Margin="10" 
                                     Padding="10" 
                                     Background="{DynamicResource MaterialDesignPaper}" 
-                                    Width="320">
+                                    Width="320"
+                                    Height="380">
+                                
                                 <StackPanel>
                                     <!-- Изображение товара -->
                                     <Image Source="{Binding ImageData, Converter={StaticResource ByteArrayToImageConverter}}"
@@ -170,7 +196,7 @@
                                                FontWeight="Bold" 
                                                FontSize="18" 
                                                Margin="0,0,0,5" 
-                                               TextWrapping="Wrap" 
+                                               TextWrapping="NoWrap"
                                                Foreground="{DynamicResource MaterialDesignBody}"/>
 
                                     <!-- Производитель -->
@@ -180,7 +206,9 @@
                                                Margin="0,0,0,5" 
                                                Foreground="{DynamicResource MaterialDesignBody}"/>
 
-                                    <!-- Цена товара -->
+                                        <TextBlock Text="{Binding Quantity, StringFormat='Количество: {0}'}" />
+
+                                        <!-- Цена товара -->
                                     <TextBlock Text="{Binding Price, StringFormat='Цена: {0} BYN'}"
                                                FontWeight="SemiBold" 
                                                FontSize="14" 
@@ -231,6 +259,7 @@
                                                 Padding="6,2"
                                                 FontWeight="Bold"
                                                 HorizontalAlignment="Stretch"
+                                                
                                                 Grid.Column="0"/>
 
                                         <!-- Кнопка "В корзину" -->
@@ -260,6 +289,7 @@
 
 
                 </ListView>
+                    </StackPanel>
             </ScrollViewer>
         </Grid>
 

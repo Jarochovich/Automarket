@@ -35,22 +35,18 @@ namespace AutoMarket.ViewModel
         private ICommand _searchCommand;
         public ICommand SearchCommand => _searchCommand ??= new RelayCommand(_ => ExecuteSearch());
 
-
+        
 
         public ICommand LoadImageCommand { get; }
         public ICommand LogoutCommand { get; }
-        // языки
-        public ICommand SetRussianCommand { get; }
-        public ICommand SetEnglishCommand { get; }
 
         public DataManageVM()
         {
             LoadImageCommand = new RelayCommand(param => LoadImage());
             LogoutCommand = new RelayCommand(_ => Logout());
-
-            SetRussianCommand = new RelayCommand(_ => App.ChangeLanguage("ru"));
-            SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
         }
+
+
 
         private TabItem _selectedTabItem;
         public TabItem SelectedTabItem
@@ -285,6 +281,18 @@ namespace AutoMarket.ViewModel
             get => _productName;
             set { _productName = value; OnPropertyChanged(nameof(ProductName)); }
         }
+
+        private int _quantityProduct;
+        public int QuantityProduct
+        {
+            get => _quantityProduct;
+            set
+            {
+                _quantityProduct = value; OnPropertyChanged(nameof(QuantityProduct));
+            }
+        }
+
+
         private decimal _priceProduct;
         public decimal PriceProduct
         {
@@ -385,12 +393,13 @@ namespace AutoMarket.ViewModel
                             CategoryProduct,
                             ManufacturerProduct,
                             ProductName,
+                            QuantityProduct,
                             PriceProduct.ToString(),
                             DescriptionProduct,
                             ImageData); // Добавляем передачу изображения
 
                         UpdateAllDataView();
-                        //ShowMessageToUser(resultStr);
+                        ShowMessageToUser(resultStr);
                         window.Close();
                         SetNullValuesToProperties();
                     }
@@ -419,7 +428,7 @@ namespace AutoMarket.ViewModel
                     
                     string resultStr = "";
 
-                    resultStr = DataWorker.CreateProduct(CategoryProduct, ManufacturerProduct, ProductName, PriceProduct, DescriptionProduct, ImageData);
+                    resultStr = DataWorker.CreateProduct(CategoryProduct, ManufacturerProduct, ProductName, QuantityProduct, PriceProduct, DescriptionProduct, ImageData);
                     UpdateAllDataView();
                     ShowMessageToUser(resultStr);
                     SetNullValuesToProperties();
@@ -553,6 +562,7 @@ namespace AutoMarket.ViewModel
             // продукты
             CategoryProduct = null;
             ProductName = null;
+            QuantityProduct = 0;
             PriceProduct = 0;
             DescriptionProduct = null;
             // пользователи

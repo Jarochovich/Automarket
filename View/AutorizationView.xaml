@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        Title="{DynamicResource LoginTitle}" Height="450" Width="800">
+        Title="{DynamicResource LoginTitle}" Height="400" Width="700">
     <Grid Background="#ffdadada">
         <Border MinWidth="250" Margin="20" Padding="20" Background="{DynamicResource MaterialDesignPaper}" VerticalAlignment="Center" MaxWidth="600" CornerRadius="20">
             <Border.Effect>

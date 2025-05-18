@@ -68,6 +68,72 @@ namespace AutoMarket.Model
             }
         }
 
+        // Списание товара
+        public static int DecreaseProductQuantity(int productId, int count)
+        {
+            using (var context = new ApplicationContext())
+            {
+                var product = context.Products.FirstOrDefault(p => p.Id == productId);
+                if (product != null)
+                {
+                    product.Quantity -= count;
+                    if (product.Quantity < 0)
+                    {
+                        product.Quantity = 0;
+                    }
+
+                    context.SaveChanges();
+                    return product.Quantity; // Возвращаем обновленное количество
+                }
+                return -1; // Или бросить исключение, если продукт не найден
+            }
+        }
+
+        public static int IncreaseProductQuantity(int productId, int count)
+        {
+            using (var context = new ApplicationContext())
+            {
+                var product = context.Products.FirstOrDefault(p => p.Id == productId);
+                if (product != null)
+                {
+                    product.Quantity += count;
+                    context.SaveChanges();
+                    return product.Quantity;
+                }
+                return -1;
+            }
+        }
+
+
+
+        // Возврат на склад
+        public static bool CancelPurchase(int purchaseId)
+        {
+            try
+            {
+                using (var db = new ApplicationContext())
+                {
+                    var purchase = db.Purchases.FirstOrDefault(p => p.Id == purchaseId);
+                    if (purchase == null || purchase.Status != Purchase.PurchaseStatus.Pending)
+                        return false;
+
+                    purchase.Status = Purchase.PurchaseStatus.Canceled;
+
+                    var product = db.Products.FirstOrDefault(p => p.Id == purchase.ProductId);
+                    if (product != null)
+                    {
+                        product.Quantity += purchase.Quantity; // ✅ Возвращаем товар на склад
+                    }
+
+                    db.SaveChanges();
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
 
         public static int GetFilteredProductCount(int? categoryId, int? manufacturerId,
@@ -362,24 +428,16 @@ namespace AutoMarket.Model
             {
                 using (var context = new ApplicationContext())
                 {
-                    try
-                    {
-                        var dbPurchase = context.Purchases.Find(purchase.Id);
-                        if (dbPurchase == null) return false;
+                   var dbPurchase = context.Purchases.Find(purchase.Id);
+                   if (dbPurchase == null) return false;
 
-                        dbPurchase.Status = Purchase.PurchaseStatus.Confirmed;
-                        context.SaveChanges();
-                        return true;
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                }
+                   dbPurchase.Status = Purchase.PurchaseStatus.Confirmed;
+                   context.SaveChanges();
+                   return true;
+                }  
             }
-            catch (Exception ex)
+            catch
             {
-                // Можно залогировать ошибку, если надо
                 return false;
             }
         }
@@ -400,23 +458,17 @@ namespace AutoMarket.Model
         {
             using (var db = new ApplicationContext())
             {
+                var product = db.Products.FirstOrDefault(p => p.Id == purchase.ProductId);
+                if (product == null || product.Quantity < purchase.Quantity)
+                    throw new InvalidOperationException("Недостаточно товара на складе");
+
+                product.Quantity -= purchase.Quantity;
+                purchase.Status = PurchaseStatus.Confirmed;
                 db.Purchases.Add(purchase);
                 db.SaveChanges();
             }
         }
 
-        public static bool CancelPurchase(int purchaseId)
-        {
-            using (var db = new ApplicationContext())
-            {
-                var purchase = db.Purchases.FirstOrDefault(p => p.Id == purchaseId);
-                if (purchase == null) return false;
-
-                purchase.Status = Purchase.PurchaseStatus.Canceled;
-                db.SaveChanges();
-                return true;
-            }
-        }
 
 
         // Добавить новую покупку (уже есть SavePurchase, но можно добавить статус по умолчанию)
@@ -535,6 +587,18 @@ namespace AutoMarket.Model
                 return context.Reviews.Any(r => r.UserId == userId && r.ProductId == productId);
             }
         }
+        public static int GetProductQuantity(int productId)
+        {
+            using (var context = new ApplicationContext())
+            {
+                // Отключаем кеширование для этого запроса
+                var product = context.Products
+                    .AsNoTracking() // Не кешировать сущность
+                    .FirstOrDefault(p => p.Id == productId);
+
+                return product?.Quantity ?? 0;
+            }
+        }
 
         public static Review GetUserReview(int userId, int productId)
         {
@@ -564,7 +628,7 @@ namespace AutoMarket.Model
         }
 
         // добавить новый продукт
-        public static string CreateProduct(Category category, Manufacturer manufacturer, string name, decimal price, string description, byte[] imageData = null)
+        public static string CreateProduct(Category category, Manufacturer manufacturer, string name, int quantity, decimal price, string description, byte[] imageData = null)
         {
             // Валидация входных параметров
             if (category == null)
@@ -581,6 +645,9 @@ namespace AutoMarket.Model
 
             if (price <= 0)
                 return "Цена должна быть больше нуля";
+
+            if (quantity <= 0)
+                return "Количество товаров должно быть больше нуля";
 
             if (string.IsNullOrWhiteSpace(description))
                 return "Не указано описание продукта";
@@ -605,6 +672,7 @@ namespace AutoMarket.Model
                             CategoryId = category.Id,
                             ManufacturerId = manufacturer.Id,
                             Name = name.Trim(),
+                            Quantity = quantity,
                             Price = price,
                             Description = description.Trim(),
                             ImageData = imageData
@@ -759,7 +827,7 @@ namespace AutoMarket.Model
             return result;
         }
 
-        public static string EditProduct(Product oldProduct, Category newCategory, Manufacturer newManufacturer, string newName, string newPriceStr, string newDescription, byte[] newImageData)
+        public static string EditProduct(Product oldProduct, Category newCategory, Manufacturer newManufacturer, string newName, int newQuantity, string newPriceStr, string newDescription, byte[] newImageData)
         {
             // Валидация
             if (newCategory == null)
@@ -773,6 +841,9 @@ namespace AutoMarket.Model
 
             if (newName.Length < 2)
                 return "Название продукта должно содержать не менее 2 символов";
+
+            if (newQuantity <= 0)
+                return "Не указано количество продукта";
 
             // Улучшенная проверка цены
             if (string.IsNullOrWhiteSpace(newPriceStr))
@@ -805,6 +876,7 @@ namespace AutoMarket.Model
                 product.Category = newCategory;
                 product.ManufacturerId = newManufacturer.Id;
                 product.Name = newName;
+                product.Quantity = newQuantity;
                 product.Price = newPrice;
                 product.Description = newDescription;
                 product.ImageData = newImageData;
