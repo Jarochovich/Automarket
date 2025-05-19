@@ -20,8 +20,6 @@ namespace AutoMarket.ViewModel
         {
             _mainVM = mainVM;
 
-
-            // Подписываемся на изменения коллекции
             CartItems.CollectionChanged += (s, e) =>
             {
                 if (e.NewItems != null)
@@ -41,8 +39,6 @@ namespace AutoMarket.ViewModel
             RemoveCommand = new RelayCommand(RemoveFromCart);
             PayCommand = new RelayCommand(ExecutePay);
             CartItems.CollectionChanged += (s, e) => RecalculateTotal();
-
-            // 🔥 Подписываемся на изменения CountItem у уже добавленных элементов
             
         }
 
@@ -50,10 +46,8 @@ namespace AutoMarket.ViewModel
         {
             if (parameter is CartItemViewModel item)
             {
-                //item.PropertyChanged -= CartItem_PropertyChanged; // 🧼
                 CartItems.Remove(item);
                 RecalculateTotal();
-                //_mainVM.UpdateProductQuantity(item.Product.Id, +item.CountItem);
             }
         }
 
@@ -149,21 +143,17 @@ namespace AutoMarket.ViewModel
 
                     DataWorker.SavePendingPurchase(tempPurchase);
 
-                    // Получаем новое количество после уменьшения на складе
+                    // После уменьшения на складе
                     int newQuantity = DataWorker.DecreaseProductQuantity(item.Product.Id, item.CountItem);
 
                     if (newQuantity >= 0)
                     {
-                        item.Product.Quantity = newQuantity;  // Обновляем локальное количество товара
-                                                              // Если Product реализует INotifyPropertyChanged, UI обновится автоматически
+                        item.Product.Quantity = newQuantity;  
                     }
                 }
 
                 CartItems.Clear();
                 RecalculateTotal();
-
-                // Если нужно обновить весь список продуктов из БД, раскомментируйте:
-                // _mainVM.ReloadProducts();
 
                 ShowMessageToUser("Оплата прошла успешно!");
                 CartUpdated?.Invoke();
@@ -175,7 +165,6 @@ namespace AutoMarket.ViewModel
         }
 
 
-
         public void AddToCart(Product product)
         {
             if (product == null)
@@ -184,10 +173,10 @@ namespace AutoMarket.ViewModel
                 return;
             }
 
-            // Получаем актуальное количество товара из базы
+            // Актуальное количество товара из базы
             int availableInDb = DataWorker.GetProductQuantity(product.Id);
 
-            // Получаем общее количество этого товара уже в корзине
+            // Общее количество этого товара уже в корзине
             int inCart = CartItems.Where(i => i.Product.Id == product.Id).Sum(i => i.CountItem);
 
             // Доступное количество = в базе - уже в корзине
@@ -195,7 +184,7 @@ namespace AutoMarket.ViewModel
 
             if (available <= 0)
             {
-                ShowMessageToUser("Нельзя добавить больше товара, чем есть на складе");
+                ShowMessageToUser("На складе больше этих товаров нет!");
                 return;
             }
 
@@ -203,7 +192,7 @@ namespace AutoMarket.ViewModel
 
             if (existingItem != null)
             {
-                // Проверяем, что после увеличения CountItem не превысит availableInDb
+                // CountItem не превысит availableInDb
                 if (existingItem.CountItem + 1 > availableInDb)
                 {
                     ShowMessageToUser("Нельзя добавить больше товара, чем есть на складе");
@@ -213,7 +202,7 @@ namespace AutoMarket.ViewModel
             }
             else
             {
-                // Для нового товара проверяем, что 1 <= availableInDb
+                // Для нового товара проверяем
                 if (1 > availableInDb)
                 {
                     ShowMessageToUser("Нельзя добавить больше товара, чем есть на складе");
@@ -229,18 +218,10 @@ namespace AutoMarket.ViewModel
             CartUpdated?.Invoke();
         }
 
-        // Вспомогательный метод: сколько всего этого товара уже в корзине
-        public int GetTotalInCart(int productId)
-        {
-            return CartItems.Where(i => i.Product.Id == productId).Sum(i => i.CountItem);
-        }
-
         public void RemoveFromCart(CartItemViewModel item)
         {
-            //item.PropertyChanged -= CartItem_PropertyChanged; // 🧼
             CartItems.Remove(item);
             RecalculateTotal();
-            //_mainVM.UpdateProductQuantity(item.Product.Id, +item.CountItem);
         }
 
         private void IncreaseQuantity(object parameter)
@@ -271,7 +252,6 @@ namespace AutoMarket.ViewModel
 
         private void CartItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            // Реагируем только на изменения CountItem и TotalPrice
             if (e.PropertyName == nameof(CartItemViewModel.CountItem))
                 RecalculateTotal();
         }
@@ -281,7 +261,7 @@ namespace AutoMarket.ViewModel
         private void RecalculateTotal()
         {
             TotalPrice = CartItems.Sum(i => i.TotalPrice);
-            OnPropertyChanged(nameof(TotalPrice)); // Явное уведомление для UI
+            OnPropertyChanged(nameof(TotalPrice));
         }
     }
 }

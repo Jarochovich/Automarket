@@ -35,13 +35,8 @@ namespace AutoMarket.ViewModel
         public ObservableCollection<PurchaseViewModel> ConfirmedPurchases { get; } = new();
         public ObservableCollection<Product> PurchasedProducts { get; } = new();
         public ObservableCollection<ProductReviewViewModel> ProductReviews { get; } = new();
-
-
-
-
-
         
-        // 
+
         public ICommand BackToMainCommand { get; }
         public ICommand TopUpBalanceCommand { get; }
         public ICommand ConfirmPurchaseCommand { get; }
@@ -54,14 +49,11 @@ namespace AutoMarket.ViewModel
         {
             CurrentUser = user;
 
-            // Инициализация команд
             BackToMainCommand = new RelayCommand(_ => BackToMain());
             TopUpBalanceCommand = new RelayCommand(_ => TopUpBalance());
             _submitReviewCommand = new RelayCommand(SubmitReview);
             ConfirmPurchaseCommand = new RelayCommand(ConfirmPurchase);
             CancelPurchaseCommand = new RelayCommand(CancelPurchase);
-
-
 
             LoadPurchasedProducts();
             LoadPurchases();
@@ -167,17 +159,16 @@ namespace AutoMarket.ViewModel
                     OnPropertyChanged(nameof(CurrentUser));
                     OnPropertyChanged(nameof(BalanceDisplay));
 
-                    // Удаляем из списка ожидания
                     PendingPurchases.Remove(purchaseVM);
 
-                    // Обновляем данные товара
+                    
                     var updatedProduct = DataWorker.GetProductById(purchaseVM.Product.Id);
                     if (updatedProduct != null)
                     {
                         purchaseVM.Product.Quantity = updatedProduct.Quantity;
                     }
 
-                    // Уведомляем MainViewModel об изменении количества
+                    
                     ProductQuantityUpdated?.Invoke(purchaseVM.Product.Id, purchaseVM.Purchase.Quantity);
 
                     ShowMessageToUser("Заказ отменен. Деньги возвращены на баланс. Товар возвращен на склад.");
@@ -235,13 +226,10 @@ namespace AutoMarket.ViewModel
 
                         context.Reviews.Add(review);
                         context.SaveChanges();
-
-                        // Обновляем состояние
                         purchaseVM.HasUserReviewed = true;
 
                         ShowMessageToUser("Спасибо за ваш отзыв!");
 
-                        // Обновляем список отзывов
                         LoadPurchasedProducts();
                     }
                 }

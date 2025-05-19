@@ -15,18 +15,16 @@ namespace AutoMarket.Model
         public int ManufacturerId { get; set; }
         public Manufacturer Manufacturer { get; set; }
         public string Name { get; set; }
-        public int Quantity { get; set; } // ← Добавлено
+        public int Quantity { get; set; }
         public decimal Price { get; set; }
         public string Description { get; set; }
         public byte[] ImageData { get; set; }
 
-        // навигационное свойство для отзывов
         public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
         public double Rating { get; set; }
 
-        // Добавляем новое свойство (не сохраняемое в БД)
-        [NotMapped] // Атрибут указывает, что это свойство не должно маппиться в БД
+        [NotMapped]
         public int PurchaseQuantity { get; set; }
 
     }

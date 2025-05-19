@@ -40,7 +40,6 @@ namespace AutoMarket.ViewModel
             }
         }
 
-        // Минимальная и максимальная длина логина
         private const int MinLoginLength = 4;
         private const int MaxLoginLength = 20;
 
@@ -50,7 +49,7 @@ namespace AutoMarket.ViewModel
             get => _phoneNumber;
             set
             {
-                // Убираем только нецифровые символы, сохраняя код страны
+                // убрать нецифровые символы
                 var newValue = Regex.Replace(value, @"[^\d]", "");
                 if (newValue.StartsWith("375"))
                     newValue = "+" + newValue;
@@ -67,7 +66,7 @@ namespace AutoMarket.ViewModel
             set
             {
                 _password = value;
-                // Добавляем в "тронутые" только после начальной загрузки
+                // Добавляем в "тронутые" 
                 if (!_isInitialLoad)
                     _touchedProperties.Add(nameof(Password));
                 OnPropertyChanged(nameof(Password));
@@ -80,7 +79,7 @@ namespace AutoMarket.ViewModel
             set
             {
                 _confirmPassword = value;
-                _touchedProperties.Add(nameof(ConfirmPassword)); // Помечаем как "тронутое"
+                _touchedProperties.Add(nameof(ConfirmPassword)); // трогаем
                 OnPropertyChanged(nameof(ConfirmPassword));
             }
         }
@@ -89,7 +88,7 @@ namespace AutoMarket.ViewModel
 
         public ICommand RegisterCommand { get; }
         public ICommand ShowAuthCommand { get; }
-        public Action CloseAction { get; set; } // делегат для закрытия окна
+        public Action CloseAction { get; set; } // делегат для закрытия окна!!!!!
 
         public RegistrationViewModel()
         {
@@ -102,13 +101,12 @@ namespace AutoMarket.ViewModel
             var registerWindow = new AutorizationView();
             registerWindow.Show();
 
-            CloseAction?.Invoke(); // Закрытие текущего окна
+            CloseAction?.Invoke();
         }
 
-        // Проверка, может ли быть выполнена регистрация
+        // может ли быть выполнена регистрация
         private bool CanRegister()
         {
-            // Не разрешаем регистрацию во время начальной загрузки
             if (_isInitialLoad) return false;
 
             return !string.IsNullOrWhiteSpace(Login) &&
@@ -136,7 +134,6 @@ namespace AutoMarket.ViewModel
                 return;
             }
 
-            // Добавляем await перед вызовом асинхронного метода
             bool isCreated = await DataWorker.CreateUserAsync(Login, Password, PhoneNumber);
 
             if (isCreated)
@@ -157,7 +154,7 @@ namespace AutoMarket.ViewModel
             Login = string.Empty;
             Password = string.Empty;
             ConfirmPassword = string.Empty;
-            PhoneNumber = string.Empty; // Или string.Empty, в зависимости от ваших требований
+            PhoneNumber = string.Empty;
 
             if (FirstPassBox != null) FirstPassBox.Clear();
             if (SecondPassBox != null) SecondPassBox.Clear();
@@ -168,10 +165,10 @@ namespace AutoMarket.ViewModel
             var propertiesToCheck = new[] { nameof(ShowLoginWindow), nameof(Password), nameof(ConfirmPassword), nameof(PhoneNumber) };
             foreach (var property in propertiesToCheck)
             {
-                if (!string.IsNullOrEmpty(this[property])) // Если есть ошибка, вернуть true
+                if (!string.IsNullOrEmpty(this[property]))
                     return true;
             }
-            return false; // Если нет ошибок
+            return false;
         }
 
         // Валидация данных
@@ -179,11 +176,10 @@ namespace AutoMarket.ViewModel
         {
             get
             {
-                // Пропускаем валидацию при первой загрузке
+                // фича
                 if (_isInitialLoad)
                     return null;
 
-                // Для паролей проверяем только если они не пустые
                 if ((columnName == nameof(Password) || columnName == nameof(ConfirmPassword)))
                 {
                     if (string.IsNullOrEmpty(Password) )return null;
@@ -202,7 +198,7 @@ namespace AutoMarket.ViewModel
             }
         }
 
-        // Добавляем метод для завершения начальной загрузки
+        // метод для завершения начальной загрузки
         public void CompleteInitialLoad()
         {
             _isInitialLoad = false;
@@ -219,7 +215,6 @@ namespace AutoMarket.ViewModel
             if (Login.Length > MaxLoginLength)
                 return $"Логин не должен превышать {MaxLoginLength} символов";
 
-            // При необходимости можно добавить дополнительные проверки:
             if (!Regex.IsMatch(Login, @"^[a-zа-яА-ЯA-Z0-9]+$"))
                 return "Логин может содержать только буквы и цифры";
 
@@ -249,13 +244,11 @@ namespace AutoMarket.ViewModel
 
      
 
-        // Очищаем номер телефона от всех символов, кроме цифр
         private string CleanPhoneNumber(string phone)
         {
             return new string(phone.Where(char.IsDigit).ToArray());
         }
 
-        // Добавим метод для сброса валидации
         public void ResetValidation()
         {
             _touchedProperties.Clear();

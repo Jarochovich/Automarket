@@ -75,9 +75,9 @@ namespace AutoMarket.Model
                     }
 
                     context.SaveChanges();
-                    return product.Quantity; // Возвращаем обновленное количество
+                    return product.Quantity;
                 }
-                return -1; // Или бросить исключение, если продукт не найден
+                return -1; // пусть сам разбирается
             }
         }
 
@@ -99,7 +99,7 @@ namespace AutoMarket.Model
                     var product = db.Products.FirstOrDefault(p => p.Id == purchase.ProductId);
                     if (product != null)
                     {
-                        product.Quantity += purchase.Quantity; // Возвращаем товар на склад
+                        product.Quantity += purchase.Quantity; // пака
                     }
 
                     db.SaveChanges();
@@ -185,11 +185,10 @@ namespace AutoMarket.Model
                 var user = db.Users.FirstOrDefault(u => u.Login == login);
                 if (user != null)
                 {
-                    // Сравниваем хеш пароля
-                    string hashedPassword = Hashing.HashPassword(password, user.PasswordSalt); // Сначала добавляем соль к паролю
+                    // Сравниваем хеш
+                    string hashedPassword = Hashing.HashPassword(password, user.PasswordSalt);
                     if (user.PasswordHash == hashedPassword)
                     {
-                        // Если логин совпадает с администраторским
                         return login == "admin";
                     }
                 }
@@ -309,9 +308,8 @@ namespace AutoMarket.Model
                         .Include(p => p.Product)
                             .ThenInclude(prod => prod.Reviews)
                         .AsNoTracking()
-                        .ToList(); // Выполняем запрос здесь
+                        .ToList();
 
-                    // Теперь в C# задаём PurchaseQuantity
                     var products = purchases.Select(p =>
                     {
                         p.Product.PurchaseQuantity = p.Quantity;
@@ -354,7 +352,6 @@ namespace AutoMarket.Model
         // добавить новый продукт
         public static string CreateProduct(Category category, Manufacturer manufacturer, string name, int quantity, decimal price, string description, byte[] imageData = null)
         {
-            // Валидация входных параметров
             if (category == null)
                 return "Не указана категория продукта";
 
@@ -387,7 +384,7 @@ namespace AutoMarket.Model
             {
                 try
                 {
-                    // проверка на существование (учитываем только имя и цену, так как другие параметры могут повторяться)
+                    // проверка на существование
                     bool checkIsExist = db.Products.Any(el => el.Name == name && el.Price == price && el.CategoryId == category.Id);
                     if (!checkIsExist)
                     {
@@ -410,13 +407,12 @@ namespace AutoMarket.Model
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Ошибка при добавлении продукта: {ex.Message}");
                     return $"Ошибка при добавлении продукта: {ex.Message}";
                 }
             }
         }
 
-        // пополнить баланс
+        // пополнить пачки лавэ
         public static bool UpdateUserBalance(int userId, decimal amount)
         {
             try
@@ -435,12 +431,11 @@ namespace AutoMarket.Model
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Ошибка при обновлении баланса: {ex.Message}");
                 return false;
             }
         }
 
-        // Добавить пользователя (асинхронно)
+        // Добавить пользователя
         public static async Task<bool> CreateUserAsync(string login, string password, string phone)
         {
             await using var db = new ApplicationContext();
@@ -524,7 +519,6 @@ namespace AutoMarket.Model
 
         public static string EditProduct(Product oldProduct, Category newCategory, Manufacturer newManufacturer, string newName, int newQuantity, string newPriceStr, string newDescription, byte[] newImageData)
         {
-            // Валидация
             if (newCategory == null)
                 return "Не указана категория продукта";
 
@@ -540,14 +534,13 @@ namespace AutoMarket.Model
             if (newQuantity <= 0)
                 return "Не указано количество продукта";
 
-            // Улучшенная проверка цены
             if (string.IsNullOrWhiteSpace(newPriceStr))
                 return "Цена должна быть указана";
 
             // Нормализация строки с ценой
             string normalizedPrice = newPriceStr.Trim()
-                                              .Replace(" ", "") // Удаляем пробелы
-                                              .Replace(",", "."); // Заменяем запятые на точки
+                                              .Replace(" ", "")
+                                              .Replace(",", ".");
 
             if (!decimal.TryParse(normalizedPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal newPrice) || newPrice <= 0)
                 return "Цена должна быть числом больше нуля";
@@ -561,7 +554,6 @@ namespace AutoMarket.Model
             if (newImageData == null || newImageData.Length == 0)
                 return "Не добавлено изображение товара";
 
-            // Обновление
             using (ApplicationContext db = new ApplicationContext())
             {
                 Product product = db.Products.FirstOrDefault(p => p.Id == oldProduct.Id);
@@ -581,6 +573,5 @@ namespace AutoMarket.Model
             }
         }
 
- 
     }
 }

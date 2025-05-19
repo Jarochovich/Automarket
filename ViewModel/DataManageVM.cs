@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using AutoMarket.Model;
 using System.Windows;
+using AutoMarket.Model;
 using AutoMarket.View;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Text.RegularExpressions;
-using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.IO;
 
 namespace AutoMarket.ViewModel
 {
@@ -35,8 +30,6 @@ namespace AutoMarket.ViewModel
         private ICommand _searchCommand;
         public ICommand SearchCommand => _searchCommand ??= new RelayCommand(_ => ExecuteSearch());
 
-        
-
         public ICommand LoadImageCommand { get; }
         public ICommand LogoutCommand { get; }
 
@@ -44,9 +37,15 @@ namespace AutoMarket.ViewModel
         {
             LoadImageCommand = new RelayCommand(param => LoadImage());
             LogoutCommand = new RelayCommand(_ => Logout());
+
+            // Инициализация коллекций
+            AllUsers = new ObservableCollection<User>(DataWorker.GetAllUsers());
+            AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
+            AllCategories = new ObservableCollection<Category>(DataWorker.GetAllCategories());
+            AllManufacturers = new ObservableCollection<Manufacturer>(DataWorker.GetAllManufacturers());
+            AllReviews = new ObservableCollection<Review>(DataWorker.GetAllReviews());
+            AllPurchases = new ObservableCollection<Purchase>(DataWorker.GetAllPurchases());
         }
-
-
 
         private TabItem _selectedTabItem;
         public TabItem SelectedTabItem
@@ -55,85 +54,99 @@ namespace AutoMarket.ViewModel
             set
             {
                 _selectedTabItem = value;
-                OnPropertyChanged(nameof(SearchText));
-
+                OnPropertyChanged(nameof(SelectedTabItem));
+                ExecuteSearch();
             }
         }
 
         private void ExecuteSearch()
         {
+            if (SelectedTabItem == null) return;
+
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                // Если строка поиска пустая, показываем все данные
-                switch (SelectedTabItem?.Name)
-                {
-                    case "UsersTab":
-                        AllUsers = DataWorker.GetAllUsers();
-                        break;
-                    case "ProductsTab":
-                        AllProducts = DataWorker.GetAllProducts();
-                        break;
-                    case "CategoriesTab":
-                        AllCategories = DataWorker.GetAllCategories();
-                        break;
-                    case "ManufacturersTab":
-                        AllManufacturers = DataWorker.GetAllManufacturers();
-                        break;
-                    case "ReviewsTab":
-                        AllReviews = DataWorker.GetAllReviews();
-                        break;
-                    case "PurchasesTab":
-                        AllPurchases = DataWorker.GetAllPurchases();
-                        break;
-                }
+                UpdateCurrentTabData();
                 return;
             }
 
             var searchTextLower = SearchText.ToLower();
 
-            switch (SelectedTabItem?.Name)
+            switch (SelectedTabItem.Name)
             {
                 case "UsersTab":
-                    AllUsers = DataWorker.GetAllUsers()
-                        .Where(u => (u.Login != null && u.Login.ToLower().Contains(searchTextLower)) ||
-                                   (u.PhoneNumber != null && u.PhoneNumber.ToLower().Contains(searchTextLower)))
-                        .ToList();
+                    AllUsers = new ObservableCollection<User>(
+                        DataWorker.GetAllUsers()
+                            .Where(u => (u.Login?.ToLower().Contains(searchTextLower) ?? false) ||
+                                       (u.PhoneNumber?.ToLower().Contains(searchTextLower) ?? false))
+                            .ToList());
                     break;
 
                 case "ProductsTab":
-                    AllProducts = DataWorker.GetAllProducts()
-                        .Where(p => (p.Name != null && p.Name.ToLower().Contains(searchTextLower)) ||
-                                  (p.Description != null && p.Description.ToLower().Contains(searchTextLower)) ||
-                                  p.Price.ToString().Contains(SearchText))
-                        .ToList();
+                    AllProducts = new ObservableCollection<Product>(
+                        DataWorker.GetAllProducts()
+                            .Where(p => (p.Name?.ToLower().Contains(searchTextLower) ?? false) ||
+                                       (p.Description?.ToLower().Contains(searchTextLower) ?? false) ||
+                                       p.Price.ToString().Contains(SearchText))
+                            .ToList());
                     break;
 
                 case "CategoriesTab":
-                    AllCategories = DataWorker.GetAllCategories()
-                        .Where(c => c.Name != null && c.Name.ToLower().Contains(searchTextLower))
-                        .ToList();
+                    AllCategories = new ObservableCollection<Category>(
+                        DataWorker.GetAllCategories()
+                            .Where(c => c.Name?.ToLower().Contains(searchTextLower) ?? false)
+                            .ToList());
                     break;
 
                 case "ManufacturersTab":
-                    AllManufacturers = DataWorker.GetAllManufacturers()
-                        .Where(m => m.Name != null && m.Name.ToLower().Contains(searchTextLower))
-                        .ToList();
+                    AllManufacturers = new ObservableCollection<Manufacturer>(
+                        DataWorker.GetAllManufacturers()
+                            .Where(m => m.Name?.ToLower().Contains(searchTextLower) ?? false)
+                            .ToList());
                     break;
 
                 case "ReviewsTab":
-                    AllReviews = DataWorker.GetAllReviews()
-                        .Where(r => (r.AuthorName != null && r.AuthorName.ToLower().Contains(searchTextLower)) ||
-                                    (r.Comment != null && r.Comment.ToLower().Contains(searchTextLower)) ||
-                                    r.Rating.ToString().Contains(SearchText))
-                        .ToList();
+                    AllReviews = new ObservableCollection<Review>(
+                        DataWorker.GetAllReviews()
+                            .Where(r => (r.AuthorName?.ToLower().Contains(searchTextLower) ?? false) ||
+                                        (r.Comment?.ToLower().Contains(searchTextLower) ?? false) ||
+                                        r.Rating.ToString().Contains(SearchText))
+                            .ToList());
                     break;
 
                 case "PurchasesTab":
-                    AllPurchases = DataWorker.GetAllPurchases()
-                        .Where(p => (p.Status != null && p.Status.ToString().Contains(searchTextLower)) ||
-                                  p.PurchaseDate.ToString().Contains(SearchText) ||
-                                  p.PriceAtPurchase.ToString().Contains(SearchText))
-                        .ToList();
+                    AllPurchases = new ObservableCollection<Purchase>(
+                        DataWorker.GetAllPurchases()
+                            .Where(p => (p.Status.ToString()?.ToLower().Contains(searchTextLower) ?? false) ||
+                                      p.PurchaseDate.ToString().Contains(SearchText) ||
+                                      p.PriceAtPurchase.ToString().Contains(SearchText))
+                            .ToList());
+                    break;
+            }
+        }
+
+        private void UpdateCurrentTabData()
+        {
+            if (SelectedTabItem == null) return;
+
+            switch (SelectedTabItem.Name)
+            {
+                case "UsersTab":
+                    AllUsers = new ObservableCollection<User>(DataWorker.GetAllUsers());
+                    break;
+                case "ProductsTab":
+                    AllProducts = new ObservableCollection<Product>(DataWorker.GetAllProducts());
+                    break;
+                case "CategoriesTab":
+                    AllCategories = new ObservableCollection<Category>(DataWorker.GetAllCategories());
+                    break;
+                case "ManufacturersTab":
+                    AllManufacturers = new ObservableCollection<Manufacturer>(DataWorker.GetAllManufacturers());
+                    break;
+                case "ReviewsTab":
+                    AllReviews = new ObservableCollection<Review>(DataWorker.GetAllReviews());
+                    break;
+                case "PurchasesTab":
+                    AllPurchases = new ObservableCollection<Purchase>(DataWorker.GetAllPurchases());
                     break;
             }
         }
@@ -143,12 +156,12 @@ namespace AutoMarket.ViewModel
             var authView = new AutorizationView();
             authView.Show();
 
-            // Закрытие текущего окна, связанного с этим ViewModel
             Application.Current.Windows
                 .OfType<Window>()
                 .FirstOrDefault(w => w.DataContext == this)?
                 .Close();
         }
+
         private string _imagePath;
         public string ImagePath
         {
@@ -174,7 +187,7 @@ namespace AutoMarket.ViewModel
                 {
                     ImagePath = openFileDialog.FileName;
                     ImageData = File.ReadAllBytes(ImagePath);
-                    OnPropertyChanged(nameof(ImagePreview)); // Важно уведомить об изменении
+                    OnPropertyChanged(nameof(ImagePreview));
                 }
                 catch (Exception ex)
                 {
@@ -183,91 +196,80 @@ namespace AutoMarket.ViewModel
             }
         }
 
-
-        // все категории
-        private List<Category> allCategories = DataWorker.GetAllCategories();
-        public List<Category> AllCategories
+        private ObservableCollection<Category> _allCategories;
+        public ObservableCollection<Category> AllCategories
         {
-            get { return allCategories; }
-            set { 
-                allCategories = value;
-                OnPropertyChanged("AllCategories");
-                }
-        }
-
-        // все производители
-        private List<Manufacturer> allManufacturers = DataWorker.GetAllManufacturers();
-        public List<Manufacturer> AllManufacturers
-        {
-            get { return allManufacturers; }
+            get => _allCategories;
             set
             {
-                allManufacturers = value;
-                OnPropertyChanged("AllManufacturers");
+                _allCategories = value;
+                OnPropertyChanged(nameof(AllCategories));
             }
         }
 
-        // все продукты
-        private List<Product> allProducts = DataWorker.GetAllProducts();
-        public List<Product> AllProducts
+        private ObservableCollection<Manufacturer> _allManufacturers;
+        public ObservableCollection<Manufacturer> AllManufacturers
         {
-            get { return allProducts; }
+            get => _allManufacturers;
             set
             {
-                allProducts = value;
-                OnPropertyChanged("AllProducts");
+                _allManufacturers = value;
+                OnPropertyChanged(nameof(AllManufacturers));
             }
         }
 
-        // все пользователи
-        private List<User> allUsers = DataWorker.GetAllUsers();
-        public List<User> AllUsers
+        private ObservableCollection<Product> _allProducts;
+        public ObservableCollection<Product> AllProducts
         {
-            get { return allUsers; }
+            get => _allProducts;
             set
             {
-                allUsers = value;
-                OnPropertyChanged("AllUsers");
+                _allProducts = value;
+                OnPropertyChanged(nameof(AllProducts));
             }
         }
 
-
-        // все отзывы
-        private List<Review> allReviews = DataWorker.GetAllReviews();
-        public List<Review> AllReviews
+        private ObservableCollection<User> _allUsers;
+        public ObservableCollection<User> AllUsers
         {
-            get { return allReviews; }
+            get => _allUsers;
             set
             {
-                allReviews = value;
-                OnPropertyChanged("AllReviews");
+                _allUsers = value;
+                OnPropertyChanged(nameof(AllUsers));
             }
         }
 
-        // все заказы
-        private List<Purchase> allPurchases = DataWorker.GetAllPurchases();
-        public List<Purchase> AllPurchases
+        private ObservableCollection<Review> _allReviews;
+        public ObservableCollection<Review> AllReviews
         {
-            get { return allPurchases; }
+            get => _allReviews;
             set
             {
-                allPurchases = value;
-                OnPropertyChanged("AllPurchases");
+                _allReviews = value;
+                OnPropertyChanged(nameof(AllReviews));
             }
         }
 
-
-        // категория
+        private ObservableCollection<Purchase> _allPurchases;
+        public ObservableCollection<Purchase> AllPurchases
+        {
+            get => _allPurchases;
+            set
+            {
+                _allPurchases = value;
+                OnPropertyChanged(nameof(AllPurchases));
+            }
+        }
         public static string CategoryName { get; set; }
 
-        // продукт
         private Category _categoryProduct;
         public Category CategoryProduct
         {
             get => _categoryProduct;
-            set { _categoryProduct = value; 
-                OnPropertyChanged(nameof(CategoryProduct)); }
+            set { _categoryProduct = value; OnPropertyChanged(nameof(CategoryProduct)); }
         }
+
         private Manufacturer _manufacturerProduct;
         public Manufacturer ManufacturerProduct
         {
@@ -286,12 +288,8 @@ namespace AutoMarket.ViewModel
         public int QuantityProduct
         {
             get => _quantityProduct;
-            set
-            {
-                _quantityProduct = value; OnPropertyChanged(nameof(QuantityProduct));
-            }
+            set { _quantityProduct = value; OnPropertyChanged(nameof(QuantityProduct)); }
         }
-
 
         private decimal _priceProduct;
         public decimal PriceProduct
@@ -306,18 +304,14 @@ namespace AutoMarket.ViewModel
             get => _descriptionProduct;
             set { _descriptionProduct = value; OnPropertyChanged(nameof(DescriptionProduct)); }
         }
+
         public static byte[] ImageD { get; set; }
 
-
-        // пользователи
         public static string UserLogin { get; set; }
         public static string UserPassword { get; set; }
         public static int UserPhoneNumber { get; set; }
-
-        // производители
         public static string ManufacturerName { get; set; }
 
-        // Свойство для изображения
         private byte[] _imageData;
         public byte[] ImageData
         {
@@ -326,18 +320,14 @@ namespace AutoMarket.ViewModel
             {
                 _imageData = value;
                 ImageD = value;
-                OnPropertyChanged(nameof(ImageData)); // Уведомляем о изменении
+                OnPropertyChanged(nameof(ImageData));
             }
         }
 
-        
-        
-
-        // свойства для выделенных элементов
         public static User SelectedUser { get; set; }
         public static Category SelectedCategory { get; set; }
         public static Review SelectedReview { get; set; }
-        public static Purchase SelectedPurchase { get; set; }        
+        public static Purchase SelectedPurchase { get; set; }
         public static Manufacturer SelectedManufacturer { get; set; }
 
         private Product _selectedProduct;
@@ -364,7 +354,7 @@ namespace AutoMarket.ViewModel
                         image.StreamSource = ms;
                         image.EndInit();
                     }
-                    image.Freeze(); // Для безопасности в многопоточной среде
+                    image.Freeze();
                     return image;
                 }
                 catch
@@ -373,8 +363,6 @@ namespace AutoMarket.ViewModel
                 }
             }
         }
-
-
 
         #region COMMANDS_TO_EDIT
         private RelayCommand editProduct;
@@ -385,107 +373,99 @@ namespace AutoMarket.ViewModel
                 return editProduct ?? new RelayCommand(obj =>
                 {
                     Window window = obj as Window;
-                    string resultStr = "Не выбран продукт";
-                    if (SelectedProduct != null)
+                    if (SelectedProduct == null)
                     {
-                        resultStr = DataWorker.EditProduct(
-                            SelectedProduct,
-                            CategoryProduct,
-                            ManufacturerProduct,
-                            ProductName,
-                            QuantityProduct,
-                            PriceProduct.ToString(),
-                            DescriptionProduct,
-                            ImageData); // Добавляем передачу изображения
+                        ShowMessageToUser("Не выбран продукт");
+                        return;
+                    }
 
-                        UpdateAllDataView();
-                        ShowMessageToUser(resultStr);
-                        window.Close();
-                        SetNullValuesToProperties();
-                    }
-                    else
-                    {
-                        ShowMessageToUser(resultStr);
-                    }
+                    string resultStr = DataWorker.EditProduct(
+                        SelectedProduct,
+                        CategoryProduct,
+                        ManufacturerProduct,
+                        ProductName,
+                        QuantityProduct,
+                        PriceProduct.ToString(),
+                        DescriptionProduct,
+                        ImageData);
+
+                    UpdateCurrentTabData();
+                    ShowMessageToUser(resultStr);
+                    window.Close();
+                    SetNullValuesToProperties();
                 });
             }
         }
-
-
         #endregion
 
         #region COMMANDS_TO_ADD
-
-
-        private RelayCommand addNewProduct { get; set; }
+        private RelayCommand addNewProduct;
         public RelayCommand AddNewProduct
         {
             get
             {
-                return addNewProduct ?? new RelayCommand((obj) =>
+                return addNewProduct ?? new RelayCommand(obj =>
                 {
                     Window window = obj as Window;
-                    
-                    string resultStr = "";
+                    string resultStr = DataWorker.CreateProduct(
+                        CategoryProduct,
+                        ManufacturerProduct,
+                        ProductName,
+                        QuantityProduct,
+                        PriceProduct,
+                        DescriptionProduct,
+                        ImageData);
 
-                    resultStr = DataWorker.CreateProduct(CategoryProduct, ManufacturerProduct, ProductName, QuantityProduct, PriceProduct, DescriptionProduct, ImageData);
-                    UpdateAllDataView();
+                    UpdateCurrentTabData();
                     ShowMessageToUser(resultStr);
                     SetNullValuesToProperties();
                     window.Close();
                 });
             }
         }
-
         #endregion
 
         #region COMMANDS_TO_DELETE
-        private RelayCommand deleteItem { get; set; }
+        private RelayCommand deleteItem;
         public RelayCommand DeleteItem
         {
             get
             {
                 return deleteItem ?? new RelayCommand(obj =>
                 {
+                    if (SelectedTabItem == null)
+                    {
+                        ShowMessageToUser("Ничего не выбрано");
+                        return;
+                    }
+
                     string resultStr = "Ничего не выбрано";
 
-                    // удаление пользователь
-                    if (SelectedTabItem.Name == "UsersTab" && SelectedUser != null)
+                    switch (SelectedTabItem.Name)
                     {
-                        resultStr = DataWorker.DeleteUser(SelectedUser);
-                        UpdateAllDataView();
-                    }
-                    // удаление продукт
-                    if (SelectedTabItem.Name == "ProductsTab" && SelectedProduct != null)
-                    {
-                        resultStr = DataWorker.DeleteProduct(SelectedProduct);
-                        UpdateAllDataView();
-                    }
-                    // удаление отзыва
-                    if (SelectedTabItem.Name == "ReviewsTab" && SelectedReview != null)
-                    {
-                        resultStr = DataWorker.DeleteReview(SelectedReview);
-                        UpdateAllDataView();
-                    }
-                    // удаление заказа
-                    if (SelectedTabItem.Name == "PurchasesTab" && SelectedPurchase != null)
-                    {
-                        resultStr = DataWorker.DeletePurchase(SelectedPurchase);
-                        UpdateAllDataView();
+                        case "UsersTab" when SelectedUser != null:
+                            resultStr = DataWorker.DeleteUser(SelectedUser);
+                            break;
+                        case "ProductsTab" when SelectedProduct != null:
+                            resultStr = DataWorker.DeleteProduct(SelectedProduct);
+                            break;
+                        case "ReviewsTab" when SelectedReview != null:
+                            resultStr = DataWorker.DeleteReview(SelectedReview);
+                            break;
+                        case "PurchasesTab" when SelectedPurchase != null:
+                            resultStr = DataWorker.DeletePurchase(SelectedPurchase);
+                            break;
                     }
 
+                    UpdateCurrentTabData();
                     ShowMessageToUser(resultStr);
                     SetNullValuesToProperties();
-                }
-                );
+                });
             }
         }
         #endregion
 
-
         #region COMMANDS_OPEN_WINDOWS
-
-        // команда для открытия окна продукта
         private RelayCommand openAddNewProduct;
         public RelayCommand OpenAddNewProduct
         {
@@ -498,8 +478,6 @@ namespace AutoMarket.ViewModel
             }
         }
 
-
-        // команда для редактирования элемента
         private RelayCommand openEditItem;
         public RelayCommand OpenEditItem
         {
@@ -507,24 +485,17 @@ namespace AutoMarket.ViewModel
             {
                 return openEditItem ?? new RelayCommand(obj =>
                 {
-                   
-                    // удаление продукт
-                    if (SelectedTabItem.Name == "ProductsTab" && SelectedProduct != null)
+                    if (SelectedTabItem?.Name == "ProductsTab" && SelectedProduct != null)
                     {
                         OpenEditProductWindow(SelectedProduct);
                     }
-
                     SetNullValuesToProperties();
                 });
             }
         }
         #endregion
 
-
         #region METHODS_OPEN_WINDOW
-        // методы открытия окон
-        // добавление
-
         private void OpenAddProductWindow()
         {
             AddNewProductView addProductWindow = new AddNewProductView();
@@ -537,7 +508,6 @@ namespace AutoMarket.ViewModel
             SetCenterPositionAndOpen(editProductWindow);
         }
 
-
         private void SetCenterPositionAndOpen(Window window)
         {
             window.Owner = Application.Current.MainWindow;
@@ -546,92 +516,20 @@ namespace AutoMarket.ViewModel
         }
         #endregion
 
-
         #region UPDATE_VIEWS
-
         private void SetNullValuesToProperties()
         {
-            // категории
             CategoryName = null;
-            // продукты
             CategoryProduct = null;
             ProductName = null;
             QuantityProduct = 0;
             PriceProduct = 0;
             DescriptionProduct = null;
-            // пользователи
-
             UserLogin = null;
             UserPassword = null;
             UserPhoneNumber = 0;
-
-            // производители
             ManufacturerProduct = null;
-
         }
-
-        private void UpdateAllDataView()
-        {
-            UpdateAllCategoriesView();
-            UpdateAllProductsView();
-            UpdateAllUsersView();
-            UpdateAllManufacturerView();
-            UpdateAllReviewView();
-            UpdateAllPurchasesView();
-        }
-        private void UpdateAllCategoriesView()
-        {
-            AllCategories = DataWorker.GetAllCategories();
-            AdminView.AllCategoriesView.ItemsSource = null;
-            AdminView.AllCategoriesView.Items.Clear();
-            AdminView.AllCategoriesView.ItemsSource = AllCategories;
-            AdminView.AllCategoriesView.Items.Refresh();
-        }
-
-        private void UpdateAllManufacturerView()
-        {
-            AllManufacturers = DataWorker.GetAllManufacturers();
-            AdminView.AllManufacturersView.ItemsSource = null;
-            AdminView.AllManufacturersView.Items.Clear();
-            AdminView.AllManufacturersView.ItemsSource = AllManufacturers;
-            AdminView.AllManufacturersView.Items.Refresh();
-        }
-
-        private void UpdateAllProductsView()
-        {
-            AllProducts = DataWorker.GetAllProducts();
-            AdminView.AllProductsView.ItemsSource = null;
-            AdminView.AllProductsView.Items.Clear();
-            AdminView.AllProductsView.ItemsSource = AllProducts;
-            AdminView.AllProductsView.Items.Refresh();
-        }
-
-        private void UpdateAllUsersView()
-        {
-            AllUsers = DataWorker.GetAllUsers();
-            AdminView.AllUsersView.ItemsSource = null;
-            AdminView.AllUsersView.Items.Clear();
-            AdminView.AllUsersView.ItemsSource = AllUsers;
-            AdminView.AllUsersView.Items.Refresh();
-        }
-
-        private void UpdateAllReviewView()
-        {
-            AllReviews = DataWorker.GetAllReviews();
-            AdminView.AllReviewsView.ItemsSource = null;
-            AdminView.AllReviewsView.Items.Clear();
-            AdminView.AllReviewsView.ItemsSource = AllReviews;
-            AdminView.AllReviewsView.Items.Refresh();
-        }
-
-        private void UpdateAllPurchasesView()
-        {
-            AllPurchases = DataWorker.GetAllPurchases();
-            AdminView.AllPurchasesView.ItemsSource = null;
-            AdminView.AllPurchasesView.Items.Clear();
-            AdminView.AllPurchasesView.ItemsSource = AllPurchases;
-            AdminView.AllPurchasesView.Items.Refresh();
-        }
-        #endregion        
+        #endregion
     }
 }

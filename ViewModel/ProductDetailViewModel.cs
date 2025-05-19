@@ -41,7 +41,7 @@ namespace AutoMarket.ViewModel
 
         private void LoadReviews()
         {
-            var reviews = DataWorker.GetReviewsByProductId(Product.Id); // Метод должен возвращать List<Review>
+            var reviews = DataWorker.GetReviewsByProductId(Product.Id);
             Reviews = new ObservableCollection<Review>(reviews);
         }
 

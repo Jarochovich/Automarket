@@ -104,7 +104,6 @@ namespace AutoMarket.ViewModel
 
             ShowMessageToUser(result);
 
-            // Закрытие окна
             if (window is Window w) w.Close();
         }
 

@@ -17,8 +17,6 @@ namespace AutoMarket.ViewModel
         private int _rating;
         private bool _hasUserReviewed;
 
-
-
         public Purchase Purchase { get; set; }
 
         public Product Product
@@ -90,13 +88,13 @@ namespace AutoMarket.ViewModel
             {
                 using (var context = new ApplicationContext())
                 {
-                    // Загружаем продукт с производителем
+                    // продукт с производителем
                     Product = context.Products
                         .Include(p => p.Manufacturer)
                         .AsNoTracking()
                         .FirstOrDefault(p => p.Id == Purchase.ProductId);
 
-                    // Проверяем наличие отзыва
+                    // наличие отзыва
                     var review = context.Reviews
                         .AsNoTracking()
                         .FirstOrDefault(r => r.UserId == Purchase.UserId && r.ProductId == Purchase.ProductId);

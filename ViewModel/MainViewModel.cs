@@ -185,7 +185,7 @@ namespace AutoMarket.ViewModel
             {
                 _allProducts = value;
                 OnPropertyChanged(nameof(AllProducts));
-                // При изменении всех товаров обновляем максимальную цену
+
                 if (_allProducts != null && _allProducts.Any())
                 {
                     MaxAvailablePrice = _allProducts.Max(p => p.Price);
@@ -245,7 +245,6 @@ namespace AutoMarket.ViewModel
             CartVM = new CartViewModel(this);
             CartVM.CartUpdated += OnCartUpdated;
 
-            // Инициализация коллекций
             ShowPopularProductsCommand = new RelayCommand(_ => ShowPopularProducts());
             AllProducts = new ObservableCollection<Product>();
             Categories = new ObservableCollection<Category>(DataWorker.GetAllCategories());
@@ -253,7 +252,6 @@ namespace AutoMarket.ViewModel
             FilteredProducts = new ObservableCollection<Product>();
             PagedProducts = new ObservableCollection<Product>();
 
-            // Команды
             CartCommand = new RelayCommand(OpenCart);
             LogoutCommand = new RelayCommand(_ => Logout());
             OpenProductDetailsCommand = new RelayCommand(p => OpenProductDetails((Product)p));
@@ -261,13 +259,9 @@ namespace AutoMarket.ViewModel
             AddToCartCommand = new RelayCommand(ExecuteAddToCart);
             ProfileCommand = new RelayCommand(_ => OpenAccount());
 
-            // Пагинация
             NextPageCommand = new RelayCommand(_ => GoToNextPage());
             PreviousPageCommand = new RelayCommand(_ => GoToPreviousPage());
 
-
-
-            // Загрузка данных
             LoadAllProductsWithRatings();
             _showPopular = true;
             LoadProducts();
@@ -275,7 +269,7 @@ namespace AutoMarket.ViewModel
 
         private void OnCartUpdated()
         {
-            // Загружаем актуальные данные из базы
+            // Актуальные данные из бд
             var allProductsFromDb = DataWorker.GetAllProducts();
 
             foreach (var product in AllProducts)
@@ -405,7 +399,7 @@ namespace AutoMarket.ViewModel
             }
             else
             {
-                // Устанавливаем рейтинг для всех товаров
+                // Рейтинг для всех товаров
                 foreach (var product in AllProducts)
                 {
                     var reviews = DataWorker.GetReviewsByProductId(product.Id);
