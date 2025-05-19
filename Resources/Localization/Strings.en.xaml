@@ -6,6 +6,7 @@
     <sys:String x:Key="Register">Register</sys:String>
     <sys:String x:Key="Logout">Logout</sys:String>
     <sys:String x:Key="Categories">Categories</sys:String>
+    <sys:String x:Key="Category">Category</sys:String>
     <sys:String x:Key="Filtration">Filtration</sys:String>
     <sys:String x:Key="Apply_filter">Apply filter</sys:String>
     <sys:String x:Key="Reset_filter">Reset filter</sys:String>
@@ -55,9 +56,44 @@
 
     <sys:String x:Key="MainView">Main window</sys:String>
     <sys:String x:Key="AdminPanel">Admin Panel</sys:String>
+    <sys:String x:Key="Product_search">Product search...</sys:String>
+    <sys:String x:Key="Search">Search...</sys:String>
+    <sys:String x:Key="Select_category">Select category</sys:String>
+    <sys:String x:Key="More_details">Details</sys:String>
+    <sys:String x:Key="Rating">Rating: </sys:String>
     
 
 
+
+    <sys:String x:Key="Account_PersonalCabinet" xml:lang="en-US">Personal Cabinet</sys:String>
+    <sys:String x:Key="Account_PersonalInfo" xml:lang="en-US">Personal Information</sys:String>
+    <sys:String x:Key="Account_MyOrders" xml:lang="en-US">My Orders</sys:String>
+    <sys:String x:Key="Account_PurchaseArchive" xml:lang="en-US">Purchase Archive</sys:String>
+    <sys:String x:Key="Account_Login" xml:lang="en-US">Login</sys:String>
+    <sys:String x:Key="Account_Phone" xml:lang="en-US">Phone</sys:String>
+    <sys:String x:Key="Account_Balance" xml:lang="en-US">Balance</sys:String>
+    <sys:String x:Key="Account_Settings" xml:lang="en-US">Settings</sys:String>
+    <sys:String x:Key="Account_Language" xml:lang="en-US">Language</sys:String>
+    <sys:String x:Key="Account_Theme" xml:lang="en-US">Theme</sys:String>
+    <sys:String x:Key="Account_PurchaseHistory" xml:lang="en-US">Purchase History</sys:String>
+    <sys:String x:Key="Account_PendingConfirmation" xml:lang="en-US">Pending Confirmation</sys:String>
+
+    <sys:String x:Key="Account_TopUpBalance" xml:lang="en-US">Top up balance</sys:String>
+    <sys:String x:Key="Account_Take" xml:lang="en-US">Take</sys:String>
+    <sys:String x:Key="Account_Cancel" xml:lang="en-US">Cancel</sys:String>
+    <sys:String x:Key="Account_RateProduct" xml:lang="en-US">Rate the product:</sys:String>
+    <sys:String x:Key="Account_YourReview" xml:lang="en-US">Your review...</sys:String>
+    <sys:String x:Key="Account_SubmitReview" xml:lang="en-US">Submit review</sys:String>
+    <sys:String x:Key="Account_UpdateReview" xml:lang="en-US">Update review</sys:String>
+    <sys:String x:Key="Account_BackToShop" xml:lang="en-US">Back to shop</sys:String>
+    <sys:String x:Key="Account_Product" xml:lang="en-US">Product</sys:String>
+    <sys:String x:Key="Account_Quantity" xml:lang="en-US">Quantity</sys:String>
+    <sys:String x:Key="Account_Amount" xml:lang="en-US">Amount</sys:String>
+    <sys:String x:Key="Account_Actions" xml:lang="en-US">Actions</sys:String>
+
+    <sys:String x:Key="Popular_Products" xml:lang="en-US">Popular Products</sys:String>
+    
+    
 
 
 

@@ -58,15 +58,7 @@ namespace AutoMarket.Model
             }
         }
 
-        // получить максимальную цену продукта
-        public static decimal GetMaxPriceByProduct()
-        {
-            using (var db = new ApplicationContext())
-            {
-                return db.Products
-                         .Max(p => p.Price);
-            }
-        }
+        
 
         // Списание товара
         public static int DecreaseProductQuantity(int productId, int count)
@@ -89,21 +81,6 @@ namespace AutoMarket.Model
             }
         }
 
-        public static int IncreaseProductQuantity(int productId, int count)
-        {
-            using (var context = new ApplicationContext())
-            {
-                var product = context.Products.FirstOrDefault(p => p.Id == productId);
-                if (product != null)
-                {
-                    product.Quantity += count;
-                    context.SaveChanges();
-                    return product.Quantity;
-                }
-                return -1;
-            }
-        }
-
 
 
         // Возврат на склад
@@ -122,7 +99,7 @@ namespace AutoMarket.Model
                     var product = db.Products.FirstOrDefault(p => p.Id == purchase.ProductId);
                     if (product != null)
                     {
-                        product.Quantity += purchase.Quantity; // ✅ Возвращаем товар на склад
+                        product.Quantity += purchase.Quantity; // Возвращаем товар на склад
                     }
 
                     db.SaveChanges();
@@ -134,101 +111,6 @@ namespace AutoMarket.Model
                 return false;
             }
         }
-
-
-        public static int GetFilteredProductCount(int? categoryId, int? manufacturerId,
-        decimal minPrice, decimal maxPrice, string searchText)
-        {
-            using (var context = new ApplicationContext())
-            {
-                var query = context.Products.AsQueryable();
-
-                if (categoryId.HasValue)
-                    query = query.Where(p => p.CategoryId == categoryId.Value);
-
-                if (manufacturerId.HasValue)
-                    query = query.Where(p => p.ManufacturerId == manufacturerId.Value);
-
-                query = query.Where(p => p.Price >= minPrice && p.Price <= maxPrice);
-
-                if (!string.IsNullOrEmpty(searchText))
-                    query = query.Where(p => p.Name.Contains(searchText));
-
-                return query.Count();
-            }
-        }
-
-        public static List<Product> GetFilteredProducts(int? categoryId, int? manufacturerId,
-            decimal minPrice, decimal maxPrice, string searchText,
-            int pageSize, int skip)
-        {
-            using (var context = new ApplicationContext())
-            {
-                var query = context.Products
-                    .Include(p => p.Manufacturer)
-                    .Include(p => p.Category)
-                    .AsQueryable();
-
-                if (categoryId.HasValue)
-                    query = query.Where(p => p.CategoryId == categoryId.Value);
-
-                if (manufacturerId.HasValue)
-                    query = query.Where(p => p.ManufacturerId == manufacturerId.Value);
-
-                query = query.Where(p => p.Price >= minPrice && p.Price <= maxPrice);
-
-                if (!string.IsNullOrEmpty(searchText))
-                    query = query.Where(p => p.Name.Contains(searchText));
-
-                return query
-                    .OrderBy(p => p.Id)
-                    .Skip(skip)
-                    .Take(pageSize)
-                    .ToList();
-            }
-        }
-
-
-
-
-       static private string ValidationFieldProduct(string finalName, decimal finalPrice, string finalDescription, byte[] finalImageData, Category finalCategory, Manufacturer finalManufacturer)
-        {
-            // Валидация
-            if (finalCategory == null)
-                return "Не указана категория продукта";
-
-            if (finalManufacturer == null)
-                return "Не указан производитель";
-
-            if (string.IsNullOrWhiteSpace(finalName))
-                return "Не указано название продукта";
-
-            if (finalName.Length < 2)
-                return "Название продукта должно содержать не менее 2 символов";
-
-            if (finalPrice <= 0)
-                return "Цена должна быть больше нуля";
-
-            if (string.IsNullOrWhiteSpace(finalDescription))
-                return "Не указано описание продукта";
-
-            if (finalDescription.Length < 10)
-                return "Описание товара должно содержать не менее 10 символов";
-
-            if (finalImageData == null || finalImageData.Length == 0)
-                return "Не добавлено изображение товара";
-
-            return "Такого продукта нет!";                                      
-        }                                    
-
-
-
-
-
-
-
-
-
 
 
 
@@ -277,34 +159,6 @@ namespace AutoMarket.Model
             }
         }
 
-        // проверка баланса пользователя
-        public static bool ProcessPayment(int userId, decimal amount)
-        {
-            using (ApplicationContext db = new ApplicationContext())
-            {
-                using (var transaction = db.Database.BeginTransaction())
-                {
-                    try
-                    {
-                        var user = db.Users.FirstOrDefault(u => u.Id == userId);
-                        if (user == null) return false;
-
-                        if (user.Balance < amount) return false;
-
-                        user.Balance -= amount;
-                        db.SaveChanges();
-                        transaction.Commit();
-                        return true;
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        return false;
-                    }
-                }
-            }
-        }
-
         public static Product GetProductById(int productId)
         {
             try
@@ -312,7 +166,7 @@ namespace AutoMarket.Model
                 using (var context = new ApplicationContext())
                 {
                     return context.Products
-                        .Include(p => p.Manufacturer) // Если нужно загрузить связанного производителя
+                        .Include(p => p.Manufacturer)
                         .FirstOrDefault(p => p.Id == productId);
                 }
             }
@@ -336,7 +190,7 @@ namespace AutoMarket.Model
                     if (user.PasswordHash == hashedPassword)
                     {
                         // Если логин совпадает с администраторским
-                        return login == "admin"; // Можно добавить более гибкую логику, если нужно
+                        return login == "admin";
                     }
                 }
             }
@@ -366,33 +220,6 @@ namespace AutoMarket.Model
             }
         }
 
-        // Обновить статус покупки
-        public static bool UpdatePurchaseStatus(int purchaseId, PurchaseStatus status)
-        {
-            using (var db = new ApplicationContext())
-            {
-                using (var transaction = db.Database.BeginTransaction())
-                {
-                    try
-                    {
-                        var purchase = db.Purchases.FirstOrDefault(p => p.Id == purchaseId);
-                        if (purchase == null) return false;
-
-                        purchase.Status = status;
-                        db.SaveChanges();
-                        transaction.Commit();
-                        return true;
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        return false;
-                    }
-                }
-            }
-        }
-
-
 
         // Получить все заказы
         public static List<Purchase> GetAllPurchases()
@@ -405,22 +232,6 @@ namespace AutoMarket.Model
             }
         }
 
-
-
-
-        // Получить архивные покупки (подтвержденные и отмененные)
-        public static List<Purchase> GetArchivedPurchases(int userId)
-        {
-            using (var db = new ApplicationContext())
-            {
-                return db.Purchases
-                    .Include(p => p.Product)
-                    .Where(p => p.UserId == userId &&
-                           (p.Status == PurchaseStatus.Confirmed || p.Status == PurchaseStatus.Canceled))
-                    .OrderByDescending(p => p.PurchaseDate)
-                    .ToList();
-            }
-        }
 
         public static bool ConfirmPurchase(Purchase purchase)
         {
@@ -453,32 +264,6 @@ namespace AutoMarket.Model
             }
         }
 
-
-        public static void SaveConfirmedPurchase(Purchase purchase)
-        {
-            using (var db = new ApplicationContext())
-            {
-                var product = db.Products.FirstOrDefault(p => p.Id == purchase.ProductId);
-                if (product == null || product.Quantity < purchase.Quantity)
-                    throw new InvalidOperationException("Недостаточно товара на складе");
-
-                product.Quantity -= purchase.Quantity;
-                purchase.Status = PurchaseStatus.Confirmed;
-                db.Purchases.Add(purchase);
-                db.SaveChanges();
-            }
-        }
-
-
-
-        // Добавить новую покупку (уже есть SavePurchase, но можно добавить статус по умолчанию)
-        public static void SavePurchase(Purchase purchase)
-        {
-            using var db = new ApplicationContext();
-            purchase.Status = PurchaseStatus.Pending; // Устанавливаем статус по умолчанию
-            db.Purchases.Add(purchase);
-            db.SaveChanges();
-        }
 
         public static Purchase SavePendingPurchase(Purchase purchase)
         {
@@ -544,42 +329,6 @@ namespace AutoMarket.Model
         }
 
 
-
-        public static bool AddReview(int userId, int productId, string comment, int rating)
-        {
-            try
-            {
-                using (var context = new ApplicationContext())
-                {
-                    var user = context.Users.Find(userId);
-                    var product = context.Products.Find(productId);
-
-                    if (user == null || product == null)
-                        return false;
-
-                    var review = new Review
-                    {
-                        UserId = userId,
-                        ProductId = productId,
-                        Comment = comment,
-                        Rating = rating,
-                        DateCreated = DateTime.Now,
-                        AuthorName = user.Login // !!! ВАЖНО: заполняем обязательное поле
-                    };
-
-                    context.Reviews.Add(review);
-                    context.SaveChanges();
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                string error = ex.InnerException?.Message ?? ex.Message;
-                MessageBox.Show($"Ошибка при сохранении: {error}");
-                return false;
-            }
-        }
-
         public static bool UserHasReviewedProduct(int userId, int productId)
         {
             using (var context = new ApplicationContext())
@@ -600,32 +349,7 @@ namespace AutoMarket.Model
             }
         }
 
-        public static Review GetUserReview(int userId, int productId)
-        {
-            using (var context = new ApplicationContext())
-            {
-                return context.Reviews.FirstOrDefault(r => r.UserId == userId && r.ProductId == productId);
-            }
-        }
 
-        // создать категорию
-        public static string CreateCategory(string category)
-        {
-            string result = "Категория уже существует";
-            using (ApplicationContext db = new ApplicationContext())
-            {
-                // проверка на существование
-                bool checkIsExist = db.Categories.Any(el => el.Name == category);
-                if (!checkIsExist)
-                {
-                    Category newCategory = new Category { Name = category };
-                    db.Categories.Add(newCategory);
-                    db.SaveChanges();
-                    result = "Категория добавлена!";
-                }
-                return result;
-            }
-        }
 
         // добавить новый продукт
         public static string CreateProduct(Category category, Manufacturer manufacturer, string name, int quantity, decimal price, string description, byte[] imageData = null)
@@ -738,19 +462,6 @@ namespace AutoMarket.Model
             return true;
         }
 
-        // удалить категорию
-        public static string DeleteCategory(Category category)
-        {
-            string result = "Такой категории нет!";
-
-            using (ApplicationContext db = new ApplicationContext())
-            {
-                db.Categories.Remove(category);
-                db.SaveChanges();
-                result = $"Категория {category.Name} успешно удалена!";
-            }
-            return result;
-        }
 
         // удалить отзыв
         public static string DeleteReview(Review review)
@@ -809,23 +520,7 @@ namespace AutoMarket.Model
             return result;
         }
 
-        // изменить категорию
-        public static string EditCategory(Category oldCategory, string newName)
-        {
-            string result = "Такой категории нет!";
-
-            using (ApplicationContext db = new ApplicationContext())
-            {
-                Category category = db.Categories.FirstOrDefault(cat => cat.Id == oldCategory.Id);
-                if (category != null)
-                {
-                    category.Name = newName;
-                    db.SaveChanges();
-                    result = $"Категория успешно изменена c {oldCategory.Name} на {category.Name}!";
-                }    
-            }
-            return result;
-        }
+        
 
         public static string EditProduct(Product oldProduct, Category newCategory, Manufacturer newManufacturer, string newName, int newQuantity, string newPriceStr, string newDescription, byte[] newImageData)
         {
@@ -886,36 +581,6 @@ namespace AutoMarket.Model
             }
         }
 
-        // изменить пользователя
-        public static string EditUser(User oldUser, string newLogin, string newPassword, string newPhone)
-        {
-            string result = "Такого пользователя нет!";
-
-            using (ApplicationContext db = new ApplicationContext())
-            {
-                User user = db.Users.FirstOrDefault(us => us.Id == oldUser.Id);
-                if (user != null)
-                {
-                    // Обновляем логин и телефон
-                    user.Login = newLogin;
-                    user.PhoneNumber = newPhone;
-
-                    // Если пароль изменился, хешируем его и сохраняем в базу
-                    if (!string.IsNullOrWhiteSpace(newPassword))
-                    {
-                        // Генерация новой соли и хеша пароля
-                        var salt = Hashing.GenerateSalt();
-                        var passwordHash = Hashing.HashPassword(newPassword, salt);
-
-                        user.PasswordHash = passwordHash;
-                        user.PasswordSalt = salt;
-                    }
-
-                    db.SaveChanges();
-                    result = $"Пользователь {oldUser.Login} успешно изменен!";
-                }
-            }
-            return result;
-        }
+ 
     }
 }

@@ -6,6 +6,7 @@
     <sys:String x:Key="Register">Регистрация</sys:String>
     <sys:String x:Key="Logout">Выйти</sys:String>
     <sys:String x:Key="Categories">Категории</sys:String>
+    <sys:String x:Key="Category">Категория</sys:String>
     <sys:String x:Key="Filtration">Фильтрация</sys:String>
     <sys:String x:Key="Apply_filter">Применить фильтр</sys:String>
     <sys:String x:Key="Reset_filter">Сбросить фильтр</sys:String>
@@ -56,5 +57,40 @@
 
     <sys:String x:Key="MainView">Главное окно</sys:String>
     <sys:String x:Key="AdminPanel">Панель администратора</sys:String>
+    <sys:String x:Key="Product_search">Поиск товара...</sys:String>
+    <sys:String x:Key="Search">Поиск...</sys:String>
+    <sys:String x:Key="Select_category">Выбрать категорию</sys:String>
+    <sys:String x:Key="More_details">Подробнее</sys:String>
+    <sys:String x:Key="Rating">Рейтинг: </sys:String>
+
+    <sys:String x:Key="Account_PersonalCabinet">Личный кабинет</sys:String>
+    <sys:String x:Key="Account_PersonalInfo">Персональная информация</sys:String>
+    <sys:String x:Key="Account_MyOrders">Мои заказы</sys:String>
+    <sys:String x:Key="Account_PurchaseArchive">Архив покупок</sys:String>
+    <sys:String x:Key="Account_Login">Логин</sys:String>
+    <sys:String x:Key="Account_Phone">Телефон</sys:String>
+    <sys:String x:Key="Account_Balance">Баланс</sys:String>
+    <sys:String x:Key="Account_Settings">Настройки</sys:String>
+    <sys:String x:Key="Account_Language">Язык</sys:String>
+    <sys:String x:Key="Account_Theme">Тема</sys:String>
+    <sys:String x:Key="Account_PurchaseHistory">История покупок</sys:String>
+    <sys:String x:Key="Account_PendingConfirmation">Ожидают подтверждения</sys:String>
+
+    <sys:String x:Key="Account_TopUpBalance">Пополнить баланс</sys:String>
+    <sys:String x:Key="Account_Take">Забрать</sys:String>
+    <sys:String x:Key="Account_Cancel">Отказаться</sys:String>
+    <sys:String x:Key="Account_RateProduct">Оцените товар:</sys:String>
+    <sys:String x:Key="Account_YourReview">Ваш отзыв...</sys:String>
+    <sys:String x:Key="Account_SubmitReview">Оставить отзыв</sys:String>
+    <sys:String x:Key="Account_UpdateReview">Обновить отзыв</sys:String>
+    <sys:String x:Key="Account_BackToShop">Вернуться в магазин</sys:String>
+    <sys:String x:Key="Account_Product">Товар</sys:String>
+    <sys:String x:Key="Account_Quantity">Количество</sys:String>
+    <sys:String x:Key="Account_Amount">Сумма</sys:String>
+    <sys:String x:Key="Account_Actions">Действия</sys:String>
+
+    <sys:String x:Key="Popular_Products" xml:lang="en-US">Популярные товары</sys:String>
+    
+
 
 </ResourceDictionary>

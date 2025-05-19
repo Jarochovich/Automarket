@@ -29,14 +29,12 @@ namespace AutoMarket.ViewModel
             }
         }
 
-
-        // языки
+        // Языки
         public ICommand SetRussianCommand { get; }
         public ICommand SetEnglishCommand { get; }
 
         public BaseViewModel()
         {
-            // Инициализация темы (лучше делать асинхронно, если загрузка тяжелая)
             _isDarkTheme = ThemeManagerHelper.IsDarkTheme();
             ThemeManagerHelper.SetDarkTheme(_isDarkTheme);
 
@@ -45,6 +43,7 @@ namespace AutoMarket.ViewModel
             SetEnglishCommand = new RelayCommand(_ => App.ChangeLanguage("en"));
         }
 
+        // Пользовательское окно вывода инфы
         public void ShowMessageToUser(string message)
         {
             MessageView messageView = new MessageView
@@ -53,7 +52,6 @@ namespace AutoMarket.ViewModel
             };
             messageView.ShowDialog();
         }
-
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)

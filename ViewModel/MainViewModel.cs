@@ -13,10 +13,10 @@ namespace AutoMarket.ViewModel
 {
     public class MainViewModel : BaseViewModel
     {
-        //Заголовок
-       
-        private bool _showPopular = true;
 
+    
+        private bool _showPopular = true;
+        //Заголовок
         public string Header
         {
             get
@@ -167,8 +167,8 @@ namespace AutoMarket.ViewModel
                     _showPopular = false;
                     _selectedCategory = value;
                     OnPropertyChanged(nameof(SelectedCategory));
-                    OnPropertyChanged(nameof(Header)); // уведомляем, что Header изменился
-                    OnPropertyChanged(nameof(Quantity)); // Важно!
+                    OnPropertyChanged(nameof(Header));
+                    OnPropertyChanged(nameof(Quantity));
 
                     LoadProducts();
                 }
@@ -244,6 +244,7 @@ namespace AutoMarket.ViewModel
         {
             CartVM = new CartViewModel(this);
             CartVM.CartUpdated += OnCartUpdated;
+
             // Инициализация коллекций
             ShowPopularProductsCommand = new RelayCommand(_ => ShowPopularProducts());
             AllProducts = new ObservableCollection<Product>();
@@ -397,7 +398,6 @@ namespace AutoMarket.ViewModel
                     }
 
                     FilteredProducts = new ObservableCollection<Product>(products);
-                    //Header = SelectedCategory?.Name;
 
                     CurrentPage = 1;
                     CalculateTotalPages();

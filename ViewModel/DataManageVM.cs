@@ -461,12 +461,6 @@ namespace AutoMarket.ViewModel
                         resultStr = DataWorker.DeleteProduct(SelectedProduct);
                         UpdateAllDataView();
                     }
-                    // удаление категория
-                    if (SelectedTabItem.Name == "CategoriesTab" && SelectedCategory != null)
-                    {
-                        resultStr = DataWorker.DeleteCategory(SelectedCategory);
-                        UpdateAllDataView();
-                    }
                     // удаление отзыва
                     if (SelectedTabItem.Name == "ReviewsTab" && SelectedReview != null)
                     {

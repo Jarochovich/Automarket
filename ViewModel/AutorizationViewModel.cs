@@ -11,7 +11,7 @@ using System.Windows.Input;
 
 namespace AutoMarket.ViewModel
 {
-    public class AutorizationViewModel : BaseViewModel, INotifyPropertyChanged, IDataErrorInfo 
+    public class AutorizationViewModel : BaseViewModel, IDataErrorInfo 
     {
         private string _login;
         private string _password;

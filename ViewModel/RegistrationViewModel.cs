@@ -128,7 +128,7 @@ namespace AutoMarket.ViewModel
         }
 
         // Регистрация
-        private async void OnRegister() // Добавляем async
+        private async void OnRegister()
         {
             if (HasValidationErrors())
             {
@@ -196,7 +196,7 @@ namespace AutoMarket.ViewModel
                     nameof(ConfirmPassword) => Password != ConfirmPassword ? "Пароли не совпадают" : null,
                     nameof(PhoneNumber) => IsValidPhoneNumber(PhoneNumber)
                         ? null
-                        : "Номер должен быть в формате +375 (XX) XXX-XX-XX",
+                        : "Номер должен быть в формате 375 (XX) XXX-XX-XX",
                     _ => null
                 };
             }
